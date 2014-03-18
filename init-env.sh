@@ -8,7 +8,7 @@ function to-dir() {
 function init-git() {
     if [ ! -d .git ]; then
 	git init
-	git remote add origin "git@github.com:moonlite/${1}.git"
+	git remote add origin "https://github.com/moonlite/${1}.git"
 	git fetch
 	git checkout master
     fi
@@ -53,7 +53,7 @@ function setup-jhbuild() {
     if [ ! -x "${HOME}/.local/bin/jhbuild" ]; then
         echo "Setting up JHBuild..."
         to-dir "${HOME}/Code/jhbuild"
-        git clone git://git.gnome.org/jhbuild . || git pull
+        git clone https://git.gnome.org/browse/jhbuild . || git pull
         ./autogen.sh --prefix="${HOME}/.local/" && make && make install
         echo
         echo "Installing JHBuild sysdeps..."
@@ -79,12 +79,18 @@ function setup-jhbuild() {
     cd "${HOME}"
 }
 
+function setup-rpmfusion() {
+    echo "Setting up RPM Fusion..."
+    sudo su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
+}
+
 function install-packages() {
     echo "Installing packages..."
-    pkcon install -y 	git git-bz emacs npm meld corebird 		\
-			cabal-install gnome-tweak-tool 			\
-			gnome-maps epiphany gnome-common yelp-tools 	\
-			intltool screen docbook-dtds docbook-style-xsl
+    pkcon install -y 					\
+        git git-bz emacs npm meld corebird 		\
+	cabal-install gnome-tweak-tool 			\
+	gnome-maps epiphany gnome-common yelp-tools 	\
+	intltool screen docbook-dtds docbook-style-xsl
 }
 
 function install-npm-packages() {
@@ -92,6 +98,8 @@ function install-npm-packages() {
     npm install -g grunt-cli jshint jake http-server
 }
 
+setup-rpmfusion
+echo
 install-packages
 echo
 setup-config
