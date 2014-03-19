@@ -90,7 +90,8 @@ function install-packages() {
         git git-bz emacs npm meld corebird 		\
 	cabal-install gnome-tweak-tool 			\
 	gnome-maps epiphany gnome-common yelp-tools 	\
-	intltool screen docbook-dtds docbook-style-xsl
+	intltool screen docbook-dtds docbook-style-xsl	\
+        git-flow
 }
 
 function install-npm-packages() {
