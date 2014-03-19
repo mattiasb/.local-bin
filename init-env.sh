@@ -98,6 +98,14 @@ function install-npm-packages() {
     npm install -g grunt-cli jshint jake http-server
 }
 
+# function install-spotify() {
+#     to-dir "${HOME}/Downloads/spotify-make"
+#     git clone https://github.com/leamas/spotify-make.git .
+#     ./configure --user
+#     make download
+#     make install
+#     make register
+# }
 setup-rpmfusion
 echo
 install-packages
