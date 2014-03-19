@@ -106,6 +106,12 @@ function install-npm-packages() {
 #     make install
 #     make register
 # }
+
+function install-chrome() {
+    echo "Installing Google Chrome..."
+    sudo su -c 'yum localinstall --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
+}
+
 setup-rpmfusion
 echo
 install-packages
@@ -117,5 +123,7 @@ echo
 install-npm-packages
 echo
 setup-jhbuild
+echo
+install-chrome
 echo
 echo "Done!"
