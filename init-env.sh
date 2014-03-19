@@ -95,7 +95,7 @@ function install-packages() {
 
 function install-npm-packages() {
     echo "Installing NPM packages..."
-    npm install -g grunt-cli jshint jake http-server
+    npm install -g grunt-cli jshint jake http-server editorconfig
 }
 
 # function install-spotify() {
