@@ -7,10 +7,10 @@ function to-dir() {
 
 function init-git() {
     if [ ! -d .git ]; then
-	git init
-	git remote add origin "https://github.com/moonlite/${1}.git"
-	git fetch
-	git checkout master
+        git init
+        git remote add origin "https://github.com/moonlite/${1}.git"
+        git fetch
+        git checkout master
     fi
 }
 
@@ -24,8 +24,8 @@ function init-dir () {
 
 function setup-link() {
     if [ ! -h "${2}" ]; then
-	mv "${2}" "${2}.bak"
-	ln -s "${1}" "${2}"
+        mv "${2}" "${2}.bak"
+        ln -s "${1}" "${2}"
     fi
 }
 
@@ -80,23 +80,27 @@ function setup-jhbuild() {
 }
 
 function setup-rpmfusion() {
-    echo "Setting up RPM Fusion..."
-    sudo su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
+    if [ ! -f /etc/yum.repos.d/rpmfusion-free.repo ] || [ ! -f /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then
+        echo "Setting up RPM Fusion..."
+        sudo su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
+    else
+        echo "RPM Fusion already set up..."
+    fi
 }
 
 function install-packages() {
     echo "Installing packages..."
-    pkcon install -y 					\
-        git git-bz emacs npm meld corebird 		\
-	cabal-install gnome-tweak-tool 			\
-	gnome-maps epiphany gnome-common yelp-tools 	\
-	intltool screen docbook-dtds docbook-style-xsl	\
-        git-flow
+    pkcon install -y                                    \
+        git git-bz emacs npm meld corebird              \
+        cabal-install gnome-tweak-tool                  \
+        gnome-maps epiphany gnome-common yelp-tools     \
+        intltool screen docbook-dtds docbook-style-xsl  \
+        gitflow gimp ctags ctags-etags
 }
 
 function install-npm-packages() {
     echo "Installing NPM packages..."
-    npm install -g grunt-cli jshint jake http-server editorconfig
+    npm install -g grunt-cli jshint jake http-server editorconfig 2> /dev/null
 }
 
 # function install-spotify() {
@@ -109,8 +113,12 @@ function install-npm-packages() {
 # }
 
 function install-chrome() {
-    echo "Installing Google Chrome..."
-    sudo su -c 'yum localinstall --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
+    if [ ! -x /usr/bin/google-chrome ]; then
+        echo "Installing Google Chrome..."
+        sudo su -c 'yum localinstall --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
+    else
+        echo "Google Chrome already installed..."
+    fi
 }
 
 setup-rpmfusion
