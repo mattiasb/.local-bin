@@ -95,7 +95,7 @@ function install-packages() {
         cabal-install gnome-tweak-tool                  \
         gnome-maps epiphany gnome-common yelp-tools     \
         intltool screen docbook-dtds docbook-style-xsl  \
-        gitflow gimp ctags ctags-etags
+        gitflow gimp clang
 }
 
 function install-npm-packages() {
