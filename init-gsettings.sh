@@ -22,6 +22,7 @@ gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-9 "['<Super>F9'
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-left "['']"
 gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-right "['']"
 gsettings set org.gnome.desktop.wm.keybindings panel-run-dialog "['<Super>r']"
+gsettings set org.gnome.desktop.wm.keybindings panel-main-menu "['','']"
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Super>1']"
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-2 "['<Super>2']"
 gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-3 "['<Super>3']"
