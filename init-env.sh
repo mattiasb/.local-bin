@@ -95,8 +95,9 @@ function install-packages() {
         cabal-install gnome-tweak-tool                  \
         gnome-maps epiphany gnome-common yelp-tools     \
         intltool screen docbook-dtds docbook-style-xsl  \
-        gitflow gimp clang ack gstreamer-plugins-ugly   \
-        gstreamer-plugins-bad gstreamer-ffmpeg
+        gitflow gimp clang clang-devel ack              \
+        gstreamer-plugins-ugly gstreamer-plugins-bad    \
+        gstreamer-ffmpeg
 }
 
 function install-npm-packages() {
