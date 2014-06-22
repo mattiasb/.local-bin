@@ -90,13 +90,36 @@ function setup-rpmfusion() {
 
 function install-packages() {
     echo "Installing packages..."
-    pkcon install -y                                    \
-        git git-bz emacs npm meld corebird              \
-        cabal-install gnome-tweak-tool                  \
-        gnome-maps epiphany gnome-common yelp-tools     \
-        intltool screen docbook-dtds docbook-style-xsl  \
-        gitflow gimp clang ack gstreamer-plugins-ugly   \
-        gstreamer-plugins-bad gstreamer-ffmpeg tig
+    pkcon install -y                    \
+        git                             \
+        git-bz                          \
+        gitflow                         \
+        tig                             \
+        meld                            \
+        emacs                           \
+        cabal-install                   \
+        clang                           \
+        npm                             \
+        ack                             \
+        screen                          \
+        tmux                            \
+                                        \
+        corebird                        \
+        epiphany                        \
+        gimp                            \
+        gnome-common                    \
+        gnome-maps                      \
+        gnome-tweak-tool                \
+                                        \
+        docbook-dtds                    \
+        docbook-style-xsl               \
+        intltool                        \
+        yelp-tools                      \
+                                        \
+        gstreamer-plugins-ugly          \
+        gstreamer-plugins-bad           \
+        gstreamer-ffmpeg                \
+
 }
 
 function install-npm-packages() {
