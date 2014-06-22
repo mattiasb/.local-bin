@@ -96,7 +96,7 @@ function install-packages() {
         gnome-maps epiphany gnome-common yelp-tools     \
         intltool screen docbook-dtds docbook-style-xsl  \
         gitflow gimp clang ack gstreamer-plugins-ugly   \
-        gstreamer-plugins-bad gstreamer-ffmpeg
+        gstreamer-plugins-bad gstreamer-ffmpeg tig
 }
 
 function install-npm-packages() {
