@@ -99,6 +99,7 @@ function install-packages() {
         emacs                           \
         cabal-install                   \
         clang                           \
+        golang                          \
         npm                             \
         ack                             \
         screen                          \
@@ -127,14 +128,10 @@ function install-npm-packages() {
     npm install -g grunt-cli jshint jake http-server editorconfig 2> /dev/null
 }
 
-# function install-spotify() {
-#     to-dir "${HOME}/Downloads/spotify-make"
-#     git clone https://github.com/leamas/spotify-make.git .
-#     ./configure --user
-#     make download
-#     make install
-#     make register
-# }
+function install-go-packages() {
+    echo "Installing go packages..."
+    go get github.com/nsf/gocode
+}
 
 function install-chrome() {
     if [ ! -x /usr/bin/google-chrome ]; then
