@@ -102,6 +102,9 @@ function install-packages() {
         golang                          \
         npm                             \
         ack                             \
+        global                          \
+        cmake                           \
+        cmake-devel                     \
         screen                          \
         tmux                            \
                                         \
