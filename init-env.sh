@@ -90,7 +90,8 @@ function setup-rpmfusion() {
 
 function install-packages() {
     echo "Installing packages..."
-    pkcon install -y                    \
+    PACKAGES="                          \
+        mercurial                       \
         git                             \
         git-bz                          \
         gitflow                         \
@@ -100,11 +101,11 @@ function install-packages() {
         cabal-install                   \
         clang                           \
         golang                          \
+        golang-godoc                    \
         npm                             \
         ack                             \
         global                          \
         cmake                           \
-        cmake-devel                     \
         screen                          \
         tmux                            \
                                         \
@@ -123,7 +124,10 @@ function install-packages() {
         gstreamer-plugins-ugly          \
         gstreamer-plugins-bad           \
         gstreamer-ffmpeg                \
-
+    "
+    for p in $PACKAGES; do 
+        pkcon install -y $p >/dev/null;
+    done
 }
 
 function install-npm-packages() {
@@ -134,6 +138,8 @@ function install-npm-packages() {
 function install-go-packages() {
     echo "Installing go packages..."
     go get github.com/nsf/gocode
+    go get github.com/dougm/goflymake
+    go get code.google.com/p/rog-go/exp/cmd/godef
 }
 
 function install-chrome() {
@@ -152,6 +158,8 @@ echo
 setup-config
 echo
 setup-emacs
+echo
+install-go-packages
 echo
 install-npm-packages
 echo
