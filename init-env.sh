@@ -90,14 +90,44 @@ function setup-rpmfusion() {
 
 function install-packages() {
     echo "Installing packages..."
-    pkcon install -y                                    \
-        git git-bz emacs npm meld corebird              \
-        cabal-install gnome-tweak-tool                  \
-        gnome-maps epiphany gnome-common yelp-tools     \
-        intltool screen docbook-dtds docbook-style-xsl  \
-        gitflow gimp clang clang-devel ack              \
-        gstreamer-plugins-ugly gstreamer-plugins-bad    \
-        gstreamer-ffmpeg
+    PACKAGES="                          \
+        mercurial                       \
+        git                             \
+        git-bz                          \
+        gitflow                         \
+        tig                             \
+        meld                            \
+        emacs                           \
+        cabal-install                   \
+        clang                           \
+        golang                          \
+        golang-godoc                    \
+        npm                             \
+        ack                             \
+        global                          \
+        cmake                           \
+        screen                          \
+        tmux                            \
+                                        \
+        corebird                        \
+        epiphany                        \
+        gimp                            \
+        gnome-common                    \
+        gnome-maps                      \
+        gnome-tweak-tool                \
+                                        \
+        docbook-dtds                    \
+        docbook-style-xsl               \
+        intltool                        \
+        yelp-tools                      \
+                                        \
+        gstreamer-plugins-ugly          \
+        gstreamer-plugins-bad           \
+        gstreamer-ffmpeg                \
+    "
+    for p in $PACKAGES; do 
+        pkcon install -y $p >/dev/null;
+    done
 }
 
 function install-npm-packages() {
@@ -105,14 +135,12 @@ function install-npm-packages() {
     npm install -g grunt-cli jshint jake http-server editorconfig 2> /dev/null
 }
 
-# function install-spotify() {
-#     to-dir "${HOME}/Downloads/spotify-make"
-#     git clone https://github.com/leamas/spotify-make.git .
-#     ./configure --user
-#     make download
-#     make install
-#     make register
-# }
+function install-go-packages() {
+    echo "Installing go packages..."
+    go get github.com/nsf/gocode
+    go get github.com/dougm/goflymake
+    go get code.google.com/p/rog-go/exp/cmd/godef
+}
 
 function install-chrome() {
     if [ ! -x /usr/bin/google-chrome ]; then
@@ -130,6 +158,8 @@ echo
 setup-config
 echo
 setup-emacs
+echo
+install-go-packages
 echo
 install-npm-packages
 echo
