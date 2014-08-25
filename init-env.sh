@@ -99,15 +99,20 @@ function install-packages() {
         meld                            \
         emacs                           \
         cabal-install                   \
-        clang                           \
+        clang-devel                     \
+        llvm-devel                      \
+        llvm-static                     \
         golang                          \
         golang-godoc                    \
         npm                             \
         ack                             \
         global                          \
         cmake                           \
+                                        \
         screen                          \
         tmux                            \
+                                        \
+        fedup                           \
                                         \
         corebird                        \
         epiphany                        \
