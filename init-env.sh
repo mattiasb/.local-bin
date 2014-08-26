@@ -114,9 +114,11 @@ function install-packages() {
                                         \
         fedup                           \
                                         \
+        california                      \
         corebird                        \
         epiphany                        \
         gimp                            \
+        gitg                            \
         gnome-common                    \
         gnome-maps                      \
         gnome-tweak-tool                \
@@ -130,9 +132,7 @@ function install-packages() {
         gstreamer-plugins-bad           \
         gstreamer-ffmpeg                \
     "
-    for p in $PACKAGES; do 
-        pkcon install -y $p >/dev/null;
-    done
+    sudo su -c "echo $PACKAGES | xargs yum install -y"
 }
 
 function install-npm-packages() {
@@ -170,6 +170,6 @@ install-npm-packages
 echo
 setup-jhbuild
 echo
-install-chrome
-echo
+# install-chrome
+# echo
 echo "Done!"
