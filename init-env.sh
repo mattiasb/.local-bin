@@ -114,6 +114,7 @@ function install-packages() {
                                         \
         fedup                           \
                                         \
+        bijiben                         \
         california                      \
         corebird                        \
         epiphany                        \
@@ -128,9 +129,10 @@ function install-packages() {
         intltool                        \
         yelp-tools                      \
                                         \
-        gstreamer-plugins-ugly          \
-        gstreamer-plugins-bad           \
-        gstreamer-ffmpeg                \
+        gstreamer1-plugins-ugly         \
+        gstreamer1-plugins-bad          \
+        gstreamer1-plugins-bad-freeworld\
+        gstreamer1-libav                \
     "
     sudo su -c "echo $PACKAGES | xargs yum install -y"
 }
@@ -156,6 +158,30 @@ function install-chrome() {
     fi
 }
 
+function install-rtags() {
+    if [ ! -x "${HOME}/.local/bin/rdm" ]; then
+        echo "Building RTags..."
+        if [ -d "${HOME}/Code/rtags" ]; then
+            echo "RTags clone already exists. Aborting."
+        else
+            to-dir "${HOME}/Code/rtags"
+            git clone https://github.com/Andersbakken/rtags.git .
+            git submodule update --init
+            to-dir "${HOME}/Code/rtags/build"
+            cmake -DCMAKE_INSTALL_PREFIX:PATH="${HOME}/.local/" .. && \
+                make                                               && \
+                make install
+            cd "${HOME}"
+            if [ -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
+                echo "Installing GCC wrapper symlinks..."
+                for COMP in `echo -e "gcc\nc++\ncc\ng++"`; do
+                    ln -s "${HOME}/.local/bin/gcc-rtags-wrapper.sh" "${HOME}/.local/bin/$COMP";
+                done
+            fi
+        fi
+    fi
+}
+
 setup-rpmfusion
 echo
 install-packages
@@ -170,6 +196,8 @@ install-npm-packages
 echo
 setup-jhbuild
 echo
-# install-chrome
-# echo
+install-chrome
+echo
+install-rtags
+echo
 echo "Done!"
