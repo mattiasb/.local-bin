@@ -165,8 +165,8 @@ function install-rtags() {
             echo "RTags clone already exists. Aborting."
         else
             to-dir "${HOME}/Code/rtags"
-            git clone https://github.com/Andersbakken/rtags.git .
-            git submodule update --init
+            git clone --depth 1 https://github.com/Andersbakken/rtags.git .
+            git submodule update  --init
             to-dir "${HOME}/Code/rtags/build"
             cmake -DCMAKE_INSTALL_PREFIX:PATH="${HOME}/.local/" .. && \
                 make                                               && \
