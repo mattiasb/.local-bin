@@ -52,11 +52,15 @@ function setup-bin() {
 #############
 
 function setup-emacs() {
-    echo "Setting up emacs..."
-    rm ~/.emacs 2> /dev/null
-    init-dir ".emacs.d"
-    setup-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
-    ( cd .emacs.d && cask install )
+    if [ -d "${HOME}/.emacs.d/" ]; then
+        echo "Emacs already set up..."
+    else
+        echo "Setting up Emacs..."
+        rm ~/.emacs 2> /dev/null
+        init-dir ".emacs.d"
+        setup-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
+        ( cd .emacs.d && cask install )
+    fi
 }
 
 function setup-config() {
@@ -73,7 +77,9 @@ function setup-config() {
 }
 
 function setup-jhbuild() {
-    if [ ! -x "${HOME}/.local/bin/jhbuild" ]; then
+    if [ -x "${HOME}/.local/bin/jhbuild" ]; then
+        echo "JHBuild already found..."
+    else
         echo "Setting up JHBuild..."
         to-dir "${HOME}/Code/jhbuild"
         git clone https://git.gnome.org/browse/jhbuild . || git pull
@@ -81,8 +87,6 @@ function setup-jhbuild() {
         echo
         echo "Installing JHBuild sysdeps..."
         jhbuild sysdeps --install
-    else
-        echo "JHBuild already found..."
     fi
 
     if [ ! -d /opt/gnome ]; then
@@ -103,11 +107,11 @@ function setup-jhbuild() {
 }
 
 function setup-rpmfusion() {
-    if [ ! -f /etc/yum.repos.d/rpmfusion-free.repo ] || [ ! -f /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then
+    if [ -f /etc/yum.repos.d/rpmfusion-free.repo ] && [ -f /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then
+        echo "RPM Fusion already set up..."
+    else
         echo "Setting up RPM Fusion..."
         sudo su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
-    else
-        echo "RPM Fusion already set up..."
     fi
 }
 
@@ -173,16 +177,18 @@ function install-go-packages() {
 }
 
 function install-chrome() {
-    if [ ! -x /usr/bin/google-chrome ]; then
+    if [ -x /usr/bin/google-chrome ]; then
+        echo "Google Chrome already installed..."
+    else
         echo "Installing Google Chrome..."
         sudo su -c 'yum localinstall --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
-    else
-        echo "Google Chrome already installed..."
     fi
 }
 
 function install-rtags() {
-    if [ ! -x "${HOME}/.local/bin/rdm" ]; then
+    if [ -x "${HOME}/.local/bin/rdm" ]; then
+        echo "RTags already installed..."
+    else
         echo "Building RTags..."
         if [ -d "${HOME}/Code/rtags" ]; then
             echo "RTags clone already exists. Aborting."
