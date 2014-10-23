@@ -41,8 +41,8 @@ function setup-bin() {
     else
 	target="${HOME}/.local/bin/${2}"
     fi
-
     setup-link "${1}" "$target"
+    chmod +x "$target"
 }
 
 
