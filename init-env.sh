@@ -28,7 +28,7 @@ function setup-link() {
     elif [ -e "${2}" ]; then
         mv "${2}" "${2}.bak.$(date -Is)"
     fi
-    
+
     echo -e "${1}\t ⇒ ${2}"
     ln -s "${1}" "${2}"
 }
@@ -50,7 +50,7 @@ function setup-bin() {
 
 function setup-emacs() {
     echo "Setting up emacs..."
-    rm ~/.emacs
+    rm ~/.emacs 2> /dev/null
     init-dir ".emacs.d"
     setup-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
     cask install "${HOME}/.emacs.d/"
