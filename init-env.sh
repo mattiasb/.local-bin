@@ -56,7 +56,7 @@ function setup-emacs() {
     rm ~/.emacs 2> /dev/null
     init-dir ".emacs.d"
     setup-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
-    cask install "${HOME}/.emacs.d/"
+    ( cd .emacs.d && cask install )
 }
 
 function setup-config() {
