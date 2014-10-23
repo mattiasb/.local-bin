@@ -23,15 +23,26 @@ function init-dir () {
 }
 
 function setup-link() {
-    if [ ! -h "${2}" ]; then
-        mv "${2}" "${2}.bak" > /dev/null
-        echo -e "${1}\t ⇒ ${2}"
-        ln -s "${1}" "${2}"
+    if [ -h "${2}" ]; then
+	rm "${2}"
+    elif [ -e "${2}" ]; then
+        mv "${2}" "${2}.bak.$(date -Is)"
     fi
+    
+    echo -e "${1}\t ⇒ ${2}"
+    ln -s "${1}" "${2}"
 }
 
 function setup-bin() {
-    setup-link "${1}" "${HOME}/.local/bin/${2}"
+    local target;
+
+    if [ -z "${2}" ]; then
+	target="${HOME}/.local/bin/${1}"
+    else
+	target="${HOME}/.local/bin/${2}"
+    fi
+
+    setup-link "${1}" "$target"
 }
 
 
