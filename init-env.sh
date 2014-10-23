@@ -30,6 +30,11 @@ function setup-link() {
     fi
 }
 
+function setup-bin() {
+    setup-link "${1}" "${HOME}/.local/bin/${2}"
+}
+
+
 #############
 
 function setup-emacs() {
@@ -176,7 +181,7 @@ function install-rtags() {
             if [ -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
                 echo "Installing GCC wrapper symlinks..."
                 for COMP in `echo -e "gcc\nc++\ncc\ng++"`; do
-                    ln -s "${HOME}/.local/bin/gcc-rtags-wrapper.sh" "${HOME}/.local/bin/$COMP";
+                    setup-bin "${HOME}/.local/bin/gcc-rtags-wrapper.sh" "$COMP";
                 done
             fi
         fi
