@@ -9,16 +9,16 @@ function init-git() {
     if [ ! -d .git ]; then
         git init
         git remote add origin "https://github.com/moonlite/${1}.git"
-        git fetch
-        git checkout master
+    fi
+    git pull origin master
+    if [ -f .gitmodules ]; then
+        git submodule update --init --remote
     fi
 }
 
 function init-dir () {
     to-dir "${HOME}/${1}"
-
     init-git "${1}"
-    git pull
     cd "${HOME}"
 }
 
