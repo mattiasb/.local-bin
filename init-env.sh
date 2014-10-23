@@ -50,7 +50,10 @@ function setup-bin() {
 
 function setup-emacs() {
     echo "Setting up emacs..."
+    rm ~/.emacs
     init-dir ".emacs.d"
+    setup-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
+    cask install "${HOME}/.emacs.d/"
 }
 
 function setup-config() {
