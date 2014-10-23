@@ -24,7 +24,8 @@ function init-dir () {
 
 function setup-link() {
     if [ ! -h "${2}" ]; then
-        mv "${2}" "${2}.bak"
+        mv "${2}" "${2}.bak" > /dev/null
+        echo -e "${1}\t ⇒ ${2}"
         ln -s "${1}" "${2}"
     fi
 }
