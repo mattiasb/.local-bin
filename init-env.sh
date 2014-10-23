@@ -135,12 +135,9 @@ function install-packages() {
         ack                             \
         global                          \
         cmake                           \
-                                        \
         screen                          \
         tmux                            \
-                                        \
         fedup                           \
-                                        \
         bijiben                         \
         california                      \
         corebird                        \
@@ -150,12 +147,10 @@ function install-packages() {
         gnome-common                    \
         gnome-maps                      \
         gnome-tweak-tool                \
-                                        \
         docbook-dtds                    \
         docbook-style-xsl               \
         intltool                        \
         yelp-tools                      \
-                                        \
         gstreamer1-plugins-ugly         \
         gstreamer1-plugins-bad          \
         gstreamer1-plugins-bad-freeworld\
