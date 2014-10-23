@@ -34,14 +34,14 @@ function setup-link() {
 }
 
 function setup-bin() {
-    local target;
+    local bin;
 
     if [ -z "${2}" ]; then
-	target="${HOME}/.local/bin/${1}"
+	bin=`basename "${1}"`
     else
-	target="${HOME}/.local/bin/${2}"
+	bin="${2}"
     fi
-    setup-link "${1}" "$target"
+    setup-link "${1}" "${HOME}/.local/bin/$bin"
     chmod +x "$target"
 }
 
