@@ -51,6 +51,11 @@ function setup-bin() {
 function setup-emacs() {
     echo "Setting up emacs..."
     init-dir ".emacs.d"
+    
+    cd ".emacs.d"
+    git checkout -b wip/pallet
+    setup-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
+    cask install
 }
 
 function setup-config() {
