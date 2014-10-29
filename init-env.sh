@@ -77,7 +77,7 @@ function setup-config() {
 }
 
 function setup-jhbuild() {
-    if [ -x "${HOME}/.local/bin/jhbuild" ]; then
+    if [ `command -v jhbuild` ]; then
         echo "JHBuild already found..."
     else
         echo "Setting up JHBuild..."
@@ -172,7 +172,7 @@ function install-go-packages() {
 }
 
 function install-chrome() {
-    if [ -x /usr/bin/google-chrome ]; then
+    if [ `command -v spotify` ]; then
         echo "Google Chrome already installed..."
     else
         echo "Installing Google Chrome..."
@@ -181,7 +181,7 @@ function install-chrome() {
 }
 
 function install-rtags() {
-    if [ -x "${HOME}/.local/bin/rdm" ]; then
+    if [ `command -v rdm` ]; then
         echo "RTags already installed..."
     else
         echo "Building RTags..."
