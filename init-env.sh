@@ -182,6 +182,24 @@ function install-chrome() {
     fi
 }
 
+function install-spotify() {
+    if [ `command -v spotify` ]; then
+        echo "Spotify already installed..."
+    else
+        echo "Installing Spotify..."
+        to-dir "${HOME}/Code/spotify-make"
+        if [ ! -d .git ]; then
+            git clone https://github.com/leamas/spotify-make.git .
+        else
+            git pull
+        fi
+        ./configure --prefix="${PREFIX}/"
+        make download
+        make install
+        make register
+    fi
+}
+
 function install-rtags() {
     if [ `command -v rdm` ]; then
         echo "RTags already installed..."
@@ -223,6 +241,8 @@ echo
 setup-jhbuild
 echo
 install-chrome
+echo
+install-spotify
 echo
 install-rtags
 echo
