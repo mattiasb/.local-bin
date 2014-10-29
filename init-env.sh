@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PREFIX=~/.local
+
 function to-dir() {
     mkdir -p "${1}"
     cd "${1}"
@@ -83,7 +85,7 @@ function setup-jhbuild() {
         echo "Setting up JHBuild..."
         to-dir "${HOME}/Code/jhbuild"
         git clone https://git.gnome.org/browse/jhbuild . || git pull
-        ./autogen.sh --prefix="${HOME}/.local/" && make && make install
+        ./autogen.sh --prefix="$PREFIX/" && make && make install
         echo
         echo "Installing JHBuild sysdeps..."
         jhbuild sysdeps --install
@@ -192,8 +194,8 @@ function install-rtags() {
             git clone --depth 1 https://github.com/Andersbakken/rtags.git .
             git submodule update  --init
             to-dir "${HOME}/Code/rtags/build"
-            cmake -DCMAKE_INSTALL_PREFIX:PATH="${HOME}/.local/" .. && \
-                make                                               && \
+            cmake -DCMAKE_INSTALL_PREFIX:PATH="${PREFIX}/" .. && \
+                make                                          && \
                 make install
             cd "${HOME}"
             if [ -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
