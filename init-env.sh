@@ -157,6 +157,7 @@ function install-packages() {
         gstreamer1-plugins-bad          \
         gstreamer1-plugins-bad-freeworld\
         gstreamer1-libav                \
+        pandoc                          \
     "
     sudo su -c "echo $PACKAGES | xargs yum install -y"
 }
