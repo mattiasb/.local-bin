@@ -120,44 +120,44 @@ function setup-rpmfusion() {
 function install-packages() {
     echo "Installing packages..."
     PACKAGES="                          \
-        mercurial                       \
+        ack                             \
+        bijiben                         \
+        cabal-install                   \
+        california                      \
+        clang-devel                     \
+        cmake                           \
+        corebird                        \
+        docbook-dtds                    \
+        docbook-style-xsl               \
+        emacs                           \
+        epiphany                        \
+        fedup                           \
+        gimp                            \
         git                             \
         git-bz                          \
         gitflow                         \
-        tig                             \
-        meld                            \
-        emacs                           \
-        cabal-install                   \
-        clang-devel                     \
-        llvm-devel                      \
-        llvm-static                     \
-        golang                          \
-        golang-godoc                    \
-        npm                             \
-        ack                             \
-        global                          \
-        cmake                           \
-        screen                          \
-        tmux                            \
-        fedup                           \
-        bijiben                         \
-        california                      \
-        corebird                        \
-        epiphany                        \
-        gimp                            \
         gitg                            \
+        global                          \
         gnome-common                    \
         gnome-maps                      \
         gnome-tweak-tool                \
-        docbook-dtds                    \
-        docbook-style-xsl               \
-        intltool                        \
-        yelp-tools                      \
-        gstreamer1-plugins-ugly         \
+        golang                          \
+        golang-godoc                    \
+        gstreamer1-libav                \
         gstreamer1-plugins-bad          \
         gstreamer1-plugins-bad-freeworld\
-        gstreamer1-libav                \
+        gstreamer1-plugins-ugly         \
+        intltool                        \
+        llvm-devel                      \
+        llvm-static                     \
+        meld                            \
+        mercurial                       \
+        npm                             \
         pandoc                          \
+        screen                          \
+        tig                             \
+        tmux                            \
+        yelp-tools                      \
     "
     sudo su -c "echo $PACKAGES | xargs yum install -y"
 }
