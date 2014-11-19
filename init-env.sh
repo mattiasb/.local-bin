@@ -216,8 +216,9 @@ function install-rtags() {
                 make                                          && \
                 make install
             cd "${HOME}"
-            if [ -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
+            if [ ! -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
                 echo "Installing GCC wrapper symlinks..."
+                install -m 755 "${HOME}/Code/rtags/bin/gcc-rtags-wrapper.sh" ~/.local/bin/
                 for COMP in `echo -e "gcc\nc++\ncc\ng++"`; do
                     setup-bin "${HOME}/.local/bin/gcc-rtags-wrapper.sh" "$COMP";
                 done
