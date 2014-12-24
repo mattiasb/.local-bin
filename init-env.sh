@@ -155,6 +155,7 @@ function install-packages() {
         mercurial                       \
         npm                             \
         pandoc                          \
+        python-pip                      \
         screen                          \
         tig                             \
         tmux                            \
@@ -166,6 +167,11 @@ function install-packages() {
 function install-npm-packages() {
     echo "Installing NPM packages..."
     npm install -g grunt-cli jshint jake http-server editorconfig 2> /dev/null
+}
+
+function install-python-packages() {
+    echo "Installing Python packages..."
+    pip install --user git-spindle
 }
 
 function install-go-packages() {
@@ -240,6 +246,8 @@ echo
 install-go-packages
 echo
 install-npm-packages
+echo
+install-python-packages
 echo
 setup-jhbuild
 echo
