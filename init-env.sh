@@ -166,7 +166,7 @@ function install-packages() {
 
 function install-npm-packages() {
     echo "Installing NPM packages..."
-    npm install -g grunt-cli jshint jake http-server editorconfig 2> /dev/null
+    npm install -g grunt-cli jshint jscs jake http-server editorconfig 2> /dev/null
 }
 
 function install-python-packages() {
