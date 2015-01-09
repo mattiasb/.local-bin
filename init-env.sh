@@ -182,7 +182,7 @@ function install-go-packages() {
 }
 
 function install-chrome() {
-    if [ `command -v spotify` ]; then
+    if [ `command -v google-chrome` ]; then
         echo "Google Chrome already installed..."
     else
         echo "Installing Google Chrome..."
