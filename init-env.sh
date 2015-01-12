@@ -69,7 +69,6 @@ function setup-config() {
     echo "Setting up configs..."
     init-dir ".config"
 
-    setup-link "${HOME}/.config/npm/config"   "${HOME}/.npmrc"
     setup-link "${HOME}/.config/bash/rc"      "${HOME}/.bashrc"
     setup-link "${HOME}/.config/bash/profile" "${HOME}/.bash_profile"
     setup-link "${HOME}/.config/bash/logout"  "${HOME}/.bash_logout"
