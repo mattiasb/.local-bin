@@ -73,7 +73,6 @@ function setup-config() {
     setup-link "${HOME}/.config/bash/rc"      "${HOME}/.bashrc"
     setup-link "${HOME}/.config/bash/profile" "${HOME}/.bash_profile"
     setup-link "${HOME}/.config/bash/logout"  "${HOME}/.bash_logout"
-    setup-link "${HOME}/.config/git/config"   "${HOME}/.gitconfig"
     setup-link "${HOME}/.config/tmux/config"  "${HOME}/.tmux.conf"
 
     source ~/.bashrc
