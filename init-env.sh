@@ -134,7 +134,6 @@ function install-packages() {
         git-bz                          \
         gitflow                         \
         gitg                            \
-        global                          \
         gnome-common                    \
         gnome-maps                      \
         gnome-tweak-tool                \
@@ -152,7 +151,6 @@ function install-packages() {
         npm                             \
         pandoc                          \
         python-pip                      \
-        screen                          \
         tig                             \
         tmux                            \
         yelp-tools                      \
