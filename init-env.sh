@@ -61,7 +61,12 @@ function setup-emacs() {
         rm ~/.emacs 2> /dev/null
         init-dir ".emacs.d"
         setup-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
-        ( cd .emacs.d && cask install )
+        cd .emacs.d
+        cask install
+        for i in lisp/packages/*; do
+            cask link $(basename $i) $i;
+        done
+        yasel licenses/ snippets/
     fi
 }
 
