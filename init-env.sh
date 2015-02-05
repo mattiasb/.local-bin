@@ -165,7 +165,15 @@ function install-packages() {
 
 function install-npm-packages() {
     echo "Installing NPM packages..."
-    npm install -g grunt-cli jshint jscs jake http-server editorconfig 2> /dev/null
+    npm install -g                      \
+        grunt-cli                       \
+        jshint                          \
+        jscs                            \
+        jake                            \
+        http-server                     \
+        editorconfig                    \
+        yasel                           \
+        2> /dev/null
 }
 
 function install-python-packages() {
@@ -241,11 +249,11 @@ install-packages
 echo
 setup-config
 echo
+install-npm-packages
+echo
 setup-emacs
 echo
 install-go-packages
-echo
-install-npm-packages
 echo
 install-python-packages
 echo
