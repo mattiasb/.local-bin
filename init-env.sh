@@ -11,16 +11,18 @@ function mkcd() {
     cd "${1}"
 }
 
-# Generalized gh-clone
-function _gh-clone() {
-    local dir="${1}"
-    local org="${2}"
-    local repo="${3}"
+function git-clone {
+    local url="${1}"
+    local dir="${2}"
+
+    if [ -z "${dir}" ]; then
+        dir="${HOME}/Code/Other/${repo}/"
+    fi
 
     mkcd "${dir}"
 
     if [ ! -d .git ]; then
-        git clone "https://github.com/${org}/${repo}.git" .
+        git clone "${url}" .
     else
         git pull origin master
     fi
@@ -28,40 +30,23 @@ function _gh-clone() {
     if [ -f .gitmodules ]; then
         git submodule update --init --remote
     fi
-
-    cd "${HOME}"
 }
 
-function gh-clone {
-    local org;
-    local repo;
+function gh-clone() {
+    local org="${1}"
+    local repo="${2}"
+    local dir="${3}"
+    local url="https://github.com/${org}/${repo}.git"
 
-    if [ -z "${2}" ]; then
-        org=$GH_USERNAME
-        repo="${1}"
-    else
-        org="${1}"
-        repo="${2}"
+    if [ -z "${dir}" ]; then
+        dir="${HOME}/Code/${org}/${repo}/"
     fi
 
-    _gh-clone "${HOME}/Code/${org}/${repo}/" "${org}" "${repo}"
-}
-
-function init-git() {
-    if [ ! -d .git ]; then
-        git init
-        git remote add origin "https://github.com/${GH_USERNAME}/${1}.git"
-    fi
-    git pull origin master
-    if [ -f .gitmodules ]; then
-        git submodule update --init --remote
-    fi
+    git-clone "${url}" "${dir}"
 }
 
 function clone-config-dir () {
-    mkcd "${HOME}/${1}"
-    init-git "${1}"
-    cd "${HOME}"
+    gh-clone "${GH_USERNAME}" "${1}" "${HOME}/${1}"
 }
 
 function safe-link() {
@@ -75,7 +60,7 @@ function safe-link() {
     ln -s "${1}" "${2}"
 }
 
-function setup-bin() {
+function safe-link-bin() {
     local bin;
     local target;
 
@@ -94,20 +79,17 @@ function setup-bin() {
 #############
 
 function setup-emacs() {
-    if [ -d "${HOME}/.emacs.d/" ]; then
-        echo "Emacs already set up..."
-    else
-        echo "Setting up Emacs..."
+    if [ ! -d "${HOME}/.emacs.d/" ]; then
+        echo "Initializing Emacs..."
         rm ~/.emacs 2> /dev/null
         clone-config-dir ".emacs.d"
-        setup-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
-        cd .emacs.d
-        cask install
-        for i in lisp/packages/*; do
-            cask link $(basename $i) $i;
-        done
-        yasel licenses/ snippets/
+        safe-link-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
     fi
+
+    echo "Updating Emacs..."
+    cd "${HOME}/.emacs.d/"
+    cask update
+    yasel licenses/ snippets/
 }
 
 function setup-config() {
@@ -123,11 +105,10 @@ function setup-config() {
 
 function setup-jhbuild() {
     if [ `command -v jhbuild` ]; then
-        echo "JHBuild already found..."
+        echo "JHBuild already installed..."
     else
         echo "Setting up JHBuild..."
-        mkcd "${HOME}/Code/gnome/jhbuild"
-        git clone https://git.gnome.org/browse/jhbuild . || git pull
+        git-clone https://git.gnome.org/browse/jhbuild "${HOME}/Code/gnome/jhbuild"
         ./autogen.sh --prefix="$PREFIX/" && make && make install
         echo
         echo "Installing JHBuild sysdeps..."
@@ -243,12 +224,8 @@ function install-spotify() {
         echo "Spotify already installed..."
     else
         echo "Installing Spotify..."
-        mkcd "${HOME}/Code/github/spotify-make"
-        if [ ! -d .git ]; then
-            git clone https://github.com/leamas/spotify-make.git .
-        else
-            git pull
-        fi
+
+        gh-clone "leamas" "spotify-make"
         ./configure --prefix="${PREFIX}/"
         make download
         make install
@@ -261,24 +238,18 @@ function install-rtags() {
         echo "RTags already installed..."
     else
         echo "Building RTags..."
-        if [ -d "${HOME}/Code/github/rtags" ]; then
-            echo "RTags clone already exists. Aborting."
-        else
-            mkcd "${HOME}/Code/github/rtags"
-            git clone --depth 1 https://github.com/Andersbakken/rtags.git .
-            git submodule update  --init
-            mkcd "${HOME}/Code/github/rtags/build"
-            cmake -DCMAKE_INSTALL_PREFIX:PATH="${PREFIX}/" .. && \
-                make                                          && \
-                make install
-            cd "${HOME}"
-            if [ ! -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
-                echo "Installing GCC wrapper symlinks..."
-                install -m 755 "${HOME}/Code/github/rtags/bin/gcc-rtags-wrapper.sh" ~/.local/bin/
-                for COMP in `echo -e "gcc\nc++\ncc\ng++"`; do
-                    setup-bin "${HOME}/.local/bin/gcc-rtags-wrapper.sh" "$COMP";
-                done
-            fi
+        gh-clone "Andersbakken" "rtags"
+        mkcd build
+        cmake -DCMAKE_INSTALL_PREFIX:PATH="${PREFIX}/" .. && \
+            make                                          && \
+            make install
+        cd "${HOME}"
+        if [ ! -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
+            echo "Installing GCC wrapper symlinks..."
+            install -m 755 "${HOME}/Code/github/rtags/bin/gcc-rtags-wrapper.sh" ~/.local/bin/
+            for COMP in `echo -e "gcc\nc++\ncc\ng++"`; do
+                safe-link-bin "${HOME}/.local/bin/gcc-rtags-wrapper.sh" "$COMP";
+            done
         fi
     fi
 }
