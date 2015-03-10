@@ -28,7 +28,7 @@ function clone-config-dir () {
     cd "${HOME}"
 }
 
-function setup-link() {
+function safe-link() {
     if [ -h "${2}" ]; then
 	rm "${2}"
     elif [ -e "${2}" ]; then
@@ -50,7 +50,7 @@ function setup-bin() {
     fi
     target="${HOME}/.local/bin/$bin"
 
-    setup-link "${1}" "${target}"
+    safe-link "${1}" "${target}"
     chmod +x "${target}"
 }
 
@@ -78,9 +78,9 @@ function setup-config() {
     echo "Setting up configs..."
     clone-config-dir ".config"
 
-    setup-link "${HOME}/.config/bash/rc"      "${HOME}/.bashrc"
-    setup-link "${HOME}/.config/bash/profile" "${HOME}/.bash_profile"
-    setup-link "${HOME}/.config/bash/logout"  "${HOME}/.bash_logout"
+    safe-link "${HOME}/.config/bash/rc"      "${HOME}/.bashrc"
+    safe-link "${HOME}/.config/bash/profile" "${HOME}/.bash_profile"
+    safe-link "${HOME}/.config/bash/logout"  "${HOME}/.bash_logout"
 
     source ~/.bashrc
 }
