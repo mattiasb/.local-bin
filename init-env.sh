@@ -11,6 +11,42 @@ function mkcd() {
     cd "${1}"
 }
 
+# Generalized gh-clone
+function _gh-clone() {
+    local dir="${1}"
+    local org="${2}"
+    local repo="${3}"
+
+    mkcd "${dir}"
+
+    if [ ! -d .git ]; then
+        git clone "https://github.com/${org}/${repo}.git" .
+    else
+        git pull origin master
+    fi
+
+    if [ -f .gitmodules ]; then
+        git submodule update --init --remote
+    fi
+
+    cd "${HOME}"
+}
+
+function gh-clone {
+    local org;
+    local repo;
+
+    if [ -z "${2}" ]; then
+        org=$GH_USERNAME
+        repo="${1}"
+    else
+        org="${1}"
+        repo="${2}"
+    fi
+
+    _gh-clone "${HOME}/Code/${org}/${repo}/" "${org}" "${repo}"
+}
+
 function init-git() {
     if [ ! -d .git ]; then
         git init
