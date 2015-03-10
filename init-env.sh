@@ -2,6 +2,8 @@
 
 PREFIX=~/.local
 
+GH_USERNAME=moonlite
+
 function mkcd() {
     if [ ! -e "${1}" ]; then
         mkdir -p "${1}"
@@ -12,7 +14,7 @@ function mkcd() {
 function init-git() {
     if [ ! -d .git ]; then
         git init
-        git remote add origin "https://github.com/moonlite/${1}.git"
+        git remote add origin "https://github.com/${GH_USERNAME}/${1}.git"
     fi
     git pull origin master
     if [ -f .gitmodules ]; then
