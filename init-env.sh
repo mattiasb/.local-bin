@@ -2,7 +2,7 @@
 
 PREFIX=~/.local
 
-function to-dir() {
+function mkcd() {
     mkdir -p "${1}"
     cd "${1}"
 }
@@ -19,7 +19,7 @@ function init-git() {
 }
 
 function init-dir () {
-    to-dir "${HOME}/${1}"
+    mkcd "${HOME}/${1}"
     init-git "${1}"
     cd "${HOME}"
 }
@@ -86,7 +86,7 @@ function setup-jhbuild() {
         echo "JHBuild already found..."
     else
         echo "Setting up JHBuild..."
-        to-dir "${HOME}/Code/gnome/jhbuild"
+        mkcd "${HOME}/Code/gnome/jhbuild"
         git clone https://git.gnome.org/browse/jhbuild . || git pull
         ./autogen.sh --prefix="$PREFIX/" && make && make install
         echo
@@ -203,7 +203,7 @@ function install-spotify() {
         echo "Spotify already installed..."
     else
         echo "Installing Spotify..."
-        to-dir "${HOME}/Code/github/spotify-make"
+        mkcd "${HOME}/Code/github/spotify-make"
         if [ ! -d .git ]; then
             git clone https://github.com/leamas/spotify-make.git .
         else
@@ -224,10 +224,10 @@ function install-rtags() {
         if [ -d "${HOME}/Code/github/rtags" ]; then
             echo "RTags clone already exists. Aborting."
         else
-            to-dir "${HOME}/Code/github/rtags"
+            mkcd "${HOME}/Code/github/rtags"
             git clone --depth 1 https://github.com/Andersbakken/rtags.git .
             git submodule update  --init
-            to-dir "${HOME}/Code/github/rtags/build"
+            mkcd "${HOME}/Code/github/rtags/build"
             cmake -DCMAKE_INSTALL_PREFIX:PATH="${PREFIX}/" .. && \
                 make                                          && \
                 make install
