@@ -22,7 +22,7 @@ function init-git() {
     fi
 }
 
-function init-dir () {
+function clone-config-dir () {
     mkcd "${HOME}/${1}"
     init-git "${1}"
     cd "${HOME}"
@@ -63,7 +63,7 @@ function setup-emacs() {
     else
         echo "Setting up Emacs..."
         rm ~/.emacs 2> /dev/null
-        init-dir ".emacs.d"
+        clone-config-dir ".emacs.d"
         setup-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
         cd .emacs.d
         cask install
@@ -76,7 +76,7 @@ function setup-emacs() {
 
 function setup-config() {
     echo "Setting up configs..."
-    init-dir ".config"
+    clone-config-dir ".config"
 
     setup-link "${HOME}/.config/bash/rc"      "${HOME}/.bashrc"
     setup-link "${HOME}/.config/bash/profile" "${HOME}/.bash_profile"
