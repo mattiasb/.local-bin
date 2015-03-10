@@ -86,7 +86,7 @@ function setup-jhbuild() {
         echo "JHBuild already found..."
     else
         echo "Setting up JHBuild..."
-        to-dir "${HOME}/Code/jhbuild"
+        to-dir "${HOME}/Code/gnome/jhbuild"
         git clone https://git.gnome.org/browse/jhbuild . || git pull
         ./autogen.sh --prefix="$PREFIX/" && make && make install
         echo
@@ -203,7 +203,7 @@ function install-spotify() {
         echo "Spotify already installed..."
     else
         echo "Installing Spotify..."
-        to-dir "${HOME}/Code/spotify-make"
+        to-dir "${HOME}/Code/github/spotify-make"
         if [ ! -d .git ]; then
             git clone https://github.com/leamas/spotify-make.git .
         else
@@ -221,20 +221,20 @@ function install-rtags() {
         echo "RTags already installed..."
     else
         echo "Building RTags..."
-        if [ -d "${HOME}/Code/rtags" ]; then
+        if [ -d "${HOME}/Code/github/rtags" ]; then
             echo "RTags clone already exists. Aborting."
         else
-            to-dir "${HOME}/Code/rtags"
+            to-dir "${HOME}/Code/github/rtags"
             git clone --depth 1 https://github.com/Andersbakken/rtags.git .
             git submodule update  --init
-            to-dir "${HOME}/Code/rtags/build"
+            to-dir "${HOME}/Code/github/rtags/build"
             cmake -DCMAKE_INSTALL_PREFIX:PATH="${PREFIX}/" .. && \
                 make                                          && \
                 make install
             cd "${HOME}"
             if [ ! -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
                 echo "Installing GCC wrapper symlinks..."
-                install -m 755 "${HOME}/Code/rtags/bin/gcc-rtags-wrapper.sh" ~/.local/bin/
+                install -m 755 "${HOME}/Code/github/rtags/bin/gcc-rtags-wrapper.sh" ~/.local/bin/
                 for COMP in `echo -e "gcc\nc++\ncc\ng++"`; do
                     setup-bin "${HOME}/.local/bin/gcc-rtags-wrapper.sh" "$COMP";
                 done
