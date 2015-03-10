@@ -3,7 +3,9 @@
 PREFIX=~/.local
 
 function mkcd() {
-    mkdir -p "${1}"
+    if [ ! -e "${1}" ]; then
+        mkdir -p "${1}"
+    fi
     cd "${1}"
 }
 
