@@ -163,6 +163,7 @@ function install-packages() {
         gnome-calendar                  \
         gnome-common                    \
         gnome-maps                      \
+        gnome-photos                    \
         gnome-tweak-tool                \
         golang                          \
         golang-godoc                    \
