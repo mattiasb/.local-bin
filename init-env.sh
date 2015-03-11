@@ -175,6 +175,7 @@ function install-packages() {
         meld                            \
         mercurial                       \
         npm                             \
+        nuntius                         \
         pandoc                          \
         python-pip                      \
         tig                             \
