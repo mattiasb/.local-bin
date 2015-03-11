@@ -160,6 +160,7 @@ function install-packages() {
         git-bz                          \
         gitflow                         \
         gitg                            \
+        gnome-calendar                  \
         gnome-common                    \
         gnome-maps                      \
         gnome-tweak-tool                \
