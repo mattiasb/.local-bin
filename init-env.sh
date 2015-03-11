@@ -198,8 +198,8 @@ function install-npm-packages() {
 }
 
 function install-python-packages() {
-    echo "Installing Python packages..."
-    pip install --user git-spindle
+    echo "Installing/upgrading Python packages..."
+    pip install --upgrade --user git-spindle
 }
 
 function install-go-packages() {
