@@ -160,6 +160,7 @@ function install-packages() {
         git-bz                          \
         gitflow                         \
         gitg                            \
+        glade                           \
         gnome-calendar                  \
         gnome-common                    \
         gnome-maps                      \
