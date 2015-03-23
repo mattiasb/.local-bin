@@ -179,10 +179,12 @@ function install-packages() {
         meld                            \
         mercurial                       \
         npm                             \
+        nautilus-open-terminal          \
         nuntius                         \
         pandoc                          \
         python-pip                      \
         tig                             \
+        transmission-remote-gtk         \
         tmux                            \
         yelp-tools                      \
     "
