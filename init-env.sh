@@ -248,7 +248,7 @@ function install-rtags() {
         gh-clone "Andersbakken" "rtags"
         mkcd build
         cmake -DCMAKE_INSTALL_PREFIX:PATH="${PREFIX}/" .. && \
-            make                                          && \
+            make -j $(nproc)                              && \
             make install
         cd "${HOME}"
         if [ ! -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
