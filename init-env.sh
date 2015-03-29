@@ -39,7 +39,7 @@ function gh-clone() {
     local url="https://github.com/${org}/${repo}.git"
 
     if [ -z "${dir}" ]; then
-        dir="${HOME}/Code/${org}/${repo}/"
+        dir="${HOME}/Code/github/${org}/${repo}/"
     fi
 
     git-clone "${url}" "${dir}"
