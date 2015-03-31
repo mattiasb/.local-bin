@@ -226,6 +226,11 @@ function install-chrome() {
     fi
 }
 
+function install-git-fpaste() {
+    echo "Installing git-fpaste..."
+    gh-clone "moonlite" "git-fpaste" "${HOME}/Code/Projects/git-fpaste/" && make user-install
+}
+
 function install-spotify() {
     if [ `command -v spotify` ]; then
         echo "Spotify already installed..."
@@ -282,5 +287,7 @@ echo
 install-spotify
 echo
 install-rtags
+echo
+install-git-fpaste
 echo
 echo "Done!"
