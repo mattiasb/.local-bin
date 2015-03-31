@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if [ $# -lt 1 ]; then
-    echo "Usage: git fpaste-patch [git-format-patch options]"
-    exit -1
-else
-    git format-patch --stdout $@ | fpaste -l diff -n `whoami` --confirm
-fi
