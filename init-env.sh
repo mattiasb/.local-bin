@@ -176,6 +176,7 @@ function install-packages() {
         intltool                        \
         lua-devel                       \
         lua-filesystem                  \
+        luarocks                        \
         llvm-devel                      \
         llvm-static                     \
         meld                            \
