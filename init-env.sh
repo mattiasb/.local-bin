@@ -137,7 +137,7 @@ function setup-rpmfusion() {
         echo "RPM Fusion already set up..."
     else
         echo "Setting up RPM Fusion..."
-        sudo su -c 'yum localinstall --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
+        sudo su -c 'dnf install --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
     fi
 }
 
@@ -190,7 +190,7 @@ function install-packages() {
         tmux                            \
         yelp-tools                      \
     "
-    sudo su -c "echo $PACKAGES | xargs yum install -y"
+    sudo su -c "echo $PACKAGES | xargs dnf install -y"
 }
 
 function install-npm-packages() {
@@ -229,7 +229,7 @@ function install-chrome() {
         echo "Google Chrome already installed..."
     else
         echo "Installing Google Chrome..."
-        sudo su -c 'yum localinstall --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
+        sudo su -c 'dnf install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
     fi
 }
 
