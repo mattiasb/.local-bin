@@ -174,6 +174,8 @@ function install-packages() {
         gstreamer1-plugins-ugly         \
         gtk3-devel-docs                 \
         intltool                        \
+        lua-devel                       \
+        lua-filesystem                  \
         llvm-devel                      \
         llvm-static                     \
         meld                            \
@@ -202,6 +204,11 @@ function install-npm-packages() {
         editorconfig                    \
         yasel                           \
         2> /dev/null
+}
+
+function install-lua-packages {
+    echo "Installing/upgrading Lua packages..."
+    luarocks install luacheck
 }
 
 function install-python-packages() {
@@ -277,6 +284,8 @@ echo
 setup-emacs
 echo
 install-go-packages
+echo
+install-lua-packages
 echo
 install-python-packages
 echo
