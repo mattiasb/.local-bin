@@ -152,6 +152,7 @@ function install-packages() {
         corebird                        \
         docbook-dtds                    \
         docbook-style-xsl               \
+        docker-io                       \
         emacs                           \
         epiphany                        \
         fedup                           \
