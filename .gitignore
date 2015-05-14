@@ -42,3 +42,6 @@
 /twitch
 /git-fpaste
 /luacheck
+/rust-gdb
+/rustc
+/rustdoc
