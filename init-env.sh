@@ -83,13 +83,13 @@ function setup-emacs() {
         echo "Initializing Emacs..."
         rm ~/.emacs 2> /dev/null
         clone-config-dir ".emacs.d"
-        safe-link-bin "${HOME}/.emacs.d/lisp/cask/bin/cask"
+        cd "${HOME}/.emacs.d/"
+        make
+    else
+        echo "Updating Emacs..."
+        cd "${HOME}/.emacs.d/"
+        make update
     fi
-
-    echo "Updating Emacs..."
-    cd "${HOME}/.emacs.d/"
-    cask update
-    yasel licenses/ snippets/
 }
 
 function setup-config() {
