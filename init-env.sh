@@ -173,6 +173,7 @@ function install-packages() {
         gstreamer1-plugins-bad          \
         gstreamer1-plugins-bad-freeworld\
         gstreamer1-plugins-ugly         \
+        gstreamer1-vaapi                \
         gtk3-devel-docs                 \
         intltool                        \
         lua-devel                       \
