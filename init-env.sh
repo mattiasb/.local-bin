@@ -283,6 +283,22 @@ function install-rtags() {
     fi
 }
 
+function install-rust {
+    if [ `command -v rustc` ]; then
+        echo "Rust already installed..."
+    else
+        local SPEC="rust-binary.spec"
+        local URL="https://raw.githubusercontent.com/cgwalters/playground/master/rust/${SPEC}"
+
+        pushd ~/Code/Fedora/rpmbuild/
+        curl "${URL}" -o     "SPECS/${SPEC}"	&& \
+            spectool  -g -R  "SPECS/${SPEC}"	&& \
+            rpmbuild  -ba    "SPECS/${SPEC}"	&& \
+            sudo dnf install -y RPMS/x86_64/rust*
+        popd
+    fi
+}
+
 setup-rpmfusion
 echo
 install-packages
@@ -308,6 +324,8 @@ echo
 install-spotify
 echo
 install-rtags
+echo
+install-rust
 echo
 install-git-fpaste
 echo
