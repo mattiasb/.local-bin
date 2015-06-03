@@ -299,6 +299,18 @@ function install-rust {
     fi
 }
 
+function install-racer {
+    if [ `command -v racer` ]; then
+        echo "Racer already installed..."
+    else
+        gh-clone "rust-lang" "rust"         && \
+            gh-clone "phildawes" "racer"    && \
+            cargo build --release           && \
+            install -m 755 target/release/racer "${PREFIX}/bin/"
+    fi
+}
+
+
 setup-rpmfusion
 echo
 install-packages
@@ -326,6 +338,8 @@ echo
 install-rtags
 echo
 install-rust
+echo
+install-racer
 echo
 install-git-fpaste
 echo
