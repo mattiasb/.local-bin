@@ -141,6 +141,11 @@ function setup-rpmfusion() {
     fi
 }
 
+function setup-rpmdev {
+    safe-link "${HOME}/.config/rpm/macros" "${HOME}/.rpmmacros"
+    rpmdev-setuptree
+}
+
 function install-packages() {
     echo "Installing packages..."
     PACKAGES="                          \
@@ -188,6 +193,8 @@ function install-packages() {
         nuntius                         \
         pandoc                          \
         python-pip                      \
+        rpmdevtools                     \
+        rpmlint                         \
         tig                             \
         transmission-remote-gtk         \
         tmux                            \
@@ -281,6 +288,8 @@ echo
 install-packages
 echo
 setup-config
+echo
+setup-rpmdev
 echo
 install-npm-packages
 echo
