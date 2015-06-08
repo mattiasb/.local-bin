@@ -290,10 +290,10 @@ function install-rust {
         local SPEC="rust-binary.spec"
         local URL="https://raw.githubusercontent.com/cgwalters/playground/master/rust/${SPEC}"
 
-        pushd ~/Code/Fedora/rpmbuild/
-        curl "${URL}" -o     "SPECS/${SPEC}"	&& \
-            spectool  -g -R  "SPECS/${SPEC}"	&& \
-            rpmbuild  -ba    "SPECS/${SPEC}"	&& \
+        pushd ~/Code/Fedora/rpmbuild/           	&& \
+            curl "${URL}" -o     "SPECS/${SPEC}"	&& \
+            spectool  -g -R  "SPECS/${SPEC}"		&& \
+            rpmbuild  -ba    "SPECS/${SPEC}"		&& \
             sudo dnf install -y RPMS/x86_64/rust*
         popd
     fi
