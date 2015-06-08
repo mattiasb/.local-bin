@@ -47,3 +47,6 @@
 /rustdoc
 /docopt-completion
 /racer
+/node-debug
+/node-inspector
+/vs-sln-extract
