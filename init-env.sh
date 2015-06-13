@@ -194,6 +194,7 @@ function install-packages() {
         ncurses-devel                   \
         nuntius                         \
         pandoc                          \
+        perl-open                       \
         python-pip                      \
         rpmdevtools                     \
         rpmlint                         \
