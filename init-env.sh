@@ -174,6 +174,7 @@ function install-packages() {
         gnome-tweak-tool                \
         golang                          \
         golang-godoc                    \
+        gperf                           \
         gstreamer1-libav                \
         gstreamer1-plugins-bad          \
         gstreamer1-plugins-bad-freeworld\
