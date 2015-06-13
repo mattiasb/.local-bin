@@ -191,6 +191,7 @@ function install-packages() {
         mercurial                       \
         npm                             \
         nautilus-open-terminal          \
+        ncurses-devel                   \
         nuntius                         \
         pandoc                          \
         python-pip                      \
