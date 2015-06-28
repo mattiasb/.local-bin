@@ -4,7 +4,7 @@ PREFIX=~/.local
 
 GH_USERNAME=moonlite
 
-function mkcd() {
+function mkcd {
     if [ ! -e "${1}" ]; then
         mkdir -p "${1}"
     fi
@@ -32,7 +32,7 @@ function git-clone {
     fi
 }
 
-function gh-clone() {
+function gh-clone {
     local org="${1}"
     local repo="${2}"
     local dir="${3}"
@@ -45,11 +45,11 @@ function gh-clone() {
     git-clone "${url}" "${dir}"
 }
 
-function clone-config-dir () {
+function clone-config-dir {
     gh-clone "${GH_USERNAME}" "${1}" "${HOME}/${1}"
 }
 
-function safe-link() {
+function safe-link {
     if [ -h "${2}" ]; then
 	rm "${2}"
     elif [ -e "${2}" ]; then
@@ -60,7 +60,7 @@ function safe-link() {
     ln -s "${1}" "${2}"
 }
 
-function safe-link-bin() {
+function safe-link-bin {
     local bin;
     local target;
 
@@ -76,78 +76,29 @@ function safe-link-bin() {
 }
 
 
-#############
+#################
+# Initial Setup #
+#################
 
-function setup-emacs() {
-    if [ ! -d "${HOME}/.emacs.d/" ]; then
-        echo "Initializing Emacs..."
-        rm ~/.emacs 2> /dev/null
-        clone-config-dir ".emacs.d"
-        cd "${HOME}/.emacs.d/"
-        make
-    else
-        echo "Updating Emacs..."
-        cd "${HOME}/.emacs.d/"
-        make update
-    fi
-}
-
-function setup-config() {
-    echo "Setting up configs..."
-    clone-config-dir ".config"
-
-    safe-link "${HOME}/.config/bash/rc"      "${HOME}/.bashrc"
-    safe-link "${HOME}/.config/bash/profile" "${HOME}/.bash_profile"
-    safe-link "${HOME}/.config/bash/logout"  "${HOME}/.bash_logout"
-
-    source ~/.bashrc
-}
-
-function setup-jhbuild() {
-    if [ `command -v jhbuild` ]; then
-        echo "JHBuild already installed..."
-    else
-        echo "Setting up JHBuild..."
-        git-clone https://git.gnome.org/browse/jhbuild "${HOME}/Code/gnome/jhbuild"
-        ./autogen.sh --prefix="$PREFIX/" && make && make install
-        echo
-        echo "Installing JHBuild sysdeps..."
-        jhbuild sysdeps --install
-    fi
-
-    if [ ! -d /opt/gnome ]; then
-        echo
-        echo "Setting up install dir [/opt/gnome]..."
-        sudo mkdir -m 0775 -p /opt/gnome
-        sudo chown root:wheel /opt/gnome
-    fi
-
-    if [ ! -d "${HOME}/Code/gnome" ]; then
-        echo
-        echo "Setting up checkout dir [${HOME}/Code/gnome]..."
-        mkdir -p "${HOME}/Code/gnome"
-    fi
-
-    echo "JHBuild setup done..."
-    cd "${HOME}"
-}
-
-function setup-rpmfusion() {
+function setup-rpmfusion {
     if [ -f /etc/yum.repos.d/rpmfusion-free.repo ] && [ -f /etc/yum.repos.d/rpmfusion-nonfree.repo ]; then
         echo "RPM Fusion already set up..."
     else
         echo "Setting up RPM Fusion..."
+        echo
         sudo su -c 'dnf install --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
+
+        echo "RPMFusion set up"
     fi
+
+    echo
+    echo
 }
 
-function setup-rpmdev {
-    safe-link "${HOME}/.config/rpm/macros" "${HOME}/.rpmmacros"
-    rpmdev-setuptree
-}
-
-function install-packages() {
+function setup-packages {
     echo "Installing packages..."
+    echo
+
     PACKAGES="                          \
         bijiben                         \
         cabal-install                   \
@@ -204,10 +155,99 @@ function install-packages() {
         yelp-tools                      \
     "
     sudo su -c "echo $PACKAGES | xargs dnf install -y"
+
+    echo "Packages installed..."
+    echo
+    echo
 }
 
-function install-npm-packages() {
-    echo "Installing NPM packages..."
+function setup-chrome {
+    if [ `command -v google-chrome` ]; then
+        echo "Google Chrome already installed..."
+    else
+        echo "Installing Google Chrome..."
+        echo
+        sudo su -c 'dnf install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
+        echo "Google Chrome installed..."
+    fi
+
+    echo
+    echo
+}
+
+function setup-config {
+    echo "Setting up configs..."
+    clone-config-dir ".config"
+
+    safe-link "${HOME}/.config/bash/rc"      "${HOME}/.bashrc"
+    safe-link "${HOME}/.config/bash/profile" "${HOME}/.bash_profile"
+    safe-link "${HOME}/.config/bash/logout"  "${HOME}/.bash_logout"
+
+    source ~/.bashrc
+
+    echo "Config setup done..."
+    echo
+    echo
+}
+
+function setup-rpmdev {
+    echo "Setting up rpmdev..."
+    safe-link "${HOME}/.config/rpm/macros" "${HOME}/.rpmmacros"
+    rpmdev-setuptree
+
+    echo
+    echo
+}
+
+function setup-emacs {
+    echo "Setting up Emacs..."
+    echo
+
+    rm ~/.emacs 2> /dev/null
+    clone-config-dir ".emacs.d"
+    pushd "${HOME}/.emacs.d/" >/dev/null &&
+        make                             &&
+        popd >/dev/null
+
+    echo "Emacs setup done..."
+    echo
+    echo
+}
+
+function setup-jhbuild {
+    echo "Setting up JHBuild paths..."
+    echo
+
+    if [ ! -d /opt/gnome ]; then
+        echo "Setting up install dir [/opt/gnome]..."
+        echo
+
+        sudo mkdir -m 0775 -p /opt/gnome
+        sudo chown root:wheel /opt/gnome
+    fi
+
+    if [ ! -d "${HOME}/Code/gnome" ]; then
+        echo "Setting up checkout dir [${HOME}/Code/gnome]..."
+        echo
+
+        mkdir -p "${HOME}/Code/gnome"
+    fi
+
+    echo "JHBuild setup done..."
+    echo
+    echo
+}
+
+
+
+####################
+# Install / Update #
+####################
+
+function update-npm-packages {
+    echo "Updating NPM packages..."
+    echo
+
     npm install -g                      \
         grunt-cli                       \
         jshint                          \
@@ -217,59 +257,121 @@ function install-npm-packages() {
         editorconfig                    \
         yasel                           \
         2> /dev/null
+
+    echo
+    echo "npm packages updated..."
+    echo
+    echo
 }
 
-function install-lua-packages {
-    echo "Installing/upgrading Lua packages..."
+function update-lua-packages {
+    echo "Updating Lua packages..."
+    echo
+
     luarocks install luacheck
+
+    echo
+    echo "Lua packages updated..."
+    echo
+    echo
 }
 
-function install-python-packages() {
-    echo "Installing/upgrading Python packages..."
+function update-python-packages {
+    echo "Updating Python packages..."
+    echo
+
     pip install --upgrade --user git-spindle
+
+    echo
+    echo "Python packages updated..."
+    echo
+    echo
 }
 
-function install-go-packages() {
-    echo "Installing go packages..."
+function update-go-packages {
+    echo "Updating go packages..."
+    echo
+
     go get github.com/nsf/gocode
     go get github.com/dougm/goflymake
     go get code.google.com/p/rog-go/exp/cmd/godef
     go get github.com/monochromegane/the_platinum_searcher/...
+
+    echo
+    echo "go packages updated..."
+    echo
+    echo
 }
 
-function install-chrome() {
-    if [ `command -v google-chrome` ]; then
-        echo "Google Chrome already installed..."
-    else
-        echo "Installing Google Chrome..."
-        sudo su -c 'dnf install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
-    fi
+function update-emacs {
+    echo "Updating Emacs..."
+    echo
+
+    pushd "${HOME}/.emacs.d/" >/dev/null &&
+        make update                      &&
+        popd
+
+    echo
+    echo "Emacs updated..."
+    echo
+    echo
 }
 
-function install-git-fpaste() {
-    echo "Installing git-fpaste..."
+function update-git-fpaste {
+    echo "Updating git-fpaste..."
+    echo
+
     gh-clone "moonlite" "git-fpaste" "${HOME}/Code/Projects/git-fpaste/" && make user-install
+
+    echo
+    echo "git-fpaste updated..."
+    echo
+    echo
 }
 
-function install-spotify() {
-    if [ `command -v spotify` ]; then
-        echo "Spotify already installed..."
+function update-jhbuild {
+    echo "Updating JHBuild..."
+    git-clone https://git.gnome.org/browse/jhbuild "${HOME}/Code/gnome/jhbuild"
+    ./autogen.sh --prefix="$PREFIX/" && make && make install
+    echo
+    echo "Updating JHBuild sysdeps..."
+    jhbuild sysdeps --install
+    echo
+    echo "JHBuild updated..."
+
+    echo
+    echo
+}
+
+function update-spotify {
+    local FORCE_UPDATE="${1}"
+    if [ `command -v spotify` ] && [ -z "${FORCE_UPDATE}" ]; then
+        echo "Spotify already installed. Skipping..."
     else
-        echo "Installing Spotify..."
+        echo "Updating Spotify..."
+        echo
 
         gh-clone "leamas" "spotify-make"
         ./configure --prefix="${PREFIX}/"
         make download
         make install
         make register
+        echo
+        echo "Spotify updated..."
     fi
+
+    echo
+    echo
 }
 
-function install-rtags() {
-    if [ `command -v rdm` ]; then
-        echo "RTags already installed..."
+function update-rtags {
+    local FORCE_UPDATE="${1}"
+    if [ `command -v rdm` ] && [ -z "${FORCE_UPDATE}" ]; then
+        echo "RTags already installed. Skipping..."
     else
         echo "Building RTags..."
+        echo
+
         gh-clone "Andersbakken" "rtags"
         mkcd build
         cmake -DCMAKE_INSTALL_PREFIX:PATH="${PREFIX}/" .. && \
@@ -283,67 +385,127 @@ function install-rtags() {
                 safe-link-bin "${HOME}/.local/bin/gcc-rtags-wrapper.sh" "$COMP";
             done
         fi
+        echo
+        echo "RTags updated..."
     fi
+
+    echo
+    echo
 }
 
-function install-rust {
-    if [ `command -v rustc` ]; then
+function update-rust {
+    local FORCE_UPDATE="${1}"
+    if [ `command -v rustc` ] && [ -z "${FORCE_UPDATE}" ]; then
         echo "Rust already installed..."
     else
+        echo "Updating Rust..."
+        echo
+
         local SPEC="rust-binary.spec"
         local URL="https://raw.githubusercontent.com/cgwalters/playground/master/rust/${SPEC}"
 
-        pushd ~/Code/Fedora/rpmbuild/           	&& \
-            curl "${URL}" -o     "SPECS/${SPEC}"	&& \
+        pushd ~/Code/Fedora/rpmbuild/ >/dev/null       	&& \
+            curl "${URL}" -o "SPECS/${SPEC}"		&& \
             spectool  -g -R  "SPECS/${SPEC}"		&& \
             rpmbuild  -ba    "SPECS/${SPEC}"		&& \
             sudo dnf install -y RPMS/x86_64/rust*
-        popd
+        popd >/dev/null
+        echo
+        echo "Rust updated..."
     fi
+
+    echo
+    echo
 }
 
-function install-racer {
-    if [ `command -v racer` ]; then
+function update-racer {
+    local FORCE_UPDATE="${1}"
+    if [ `command -v racer` ] && [ -z "${FORCE_UPDATE}" ]; then
         echo "Racer already installed..."
     else
+        echo "Updating Racer..."
+        echo
+
         gh-clone "rust-lang" "rust"         && \
             gh-clone "phildawes" "racer"    && \
             cargo build --release           && \
             install -m 755 target/release/racer "${PREFIX}/bin/"
+        echo
+        echo "Racer updated..."
+    fi
+
+    echo
+    echo
+}
+
+############
+# Commands #
+############
+
+function init {
+    setup-rpmfusion
+    setup-packages
+    setup-chrome
+    setup-config
+    setup-rpmdev
+    setup-emacs
+    setup-jhbuild
+    echo
+    echo "Initialization done!"
+}
+
+function update-all {
+    local force="${1}"
+
+    update-npm-packages    "${force}"
+    update-lua-packages    "${force}"
+    update-python-packages "${force}"
+    update-go-packages     "${force}"
+    update-git-fpaste      "${force}"
+    update-emacs           "${force}"
+    update-jhbuild         "${force}"
+    update-spotify         "${force}"
+    update-rtags           "${force}"
+    update-rust            "${force}"
+    update-racer           "${force}"
+}
+
+function update-some {
+    local arg
+    while [[ $# > 0 ]] ; do
+        arg="${1}"
+        shift
+        case "${arg}" in
+            npm-packages)    update-npm-packages    "yes" ;;
+            lua-packages)    update-lua-packages    "yes" ;;
+            python-packages) update-python-packages "yes" ;;
+            go-packages)     update-go-packages     "yes" ;;
+            git-fpaste)      update-git-fpaste      "yes" ;;
+            emacs)           update-emacs           "yes" ;;
+            jhbuild)         update-jhbuild         "yes" ;;
+            spotify)         update-spotify         "yes" ;;
+            rtags)           update-rtags           "yes" ;;
+            rust)            update-rust            "yes" ;;
+            racer)           update-racer           "yes" ;;
+        esac
+    done
+}
+
+function update {
+    if [[ $# == 0 ]]; then
+        update-all
+    elif [[ $# == 1 ]] && [[ "${1}" == "--all" ]]; then
+        update-all "yes"
+    else
+        update-some "$@"
     fi
 }
 
+cmd="${1}"
+shift
 
-setup-rpmfusion
-echo
-install-packages
-echo
-setup-config
-echo
-setup-rpmdev
-echo
-install-npm-packages
-echo
-setup-emacs
-echo
-install-go-packages
-echo
-install-lua-packages
-echo
-install-python-packages
-echo
-setup-jhbuild
-echo
-install-chrome
-echo
-install-spotify
-echo
-install-rtags
-echo
-install-rust
-echo
-install-racer
-echo
-install-git-fpaste
-echo
-echo "Done!"
+case "${cmd}" in
+    init)    init           ;;
+    update)  update "$@"    ;;
+    install) init && update ;;
+esac
