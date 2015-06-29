@@ -329,6 +329,24 @@ function update-git-fpaste {
     echo
 }
 
+function update-bash-completions {
+    local COMP_PATH="${PREFIX}/share/bash-completion/completions/"
+
+    echo "Updating bash completion..."
+    echo
+
+    gh-clone "ekalinin" "pip-bash-completion" &&
+        cp pip "${COMP_PATH}" &&
+        cd
+
+    [ `command -v npm` ] && npm completion > "${COMP_PATH}/npm"
+
+    echo
+    echo "bash completions updated..."
+    echo
+    echo
+}
+
 function update-jhbuild {
     echo "Updating JHBuild..."
     git-clone https://git.gnome.org/browse/jhbuild "${HOME}/Code/gnome/jhbuild"
@@ -457,17 +475,18 @@ function init {
 function update-all {
     local force="${1}"
 
-    update-npm-packages    "${force}"
-    update-lua-packages    "${force}"
-    update-python-packages "${force}"
-    update-go-packages     "${force}"
-    update-git-fpaste      "${force}"
-    update-emacs           "${force}"
-    update-jhbuild         "${force}"
-    update-spotify         "${force}"
-    update-rtags           "${force}"
-    update-rust            "${force}"
-    update-racer           "${force}"
+    update-npm-packages            "${force}"
+    update-lua-packages            "${force}"
+    update-python-packages         "${force}"
+    update-go-packages             "${force}"
+    update-git-fpaste              "${force}"
+    update-bash-completions        "${force}"
+    update-emacs                   "${force}"
+    update-jhbuild                 "${force}"
+    update-spotify                 "${force}"
+    update-rtags                   "${force}"
+    update-rust                    "${force}"
+    update-racer                   "${force}"
 }
 
 function update-some {
@@ -476,17 +495,18 @@ function update-some {
         arg="${1}"
         shift
         case "${arg}" in
-            npm-packages)    update-npm-packages    "yes" ;;
-            lua-packages)    update-lua-packages    "yes" ;;
-            python-packages) update-python-packages "yes" ;;
-            go-packages)     update-go-packages     "yes" ;;
-            git-fpaste)      update-git-fpaste      "yes" ;;
-            emacs)           update-emacs           "yes" ;;
-            jhbuild)         update-jhbuild         "yes" ;;
-            spotify)         update-spotify         "yes" ;;
-            rtags)           update-rtags           "yes" ;;
-            rust)            update-rust            "yes" ;;
-            racer)           update-racer           "yes" ;;
+            npm-packages)            update-npm-packages            "yes" ;;
+            lua-packages)            update-lua-packages            "yes" ;;
+            python-packages)         update-python-packages         "yes" ;;
+            go-packages)             update-go-packages             "yes" ;;
+            git-fpaste)              update-git-fpaste              "yes" ;;
+            bash-completions)        update-bash-completions        "yes" ;;
+            emacs)                   update-emacs                   "yes" ;;
+            jhbuild)                 update-jhbuild                 "yes" ;;
+            spotify)                 update-spotify                 "yes" ;;
+            rtags)                   update-rtags                   "yes" ;;
+            rust)                    update-rust                    "yes" ;;
+            racer)                   update-racer                   "yes" ;;
         esac
     done
 }
