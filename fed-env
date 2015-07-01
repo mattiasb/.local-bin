@@ -361,6 +361,12 @@ function update-jhbuild {
     echo
 }
 
+function update-config {
+    pushd "${HOME}/.config/" >/dev/null &&
+        git pull --rebase		&&
+        popd >/dev/null
+}
+
 function update-spotify {
     local FORCE_UPDATE="${1}"
     if [ `command -v spotify` ] && [ -z "${FORCE_UPDATE}" ]; then
@@ -475,6 +481,7 @@ function init {
 function update-all {
     local force="${1}"
 
+    update-config                  "${force}"
     update-npm-packages            "${force}"
     update-lua-packages            "${force}"
     update-python-packages         "${force}"
@@ -495,6 +502,7 @@ function update-some {
         arg="${1}"
         shift
         case "${arg}" in
+            config)                  update-config                  "yes" ;;
             npm-packages)            update-npm-packages            "yes" ;;
             lua-packages)            update-lua-packages            "yes" ;;
             python-packages)         update-python-packages         "yes" ;;
