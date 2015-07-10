@@ -317,6 +317,18 @@ function update-emacs {
     echo
 }
 
+function update-magitsh {
+    echo "Updating magit.sh..."
+    echo
+
+    gh-clone "magit" "magit.sh" && install -m 755 magit ~/.local/bin/
+
+    echo
+    echo "magit.sh updated..."
+    echo
+    echo
+}
+
 function update-git-fpaste {
     echo "Updating git-fpaste..."
     echo
@@ -489,6 +501,7 @@ function update-all {
     update-git-fpaste              "${force}"
     update-bash-completions        "${force}"
     update-emacs                   "${force}"
+    update-magitsh                 "${force}"
     update-jhbuild                 "${force}"
     update-spotify                 "${force}"
     update-rtags                   "${force}"
@@ -510,6 +523,7 @@ function update-some {
             git-fpaste)              update-git-fpaste              "yes" ;;
             bash-completions)        update-bash-completions        "yes" ;;
             emacs)                   update-emacs                   "yes" ;;
+            magitsh)                 update-magitsh                 "yes" ;;
             jhbuild)                 update-jhbuild                 "yes" ;;
             spotify)                 update-spotify                 "yes" ;;
             rtags)                   update-rtags                   "yes" ;;
