@@ -1,0 +1,58 @@
+#!/bin/bash
+
+function _topdir {
+    rpmbuild -E '%_topdir'
+}
+
+if [ ! -d "$(_topdir)" ]; then
+    >&2 echo -ne "Error: no rpmbuild dir found! "
+    >&2 echo -e  "Initialize rpmbuild with fed-env init first!\n"
+    exit -1
+fi
+
+function get {
+    local URL="${1}"
+    local SPEC="${URL##*/}"
+
+    echo "Getting ${SPEC}..."
+    echo
+
+    curl "${URL}" -o "$(_topdir)/SPECS/${SPEC}"
+}
+
+function build {
+    local SPEC="${1}"
+
+    if [[ "${SPEC}" == ?(http://*|https://*) ]]; then
+        local URL="${SPEC}"
+        SPEC="${SPEC##*/}"
+
+        get "${URL}"
+    fi
+
+    echo "Building ${SPEC}..."
+    echo
+
+    pushd "$(_topdir)" >/dev/null			&& \
+        spectool  -g -R  "SPECS/${SPEC}"		&& \
+        rpmbuild  -ba    "SPECS/${SPEC}"
+    popd >/dev/null
+}
+
+function install {
+    local RPM="${1}"
+
+    echo "Installing ${RPM}..."
+    echo
+
+    sudo dnf install -y "$(_topdir)/RPMS/x86_64/${RPM}"
+}
+
+cmd="${1}"
+shift
+
+case "${cmd}" in
+    get)     get       "$@"	;;
+    build)   build     "$@"	;;
+    install) install   "$@"	;;
+esac
