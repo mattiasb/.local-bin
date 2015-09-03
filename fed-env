@@ -2,7 +2,7 @@
 
 PREFIX=~/.local
 
-GH_USERNAME=moonlite
+GH_USERNAME=mattiasb
 
 function mkcd {
     if [ ! -e "${1}" ]; then
@@ -325,7 +325,7 @@ function update-magitsh {
 function update-git-fpaste {
     begin-update "git-fpaste"
 
-    gh-clone "moonlite" "git-fpaste" "${HOME}/Code/Projects/git-fpaste/" && make user-install
+    gh-clone "${GH_USERNAME}" "git-fpaste" "${HOME}/Code/Projects/git-fpaste/" && make user-install
 
     end-update
 }
