@@ -170,6 +170,11 @@ function setup-packages {
         pandoc                          \
         perl-open                       \
         python-pip                      \
+        python-rope                     \
+        python-jedi                     \
+        python-flake8                   \
+        python-importmagic              \
+        python-autopep8                 \
         rpmdevtools                     \
         rpmlint                         \
         tig                             \
