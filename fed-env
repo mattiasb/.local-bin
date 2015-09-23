@@ -177,6 +177,7 @@ function setup-packages {
         python-autopep8                 \
         rpmdevtools                     \
         rpmlint                         \
+        ShellCheck                      \
         tig                             \
         transmission-remote-gtk         \
         tmux                            \
