@@ -169,6 +169,7 @@ function setup-packages {
         nuntius                         \
         pandoc                          \
         perl-open                       \
+        pylint                          \
         python-pip                      \
         python-rope                     \
         python-jedi                     \
