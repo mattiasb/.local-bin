@@ -163,7 +163,7 @@ function setup-packages {
         llvm-static                     \
         meld                            \
         mercurial                       \
-        mvn                             \
+        maven                           \
         npm                             \
         nautilus-open-terminal          \
         ncurses-devel                   \
