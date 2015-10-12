@@ -163,6 +163,7 @@ function setup-packages {
         llvm-static                     \
         meld                            \
         mercurial                       \
+        mvn                             \
         npm                             \
         nautilus-open-terminal          \
         ncurses-devel                   \
@@ -435,6 +436,17 @@ function update-rust {
 
 }
 
+function update-jdee {
+    begin-update "JDEE"
+
+    gh-clone "jdee-emacs" "jdee-server" &&
+        mvn assembly:assembly &&
+        mkdir -p "${PREFIX}/share/java/" &&
+        cp target/jdee-bundle-*.jar "${PREFIX}/share/java/"
+
+    end-update
+}
+
 function update-racer {
     local FORCE_UPDATE="${1}"
     if [ `command -v racer` ] && [ -z "${FORCE_UPDATE}" ]; then
@@ -484,6 +496,7 @@ function update-all {
     update-jhbuild                 "${force}"
     update-spotify                 "${force}"
     update-rtags                   "${force}"
+    update-jdee                    "${force}"
     update-rust                    "${force}"
     update-racer                   "${force}"
 }
@@ -506,6 +519,7 @@ function update-some {
             jhbuild)                 update-jhbuild                 "yes" ;;
             spotify)                 update-spotify                 "yes" ;;
             rtags)                   update-rtags                   "yes" ;;
+            jdee)                    update-jdee                    "yes" ;;
             rust)                    update-rust                    "yes" ;;
             racer)                   update-racer                   "yes" ;;
         esac
