@@ -439,9 +439,9 @@ function update-rust {
 function update-jdee {
     begin-update "JDEE"
 
-    gh-clone "jdee-emacs" "jdee-server" &&
-        mvn assembly:assembly &&
-        mkdir -p "${PREFIX}/share/java/" &&
+    gh-clone "jdee-emacs" "jdee-server"                 &&
+        mvn assembly:assembly                           &&
+        mkdir -p "${PREFIX}/share/java/"                &&
         cp target/jdee-bundle-*.jar "${PREFIX}/share/java/"
 
     end-update
