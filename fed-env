@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PREFIX=~/.local
+CONFIG=~/.config
 
 GH_USERNAME=mattiasb
 
@@ -334,15 +335,20 @@ function update-git-fpaste {
 }
 
 function update-bash-completions {
-    local COMP_PATH="${PREFIX}/share/bash-completion/completions/"
+    local LAZY_PATH="${PREFIX}/share/bash-completion/completions/"
+    local LOAD_PATH="${CONFIG}/bash_completion.d/"
 
     begin-update "bash completion"
 
     gh-clone "ekalinin" "pip-bash-completion" &&
-        cp pip "${COMP_PATH}" &&
+        cp pip "${LAZY_PATH}" &&
         cd
 
-    [ `command -v npm` ] && npm completion > "${COMP_PATH}/npm"
+    gh-clone "seveas" "git-spindle" &&
+        cp completion/git-spindle.completion.bash "${LOAD_PATH}" &&
+        cd
+
+    [ `command -v npm` ] && npm completion > "${LAZY_PATH}/npm"
 
     end-update
 }
