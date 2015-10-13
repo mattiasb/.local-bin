@@ -120,6 +120,14 @@ function setup-rpmfusion {
     fi
 }
 
+function setup-coprs {
+    begin-setup "coprs"
+
+    sudo dnf copr enable -y fabiand/rust-binary
+
+    end-setup
+}
+
 function setup-packages {
     begin-setup "packages"
 
@@ -178,6 +186,7 @@ function setup-packages {
         python-autopep8                 \
         rpmdevtools                     \
         rpmlint                         \
+        rust-binary                     \
         ShellCheck                      \
         tig                             \
         transmission-remote-gtk         \
@@ -416,30 +425,6 @@ function update-rtags {
 
 }
 
-function update-rust {
-    local FORCE_UPDATE="${1}"
-    if [ `command -v rustc` ] && [ -z "${FORCE_UPDATE}" ]; then
-        echo "Rust already installed..."
-        echo
-        echo
-    else
-        begin-update "Rust"
-
-        local SPEC="rust-binary.spec"
-        local URL="https://raw.githubusercontent.com/cgwalters/playground/master/rust/${SPEC}"
-
-        pushd ~/Code/Fedora/rpmbuild/ >/dev/null       	&& \
-            curl "${URL}" -o "SPECS/${SPEC}"		&& \
-            spectool  -g -R  "SPECS/${SPEC}"		&& \
-            rpmbuild  -ba    "SPECS/${SPEC}"		&& \
-            sudo dnf install -y RPMS/x86_64/rust*
-        popd >/dev/null
-
-        end-update
-    fi
-
-}
-
 function update-jdee {
     begin-update "JDEE"
 
@@ -475,6 +460,7 @@ function update-racer {
 
 function init {
     setup-rpmfusion
+    setup-coprs
     setup-packages
     setup-chrome
     setup-config
@@ -501,7 +487,6 @@ function update-all {
     update-spotify                 "${force}"
     update-rtags                   "${force}"
     update-jdee                    "${force}"
-    update-rust                    "${force}"
     update-racer                   "${force}"
 }
 
@@ -524,7 +509,6 @@ function update-some {
             spotify)                 update-spotify                 "yes" ;;
             rtags)                   update-rtags                   "yes" ;;
             jdee)                    update-jdee                    "yes" ;;
-            rust)                    update-rust                    "yes" ;;
             racer)                   update-racer                   "yes" ;;
         esac
     done
