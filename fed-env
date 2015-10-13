@@ -126,7 +126,6 @@ function setup-packages {
     PACKAGES="                          \
         bijiben                         \
         cabal-install                   \
-        california                      \
         clang-devel                     \
         cmake                           \
         corebird                        \
@@ -135,7 +134,6 @@ function setup-packages {
         docker-io                       \
         emacs                           \
         epiphany                        \
-        fedup                           \
         gimp                            \
         git                             \
         git-bz                          \
