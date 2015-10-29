@@ -281,7 +281,6 @@ function update-npm-packages {
         jscs                            \
         jake                            \
         http-server                     \
-        editorconfig                    \
         yasel                           \
         2> /dev/null
 
