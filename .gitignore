@@ -52,3 +52,5 @@
 /vs-sln-extract
 /magit
 /easy_install*
+/eslint
+/eslint-auto-config
