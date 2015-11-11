@@ -124,6 +124,8 @@ function setup-coprs {
     begin-setup "coprs"
 
     sudo dnf copr enable -y fabiand/rust-binary
+    sudo dnf config-manager \
+         --add-repo=http://negativo17.org/repos/fedora-spotify.repo
 
     end-setup
 }
@@ -188,6 +190,7 @@ function setup-packages {
         rpmlint                         \
         rust-binary                     \
         ShellCheck                      \
+        spotify-client                  \
         tig                             \
         transmission-remote-gtk         \
         tmux                            \
@@ -375,25 +378,6 @@ function update-config {
     pushd "${HOME}/.config/" >/dev/null &&
         git pull --rebase		&&
         popd >/dev/null
-}
-
-function update-spotify {
-    local FORCE_UPDATE="${1}"
-    if [ `command -v spotify` ] && [ -z "${FORCE_UPDATE}" ]; then
-        echo "Spotify already installed. Skipping..."
-        echo
-        echo
-    else
-        begin-update "Spotify"
-
-        gh-clone "leamas" "spotify-make"
-        ./configure --prefix="${PREFIX}/"
-        make download
-        make install
-        make register
-
-        end-update
-    fi
 }
 
 function update-rtags {
