@@ -159,7 +159,6 @@ function setup-packages {
         golang-godoc                    \
         gperf                           \
         gstreamer1-libav                \
-        gstreamer1-plugins-bad          \
         gstreamer1-plugins-bad-freeworld\
         gstreamer1-plugins-ugly         \
         gstreamer1-vaapi                \
