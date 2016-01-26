@@ -182,6 +182,7 @@ function setup-packages {
         pylint                          \
         python-pip                      \
         python-rope                     \
+        python-ipython                  \
         python-jedi                     \
         python-flake8                   \
         python-importmagic              \
