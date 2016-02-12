@@ -1,9 +1,17 @@
 #!/bin/bash
 
+#############
+# Variables #
+#############
+
 PREFIX=~/.local
 CONFIG=~/.config
 
 GH_USERNAME=mattiasb
+
+###########
+# Helpers #
+###########
 
 function mkcd {
     if [ ! -e "${1}" ]; then
