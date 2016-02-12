@@ -286,6 +286,14 @@ function setup-jhbuild {
 # Install / Update #
 ####################
 
+function update-packages {
+    begin-update "Packages"
+
+    sudo su -c "echo $PACKAGES | xargs dnf install"
+
+    end-update
+}
+
 function update-npm-packages {
     begin-update "NPM packages"
 
@@ -482,6 +490,7 @@ function update-all {
     update-rtags                   "${force}"
     update-jdee                    "${force}"
     update-racer                   "${force}"
+    update-packages                "${force}"
 }
 
 function update-some {
@@ -504,6 +513,7 @@ function update-some {
             rtags)                   update-rtags                   "yes" ;;
             jdee)                    update-jdee                    "yes" ;;
             racer)                   update-racer                   "yes" ;;
+            packages)                update-packages                "yes" ;;
         esac
     done
 }
