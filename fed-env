@@ -138,6 +138,7 @@ function setup-packages {
         cabal-install                   \
         clang-devel                     \
         cmake                           \
+        ctags-etags                     \
         corebird                        \
         docbook-dtds                    \
         docbook-style-xsl               \
