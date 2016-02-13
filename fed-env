@@ -474,7 +474,14 @@ function init {
 }
 
 function update-all {
-    local force="${1}"
+    local force
+    if [[ ! -z "${1}" ]]; then
+        force="yes"
+    fi
+
+    if [ "${1}" != "--all-except-pkgs" ]; then
+        update-packages            "${force}"
+    fi
 
     update-config                  "${force}"
     update-npm-packages            "${force}"
@@ -490,7 +497,6 @@ function update-all {
     update-rtags                   "${force}"
     update-jdee                    "${force}"
     update-racer                   "${force}"
-    update-packages                "${force}"
 }
 
 function update-some {
@@ -521,8 +527,8 @@ function update-some {
 function update {
     if [[ $# == 0 ]]; then
         update-all
-    elif [[ $# == 1 ]] && [[ "${1}" == "--all" ]]; then
-        update-all "yes"
+    elif [[ $# == 1 ]] && [[ "${1}" == ?(--all|--all-except-pkgs) ]]; then
+        update-all "$@"
     else
         update-some "$@"
     fi
@@ -532,7 +538,7 @@ cmd="${1}"
 shift
 
 case "${cmd}" in
-    init)    init           ;;
-    update)  update "$@"    ;;
-    install) init && update ;;
+    init)    init                             ;;
+    update)  update "$@"                      ;;
+    install) init && update --all-except-pkgs ;;
 esac
