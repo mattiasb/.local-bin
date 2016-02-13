@@ -96,10 +96,13 @@ function git-clone {
 
     mkcd "${dir}"
 
-    if [ ! -d .git ]; then
-        git clone "${url}" .
-    else
+    if [ -d .git ]; then
         git pull origin master
+    else
+        git init
+        git remote add origin "${url}"
+        git fetch origin
+        git checkout -b master --track origin/master
     fi
 
     if [ -f .gitmodules ]; then
