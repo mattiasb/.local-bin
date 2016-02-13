@@ -496,7 +496,6 @@ function update-all {
     update-emacs                   "${force}"
     update-magitsh                 "${force}"
     update-jhbuild                 "${force}"
-    update-spotify                 "${force}"
     update-rtags                   "${force}"
     update-jdee                    "${force}"
     update-racer                   "${force}"
@@ -518,7 +517,6 @@ function update-some {
             emacs)                   update-emacs                   "yes" ;;
             magitsh)                 update-magitsh                 "yes" ;;
             jhbuild)                 update-jhbuild                 "yes" ;;
-            spotify)                 update-spotify                 "yes" ;;
             rtags)                   update-rtags                   "yes" ;;
             jdee)                    update-jdee                    "yes" ;;
             racer)                   update-racer                   "yes" ;;
