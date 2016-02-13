@@ -358,10 +358,12 @@ function update-git-fpaste {
 }
 
 function update-bash-completions {
+    begin-update "bash completion"
+
     local LAZY_PATH="${PREFIX}/share/bash-completion/completions/"
     local LOAD_PATH="${CONFIG}/bash_completion.d/"
-
-    begin-update "bash completion"
+    mkdir -p "${LAZY_PATH}"
+    mkdir -p "${LOAD_PATH}"
 
     gh-clone "ekalinin" "pip-bash-completion" &&
         cp pip "${LAZY_PATH}" &&
