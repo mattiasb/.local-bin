@@ -490,8 +490,10 @@ function update-all {
     update-emacs                   "${force}"
     update-jhbuild                 "${force}"
     update-rtags                   "${force}"
-    update-jdee                    "${force}"
     update-racer                   "${force}"
+
+    ## Currently not using
+    # update-jdee                  "${force}"
 }
 
 function update-some {
