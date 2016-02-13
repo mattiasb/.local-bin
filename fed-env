@@ -535,11 +535,6 @@ function update {
     fi
 }
 
-if [[ ! -f ~/.ssh/id_rsa ]]; then
-    echo "No ssh key available!"
-    exit 1
-fi
-
 cmd="${1}"
 shift
 
