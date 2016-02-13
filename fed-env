@@ -349,14 +349,6 @@ function update-emacs {
     end-update
 }
 
-function update-magitsh {
-    begin-update "magit.sh"
-
-    gh-clone "magit" "magit.sh" && install -m 755 magit ~/.local/bin/
-
-    end-update
-}
-
 function update-git-fpaste {
     begin-update "git-fpaste"
 
@@ -494,7 +486,6 @@ function update-all {
     update-git-fpaste              "${force}"
     update-bash-completions        "${force}"
     update-emacs                   "${force}"
-    update-magitsh                 "${force}"
     update-jhbuild                 "${force}"
     update-rtags                   "${force}"
     update-jdee                    "${force}"
@@ -515,7 +506,6 @@ function update-some {
             git-fpaste)              update-git-fpaste              "yes" ;;
             bash-completions)        update-bash-completions        "yes" ;;
             emacs)                   update-emacs                   "yes" ;;
-            magitsh)                 update-magitsh                 "yes" ;;
             jhbuild)                 update-jhbuild                 "yes" ;;
             rtags)                   update-rtags                   "yes" ;;
             jdee)                    update-jdee                    "yes" ;;
