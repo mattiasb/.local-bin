@@ -140,7 +140,7 @@ function safe-link-bin {
     local target;
 
     if [ -z "${2}" ]; then
-	bin=`basename "${1}"`
+        bin=$(basename "${1}")
     else
 	bin="${2}"
     fi
@@ -188,7 +188,7 @@ function setup-rpmfusion {
     else
         begin-setup "RPM Fusion"
 
-        sudo su -c 'dnf install --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm'
+        sudo su -c "dnf install --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
 
         end-setup
     fi
@@ -213,7 +213,7 @@ function setup-packages {
 }
 
 function setup-chrome {
-    if [ `command -v google-chrome` ]; then
+    if [ "$(command -v google-chrome)" ]; then
         echo "Google Chrome already installed..."
     else
         begin-setup "Google Chrome"
@@ -376,7 +376,7 @@ function update-bash-completions {
         cp completion/git-spindle.completion.bash "${LOAD_PATH}" &&
         cd
 
-    [ `command -v npm` ] && npm completion > "${LAZY_PATH}/npm"
+    [ "$(command -v npm)" ] && npm completion > "${LAZY_PATH}/npm"
 
     end-update
 }
@@ -401,7 +401,7 @@ function update-config {
 
 function update-rtags {
     local FORCE_UPDATE="${1}"
-    if [ `command -v rdm` ] && [ -z "${FORCE_UPDATE}" ]; then
+    if [ "$(command -v rdm)" ] && [ -z "${FORCE_UPDATE}" ]; then
         echo "RTags already installed. Skipping..."
         echo
         echo
@@ -411,13 +411,13 @@ function update-rtags {
         gh-clone "Andersbakken" "rtags"
         mkcd build
         cmake -DCMAKE_INSTALL_PREFIX:PATH="${PREFIX}/" .. && \
-            make -j $(nproc)                              && \
+            make -j "$(nproc)"                            && \
             make install
         cd "${HOME}"
         if [ ! -x "${HOME}/.local/bin/gcc-rtags-wrapper.sh" ]; then
             echo "Installing GCC wrapper symlinks..."
             install -m 755 "${HOME}/Code/github/rtags/bin/gcc-rtags-wrapper.sh" ~/.local/bin/
-            for COMP in `echo -e "gcc\nc++\ncc\ng++"`; do
+            for COMP in "gcc" "c++" "cc" "g++"; do
                 safe-link-bin "${HOME}/.local/bin/gcc-rtags-wrapper.sh" "$COMP";
             done
         fi
@@ -440,7 +440,7 @@ function update-jdee {
 
 function update-racer {
     local FORCE_UPDATE="${1}"
-    if [ `command -v racer` ] && [ -z "${FORCE_UPDATE}" ]; then
+    if [ "$(command -v racer)" ] && [ -z "${FORCE_UPDATE}" ]; then
         echo "Racer already installed..."
         echo
         echo
@@ -495,7 +495,7 @@ function update-all {
 
 function update-some {
     local arg
-    while [[ $# > 0 ]] ; do
+    while [[ $# -gt 0 ]] ; do
         arg="${1}"
         shift
         case "${arg}" in
