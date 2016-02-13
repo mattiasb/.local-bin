@@ -188,7 +188,7 @@ function setup-rpmfusion {
     else
         begin-setup "RPM Fusion"
 
-        sudo su -c "dnf install --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
+        sudo su -c "dnf install -y --nogpgcheck http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm"
 
         end-setup
     fi
@@ -218,7 +218,7 @@ function setup-chrome {
     else
         begin-setup "Google Chrome"
 
-        sudo su -c 'dnf install --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
+        sudo su -c 'dnf install -y --nogpgcheck https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm'
 
         end-setup
     fi
