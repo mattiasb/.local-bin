@@ -292,7 +292,7 @@ function setup-jhbuild {
 function update-packages {
     begin-update "Packages"
 
-    sudo su -c "echo $PACKAGES | xargs dnf install"
+    sudo su -c "echo $PACKAGES | xargs dnf install -by"
 
     end-update
 }
