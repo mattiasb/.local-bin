@@ -54,6 +54,7 @@ PACKAGES="bijiben                                                       \
           nautilus-open-terminal                                        \
           ncurses-devel                                                 \
           nuntius                                                       \
+          p7zip-plugins                                                 \
           pandoc                                                        \
           perl-open                                                     \
           pylint                                                        \
