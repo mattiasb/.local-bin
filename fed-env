@@ -65,6 +65,11 @@ PACKAGES="bijiben                                                       \
           python-flake8                                                 \
           python-importmagic                                            \
           python-autopep8                                               \
+          remmina                                                       \
+          remmina-plugins-gnome                                         \
+          remmina-plugins-rdp                                           \
+          remmina-plugins-vnc                                           \
+          remmina                                                       \
           rpmdevtools                                                   \
           rpmlint                                                       \
           rust-binary                                                   \
