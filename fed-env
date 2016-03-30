@@ -216,6 +216,7 @@ function setup-coprs {
 function setup-packages {
     begin-setup "packages"
 
+    sudo dnf groupinstall 'Development Tools'
     sudo su -c "echo $PACKAGES | xargs dnf install -by"
 
     end-setup
