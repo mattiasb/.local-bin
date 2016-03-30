@@ -72,6 +72,8 @@ PACKAGES="bijiben                                                       \
           remmina                                                       \
           rpmdevtools                                                   \
           rpmlint                                                       \
+          ruby                                                          \
+          ruby-irb                                                      \
           rust-binary                                                   \
           ShellCheck                                                    \
           spotify-client                                                \
