@@ -55,3 +55,15 @@
 /eslint
 /eslint-auto-config
 /TAGS
+/analyze-build
+/analyze-c++
+/analyze-cc
+/git-ls
+/gnome-twitch
+/intercept-build
+/intercept-c++
+/intercept-cc
+/pip
+/pip2
+/pip2.7
+/scan-build
