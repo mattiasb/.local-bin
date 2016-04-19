@@ -332,7 +332,9 @@ function update-lua-packages {
 function update-python-packages {
     begin-update "Python packages"
 
-    pip install --upgrade --user git-spindle
+    pip install --upgrade --user        \
+        git-spindle                     \
+        scan-build
 
     end-update
 }
