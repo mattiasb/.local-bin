@@ -1,0 +1,22 @@
+#!/bin/bash
+
+URL="${1}"
+
+if [ $# -lt 1 ]; then
+    echo "Usage: git clone-here <url>"
+    exit 2
+fi
+
+if [ -d .git ]; then
+    echo "This is already a git repository."
+    exit 3
+fi
+
+git init
+git remote add origin "${URL}"
+git fetch origin
+git checkout -b master --track origin/master
+
+if [ -f .gitmodules ]; then
+    git submodule update --init --remote
+fi

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+CURR="$(git rev-parse --abbrev-ref HEAD)"
+
+git fetch
+count=$(git log --oneline "${CURR}..origin/${CURR}"| wc -l)
+echo "${count}"
+git merge "origin/${CURR}"
+git reset --hard HEAD~$((count-1))
