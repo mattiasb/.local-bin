@@ -1,4 +1,4 @@
-gsettings set org.baedert.corebird accel-compose-tweet "'N'"
+gsettings set org.baedert.corebird accel-compose-tweet "'C'"
 gsettings set org.baedert.corebird round-avatars "false"
 gsettings set org.gnome.Terminal.Legacy.Settings theme-variant "'system'"
 gsettings set org.gnome.Terminal.Legacy.Settings toggle-menubar "'disabled'"
