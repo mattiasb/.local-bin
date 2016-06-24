@@ -68,3 +68,6 @@
 /pip2.7
 /scan-build
 /git-wip
+/cargo-fmt
+/git-each
+/rustfmt
