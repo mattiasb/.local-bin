@@ -1,0 +1,11 @@
+#!/bin/bash
+
+USER="${1}"
+DOMAIN="${2}"
+
+if [ -z "${USER}" ] || [ -z "${DOMAIN}" ]; then
+    echo "Usage: $(basename "${0}") <user> <domain>"
+    exit 2
+fi
+
+smbpasswd -U "${USER}" -r "$(nslookup _ldap._tcp.dc._msdcs."${DOMAIN}" | awk '{print $2;exit;}')"
