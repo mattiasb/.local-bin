@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]; then
+    echo "Usage: git rename-branch-remote <remote> <source> <dest>"
+    exit 2
+fi
+
+git push "${1}" "${1}/${2}:refs/heads/${3}" ":${2}"
