@@ -1,0 +1,5 @@
+#!/bin/bash
+
+pkcon refresh force           || exit $?
+pkcon update --only-download  || exit $?
+pkcon offline-trigger         || exit $?
