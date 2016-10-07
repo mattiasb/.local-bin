@@ -1,9 +1,24 @@
 #!/bin/bash
 
+if [[ "$*" == *-h* ]]; then
+    echo "Usage: $(basename "${0}") [<repository>] [<refspec>]"
+    echo
+    echo "Pull one commit from <repository>/<refspec> to the current branch."
+
+    exit 0
+fi
+
 CURR="$(git rev-parse --abbrev-ref HEAD)"
 
-git fetch
-count=$(git log --oneline "${CURR}..origin/${CURR}"| wc -l)
-echo "${count}"
-git merge "origin/${CURR}"
-git reset --hard HEAD~$((count-1))
+if [ -z "${1}" ]; then
+    REPOREF=$(git for-each-ref --format='%(upstream:short)' "$(git symbolic-ref -q HEAD)")
+else
+    REPOREF="${1}/${2:-${CURR}}"
+fi
+
+count=$(git log --oneline "${CURR}..${REPOREF}"| wc -l)
+
+if [ "${count}" -gt 0 ]; then
+    git merge "${REPOREF}"
+    git reset --hard HEAD~$((count-1))
+fi
