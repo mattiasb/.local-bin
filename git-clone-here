@@ -1,9 +1,8 @@
 #!/bin/bash
 
-URL="${1}"
 
-if [ $# -lt 1 ]; then
-    echo "Usage: git clone-here <url>"
+if [ $# -lt 1 ] || [[ "$*" == *-h* ]]; then
+    echo "Usage: git clone-here [--recursive] <repo>"
     exit 2
 fi
 
@@ -12,11 +11,14 @@ if [ -d .git ]; then
     exit 3
 fi
 
-git init
-git remote add origin "${URL}"
-git fetch origin
-git checkout -b master --track origin/master
+REPO="${1}"
 
-if [ -f .gitmodules ]; then
-    git submodule update --init --remote
+git ls-remote "${REPO}" > /dev/null          || exit $?
+git init                                     || exit $?
+git remote add origin "${REPO}"              || exit $?
+git fetch origin                             || exit $?
+git checkout -b master --track origin/master || exit $?
+
+if [[ "$*" == *--recursive* ]]; then
+    git submodule update --init --recursive
 fi
