@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Copyright ⓒ 2016 Mattias Bengtsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with This program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+
+# Some small revision parsing helpers
+
+function immediate-children {
+    for commit in $(git rev-parse "${1:-HEAD}"^0); do
+        git log --format='%H %P' --all       | \
+            grep -F " $commit"               | \
+            cut -f1 -d' '
+    done
+}
+
+function immediate-parents {
+    git rev-list --parents -n 1 "${1:-HEAD}" | \
+        tr " " "\n"                          | \
+        tail -n +2
+}
+
+arg="${1}"
+shift
+case "${arg}" in
+    immediate-children)
+        immediate-children "${@}"
+        ;;
+    immediate-parents)
+        immediate-parents "${@}"
+                      ;;
+    *)
+        echo "Usage: git rev-ext <command> [ref]"
+        echo
+        echo "Commands:"
+        echo "  immediate-children  Get all immediate children of a ref"
+        echo "  immediate-parents   Get all immediate parents of a ref"
+        exit 2
+        ;;
+esac
