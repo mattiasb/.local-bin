@@ -27,8 +27,7 @@ function _init {
 }
 
 function _commit {
-    BRANCH=$(git rev-parse --abbrev-ref HEAD)
-    BRANCH="${BRANCH/\//-}"
+    BRANCH=$(git rev-parse --abbrev-ref HEAD | sed -e 's/\//--/gi')
     echo "${BRANCH}: Commit ${1}" >> "commits.${BRANCH}"
     git add "commits.${BRANCH}"
     git commit -a -m "${BRANCH}: Commit ${1}";
