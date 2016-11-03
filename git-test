@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Copyright ⓒ 2016 Mattias Bengtsson
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with This program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Author: Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+
+
+
+function _init {
+    git init
+    echo "Test repo" > README.md
+    git add README.md
+    git commit -m "Initial commit"
+}
+
+function _commit {
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    BRANCH="${BRANCH/\//-}"
+    echo "${BRANCH}: Commit ${1}" >> "commits.${BRANCH}"
+    git add "commits.${BRANCH}"
+    git commit -a -m "${BRANCH}: Commit ${1}";
+};
+
+arg="${1}"
+shift
+case "${arg}" in
+    init)
+        _init "${@}"
+        ;;
+    commit)
+        for var in "$@"; do
+            _commit "${var}"
+        done
+        ;;
+    *)
+        echo "Usage: git test [command] [<arg>..]"
+        echo
+        echo "  git test helps you quickly whip up a repo and some commits."
+        echo
+        echo "Commands:"
+        echo "  init                Initialize a test repo"
+        echo "  commit              Add some test commits"
+        exit 2
+        ;;
+esac
