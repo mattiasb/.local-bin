@@ -76,3 +76,15 @@
 /pip3.5
 /qr
 /rg
+/autopep8
+/flake8
+/ipdb
+/iptest
+/iptest2
+/ipython
+/ipython2
+/pep8
+/pycodestyle
+/pyflakes
+/pygmentize
+/wheel
