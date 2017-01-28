@@ -88,3 +88,6 @@
 /pyflakes
 /pygmentize
 /wheel
+/iptest3
+/ipython3
+/trepanjs
