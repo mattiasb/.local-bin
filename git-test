@@ -17,9 +17,18 @@
 #
 # Author: Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
 
-
+function _help-flag {
+    [[ " ${@} " == *" --help "* ]] || [[ " ${@} " == *" -h "* ]]
+}
 
 function _init {
+    if _help-flag "${@}"; then
+        echo "Usage: git test init"
+        echo
+        echo "Initialize a test repository."
+        exit 2
+    fi
+
     git init
     echo "Test repo" > README.md
     git add README.md
@@ -27,10 +36,19 @@ function _init {
 }
 
 function _commit {
-    BRANCH=$(git rev-parse --abbrev-ref HEAD | sed -e 's/\//--/gi')
-    echo "${BRANCH}: Commit ${1}" >> "commits.${BRANCH}"
-    git add "commits.${BRANCH}"
-    git commit -a -m "${BRANCH}: Commit ${1}";
+    if [ -z "${@}" ] || _help-flag "${@}"; then
+        echo "Usage: git test commit [<msg>]"
+        echo
+        echo "Add a series of test commits."
+        exit 2
+    fi
+
+    for msg in "$@"; do
+        BRANCH=$(git rev-parse --abbrev-ref HEAD | sed -e 's/\//--/gi')
+        echo "${BRANCH}: Commit ${msg}" >> "commits.${BRANCH}"
+        git add "commits.${BRANCH}"
+        git commit -a -m "${BRANCH}: Commit ${msg}";
+    done
 };
 
 arg="${1}"
@@ -40,9 +58,7 @@ case "${arg}" in
         _init "${@}"
         ;;
     commit)
-        for var in "$@"; do
-            _commit "${var}"
-        done
+        _commit "${@}"
         ;;
     *)
         echo "Usage: git test [command] [<arg>..]"
