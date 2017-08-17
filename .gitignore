@@ -99,3 +99,7 @@ isort
 ipdb3
 futurize
 git-local
+/ion
+/fd
+/gitlab
+/pybitbucket_cli
