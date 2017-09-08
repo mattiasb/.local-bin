@@ -1,4 +1,0 @@
-#!/bin/bash
-
-SCALE=$(gsettings get org.gnome.desktop.interface scaling-factor | sed --posix 's/.* \([0-3]\)/\1/g')
-flatpak run com.spotify.Client --force-device-scale-factor="${SCALE}" "${@}"
