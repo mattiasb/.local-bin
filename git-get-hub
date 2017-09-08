@@ -1,0 +1,17 @@
+#!/bin/bash
+
+__path="${HOME}/Code/github/${1}"
+
+if [ -d "${__path}" ]; then
+    echo "[${__path}] already exists.."
+    cd "${__path}" || exit $?
+    return 2
+fi
+
+mkdir -p "${__path}" || exit $?
+git hub clone "${1}" "${__path}" || {
+    __oldret=$?
+    rm -rfi "${__path}"
+    exit "${__oldret}"
+}
+cd "${__path}" || exit $?
