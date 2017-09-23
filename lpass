@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Login to lastpass automatically when needed.
+# Assumes you've defined your lastpass username in ~/.config/lpass/alias.login
+
+LPASS=/bin/lpass
+
+case "${1}" in
+    -v|--version|--help|-h|login|logout|status) ;;
+    *)
+        if [ ! "$($LPASS ls 2>/dev/null)" ]; then
+            $LPASS login
+        fi
+        ;;
+esac
+
+$LPASS "${@}"
