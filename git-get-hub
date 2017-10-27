@@ -5,7 +5,7 @@ __path="${HOME}/Code/github/${1}"
 if [ -d "${__path}" ]; then
     echo "[${__path}] already exists.."
     cd "${__path}" || exit $?
-    return 2
+    exit 2
 fi
 
 mkdir -p "${__path}" || exit $?
