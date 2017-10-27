@@ -106,3 +106,5 @@ git-local
 /debug-usage
 /spotify-2x
 /chardetect
+/javascript-typescript-langserver
+/javascript-typescript-stdio
