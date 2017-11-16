@@ -1,0 +1,14 @@
+#!/bin/bash
+
+function _help-flag {
+    [[ " ${*} " == *" --help "* ]] || [[ " ${*} " == *" -h "* ]]
+}
+
+if [ "${#}" -lt 3 ] || _help-flag "${@}"; then
+    echo "Usage: simple-sync <host> <src> <dest>"
+    echo
+    echo "Sync (push) a directory to a remote ssh directory via lftp."
+    return 2
+fi
+
+lftp -c "open sftp://${1}; mirror -c -e -R -L \"${2}\" \"${3}\""
