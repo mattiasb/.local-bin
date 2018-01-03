@@ -4,11 +4,33 @@ function _help-flag {
     [[ " ${*} " == *" --help "* ]] || [[ " ${*} " == *" -h "* ]]
 }
 
-if [ "${#}" -lt 3 ] || _help-flag "${@}"; then
-    echo "Usage: simple-sync <host> <src> <dest>"
+function _help {
+    echo "Usage: simple-sync <up|down> <host> <src> <dest>"
     echo
     echo "Sync (push) a directory to a remote ssh directory via lftp."
-    return 2
+    exit 2
+}
+
+if [ "${#}" -lt 4 ] || _help-flag "${@}"; then
+    _help
 fi
 
-lftp -c "open sftp://${1}; mirror -c -e -R -L \"${2}\" \"${3}\""
+CMD="${1}"
+HOST="${2}"
+SRC="${3}"
+DEST="${4}"
+
+case "${CMD}" in
+    up)
+        lftp -c "open sftp://${HOST}; mirror -c -e -R -L \"${SRC}\" \"${DEST}\""
+        exit $?
+        ;;
+    down)
+        lftp -c "open sftp://${HOST}; mirror -c -e -L \"${SRC}\" \"${DEST}\""
+        exit $?
+        ;;
+    *)
+        _help
+        exit $?
+        ;;
+esac
