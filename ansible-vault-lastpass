@@ -1,0 +1,97 @@
+#!/bin/bash
+
+LASTPASS_GROUP=AnsibleVaults
+
+function usage {
+    echo "Usage: $(basename "${0}") [-h|--help] [add|edit|rm]"
+    echo
+    echo "Store passwords for ansible-vault in lastpass."
+}
+
+function full-usage {
+    usage
+    echo
+    echo "Notes:"
+    echo
+    echo "  $(basename "${0}") assumes the vault file is sitting in a"
+    echo "  git-repository with a configured upstream- or origin remote."
+    echo
+    echo "Quick start:"
+    echo
+    echo "  Inside a git-repo:"
+    echo "    $ export ANSIBLE_VAULT_PASSWORD_FILE=${0}"
+    echo "    $ $(basename "${0}") add"
+    echo
+    echo "  After typing in your password and closing your editor you should now"
+    echo "  have the vault password for this repo stored in lastpass under the "
+    echo "  ${LASTPASS_GROUP} group."
+    echo
+    echo "  If everything works as expected all ansible-vault commands"
+    echo "  (inside the same repo) should now fetch this password from lastpass."
+}
+
+function check-args {
+    if [ $# -lt 1 ]; then
+        return 0
+    fi
+    case "${1}" in
+        add|edit|rm)
+            return 0
+            ;;
+        *)
+            return 2
+            ;;
+    esac
+}
+
+if [[ " ${*} " == *" -h "* ]]; then
+    usage
+    exit 2
+elif [[ " ${*} " == *" --help "* ]]; then
+    full-usage
+    exit 2
+elif ! check-args "${@}"; then
+    echo "'${1}' is not a known command. See '$(basename "${0}") --help'."
+    exit 2
+fi
+
+if [ ! "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
+    echo "Not a git repository." >&2
+    exit 3
+fi
+
+if ! lpass ls > /dev/null 2>&1; then
+    if ! lpass login; then
+        echo "Failed to login to lastpass" > /dev/stderr
+        exit 4
+    fi
+fi
+
+if ! remote=$(git remote get-url upstream 2>/dev/null); then
+    if ! remote=$(git remote get-url origin 2>/dev/null); then
+        echo "Failed to find a suitable remote" > /dev/stderr
+        exit 5
+    fi
+fi
+
+lpass_key="${LASTPASS_GROUP}\\${remote}"
+
+if [ $# -gt 0 ]; then
+    case "${1}" in
+        add)
+            lpass add --password "${lpass_key}"
+            ;;
+        edit)
+            lpass edit --password "${lpass_key}"
+            ;;
+        rm)
+            read -p "Are you sure you want to delete ${lpass_key} [y/N]? " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                echo lpass rm "${lpass_key}"
+            fi
+            ;;
+    esac
+else
+    lpass show --password "${lpass_key}"
+fi
