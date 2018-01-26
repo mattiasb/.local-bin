@@ -3,7 +3,7 @@
 LASTPASS_GROUP=AnsibleVaults
 
 function usage {
-    echo "Usage: $(basename "${0}") [-h|--help] [add|edit|rm]"
+    echo "Usage: $(basename "${0}") [-h|--help] [add|edit|generate|rm]"
     echo
     echo "Store passwords for ansible-vault in lastpass."
 }
@@ -35,7 +35,7 @@ function check-args {
         return 0
     fi
     case "${1}" in
-        add|edit|rm)
+        add|edit|generate|rm)
             return 0
             ;;
         *)
@@ -83,6 +83,9 @@ if [ $# -gt 0 ]; then
             ;;
         edit)
             lpass edit --password "${lpass_key}"
+            ;;
+        generate)
+            lpass generate "${lpass_key}" 15 > /dev/null
             ;;
         rm)
             read -p "Are you sure you want to delete ${lpass_key} [y/N]? " -n 1 -r
