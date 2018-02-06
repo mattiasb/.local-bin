@@ -60,8 +60,9 @@ elif ! check-args "${@}"; then
 fi
 
 if [ ! "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
-    error "Not a git repository."
-    exit 3
+    # TODO: make it possible to fall back to other method.
+    echo "$(basename "${0}"): not a git repository"
+    exit 0
 fi
 
 if ! lpass ls > /dev/null 2>&1; then
