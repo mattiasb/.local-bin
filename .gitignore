@@ -131,3 +131,4 @@
 /ansible-vault
 /ansible-vault-helper
 /cquery
+/tabulate
