@@ -1,0 +1,36 @@
+#!/bin/bash
+
+forge="${1}"
+author=$(dirname "${2}")
+[ "${author}" = "." ] && author="mattiasb"
+repo="${author}/$(basename "${2}")"
+
+case "${forge}" in
+    lab)
+        subcommand="lab"
+        host="gitlab.com"
+        ;;
+    gnome)
+        subcommand="lab"
+        host="gitlab.gnome.org"
+        ;;
+    smarteye)
+        subcommand="lab"
+        host="git.smarteye.se"
+        ;;
+    hub)
+        subcommand="hub"
+        host="github.com"
+        ;;
+    *)
+        echo "Unknown forge!"
+        exit 2
+        ;;
+esac
+
+base_path="${HOME}/Code/${host}/${author}/"
+
+mkdir -p "${base_path}"
+cd "${base_path}" || exit $?
+
+eval "git ${subcommand} clone --account=${forge} ${repo}"
