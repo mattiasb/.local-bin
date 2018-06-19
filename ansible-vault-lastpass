@@ -2,8 +2,24 @@
 
 LASTPASS_GROUP=AnsibleVaults
 
+ANSIBLE_CALL=false
+
+# shellcheck disable=SC2009
+case "$(ps aux | grep "${PPID}" | awk "\$2 == ${PPID} {print \$11, \$12}")" in
+    *ansible-playbook*)
+        ANSIBLE_CALL=true
+        ;;
+    *)
+        ANSIBLE_CALL=false
+        ;;
+esac
+
 function error {
-    echo "${@}" > /dev/stderr
+    if [ "${ANSIBLE_CALL}" = true ]; then
+        echo "${@}" | systemd-cat -p err
+    else
+        echo "${@}" > /dev/stderr
+    fi
 }
 
 function usage {
@@ -50,10 +66,10 @@ function check-args {
 
 if [[ " ${*} " == *" -h "* ]]; then
     usage
-    exit 2
+    exit 0
 elif [[ " ${*} " == *" --help "* ]]; then
     full-usage
-    exit 2
+    exit 0
 elif ! check-args "${@}"; then
     error "'${1}' is not a known command. See '$(basename "${0}") --help'."
     exit 2
