@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function error {
+    echo "Usage: sync-comics <push|pull>" > /dev/stderr
+    exit 2
+}
+
+if [ "${#}" != 1 ] ; then
+    error
+fi
+
+COMICS="${HOME}/Documents/Comics/"
+CMD="${1}"
+
+mkdir -p "${COMICS}"
+
+case "${CMD}" in
+    push)
+        simple-sync up mediabox.local "${COMICS}" /media/SGMattias4/Comics/
+        exit $?
+        ;;
+    pull)
+        simple-sync down mediabox.local /media/SGMattias4/Comics/  "${COMICS}"
+        exit $?
+        ;;
+    *)
+        error
+        ;;
+esac
