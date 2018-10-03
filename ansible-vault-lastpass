@@ -88,8 +88,8 @@ if ! lpass ls > /dev/null 2>&1; then
     fi
 fi
 
-if ! git remote get-url upstream 2>/dev/null; then
-    if ! git remote get-url origin 2>/dev/null; then
+if ! remote=$(git remote get-url upstream 2>/dev/null); then
+    if ! remote=$(git remote get-url origin 2>/dev/null); then
         error "Failed to find a suitable remote"
         exit 5
     fi
