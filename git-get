@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -e
+
+GIT_GET_BASEDIR=${GIT_GET_BASEDIR:-${HOME}/Code}
+
+function get-repo-dir {
+    local repo
+
+    repo="${1}"
+
+    case "${repo}" in
+        http://*|https://*)
+            repo="${repo##*//}" ;;
+        *@*.git)
+            repo="${repo##*@}"
+            repo="${repo/://}"
+            ;;
+        *)
+            echo "Not a proper repository! [${repo}]"
+            exit 3
+    esac
+    echo "${GIT_GET_BASEDIR}/${repo%.git}"
+}
+
+function clone-repo {
+    url="${1}"
+    repo="$(get-repo-dir "${url}")"
+
+    if [ -d "${repo}" ]; then
+        echo "${repo} already exists!"
+        return
+    fi
+
+    mkdir -p "${repo}"
+    git clone "${url}" "${repo}"
+}
+
+if [ $# -lt 1 ]; then
+    echo "Usage: git get <url>..."
+    exit 2
+fi
+
+if [ "${1}" == --show-path ]; then
+    get-repo-dir "${2}"
+else
+    clone-repo "${1}"
+fi
