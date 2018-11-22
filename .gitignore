@@ -142,3 +142,16 @@
 /SlayTheSpire
 /bash-language-server
 /virtualenv-clone
+/bottle.py
+/check-repositories
+/conan
+/conan_build_info
+/conan_server
+/distro
+/epylint
+/mako-render
+/pyjwt
+/pylint
+/pyreverse
+/symilar
+/tqdm
