@@ -42,7 +42,7 @@ if [ $# -lt 1 ]; then
 fi
 
 if [ "${1}" == --show-path ]; then
-    get-repo-dir "${2}"
+    get-repo-dir "$(git ls-remote --get-url "${2}")"
 else
-    clone-repo "${1}"
+    clone-repo "$(git ls-remote --get-url "${1}")"
 fi
