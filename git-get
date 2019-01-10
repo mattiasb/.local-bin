@@ -4,20 +4,36 @@ set -e
 
 GIT_GET_BASEDIR=${GIT_GET_BASEDIR:-${HOME}/Code}
 
+function with-extension {
+    local url
+
+    url="${1}"
+    case "${url}" in
+        *.git)
+            echo "${url}"
+            return
+            ;;
+        *)
+            echo "${url}.git"
+            return
+            ;;
+    esac
+}
+
 function get-repo-dir {
-    local repo
+    local url
 
-    repo="${1}"
+    url="$(with-extension "${1}")"
 
-    case "${repo}" in
+    case "${url}" in
         http://*|https://*)
-            repo="${repo##*//}" ;;
+            repo="${url##*//}" ;;
         *@*.git)
-            repo="${repo##*@}"
+            repo="${url##*@}"
             repo="${repo/://}"
             ;;
         *)
-            echo "Not a proper repository! [${repo}]"
+            echo "Not a proper repository! [${url}]"
             exit 3
     esac
     echo "${GIT_GET_BASEDIR}/${repo%.git}"
