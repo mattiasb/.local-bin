@@ -173,3 +173,14 @@
 /sphinx-autogen
 /sphinx-build
 /sphinx-quickstart
+/yaml2yaml
+/yaml2toml
+/toml2yaml
+/toml2toml
+/toml2json
+/remarshal
+/json2toml
+/json2json
+/bst-artifact-server
+/json2yaml
+/yaml2json
