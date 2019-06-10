@@ -184,3 +184,6 @@
 /bst-artifact-server
 /json2yaml
 /yaml2json
+/virtualenv
+/pipenv-resolver
+/pipenv
