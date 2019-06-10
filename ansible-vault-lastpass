@@ -15,6 +15,58 @@ case "$(ps aux | grep "${PPID}" | awk "\$2 == ${PPID} {print \$11, \$12}")" in
         ;;
 esac
 
+function strip-dot-git {
+    case "${1}" in
+        *.git) echo "${1%.*}" ;;
+        *)     echo "${1}"    ;;
+    esac
+}
+
+function strip-username {
+    case "${1}" in
+        *@*) echo "${1##*@}" ;;
+        *)   echo "${1}"     ;;
+    esac
+}
+
+function git-get-hostname-from-remote {
+    url="$(strip-dot-git "${1}")"
+    case "${url}" in
+        http://*|https://*)
+            IFS='/'
+            read -ra split <<< "${url}"
+            strip-username "${split[*]:2:1}"
+            ;;
+        *:*)
+            IFS=':'
+            read -ra split <<< "${url}"
+            strip-username "${split[*]:0:1}"
+            ;;
+        *)
+            error "Weird remote: [${url}]"
+            ;;
+    esac
+}
+
+function git-get-project-from-remote {
+    url="$(strip-dot-git "${1}")"
+    case "${url}" in
+        http://*|https://*)
+            IFS='/'
+            read -ra split <<< "${url}"
+            echo "${split[*]:3}"
+            ;;
+        *:*)
+            IFS=':'
+            read -ra split <<< "${url}"
+            echo "${split[*]:1}"
+            ;;
+        *)
+            error "Weird remote: [${url}]"
+            ;;
+    esac
+}
+
 function error {
     if [ "${ANSIBLE_CALL}" = true ]; then
         echo "${@}" | systemd-cat -p err
@@ -96,7 +148,9 @@ if ! remote=$(git remote get-url upstream 2>/dev/null); then
     fi
 fi
 
-lpass_key="${LASTPASS_GROUP}\\${remote}"
+host="$(git-get-hostname-from-remote "${remote}")"
+project="$(git-get-project-from-remote "${remote}")"
+lpass_key="${LASTPASS_GROUP}\\${host}\\${project}"
 
 if [ $# -gt 0 ]; then
     case "${1}" in
