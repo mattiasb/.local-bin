@@ -134,13 +134,17 @@ if [ ! "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
     exit 0
 fi
 
-if ! lpass status -q; then
-    if ! lpass login "${LASTPASS_ACCOUNT}"; then
+# TODO: Thin about how to output stuff here. Maybe pipe to some info function
+# that either sends it to the journal or to stdout/stderr
+if ! lpass status -q &>/dev/null; then
+    if ! lpass login "${LASTPASS_ACCOUNT}" &>/dev/null; then
         error "Failed to login to lastpass"
         exit 4
     fi
 fi
 
+# TODO: Thin about how to output stuff here. Maybe pipe to some error function
+# that either sends it to the journal or to stdout/stderr
 if ! remote=$(git remote get-url upstream 2>/dev/null); then
     if ! remote=$(git remote get-url origin 2>/dev/null); then
         error "Failed to find a suitable remote"
