@@ -93,7 +93,7 @@ function full-usage {
     echo
     echo "  Inside a git-repo:"
     echo "    $ export ANSIBLE_VAULT_PASSWORD_FILE=${0}"
-    echo "    $ $(basename "${0}") add"
+    echo "    $ $(basename "${0}") generate"
     echo
     echo "  After typing in your password and closing your editor you should now"
     echo "  have the vault password for this repo stored in lastpass under the "
