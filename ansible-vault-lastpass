@@ -154,27 +154,45 @@ fi
 
 host="$(git-get-hostname-from-remote "${remote}")"
 project="$(git-get-project-from-remote "${remote}")"
-lpass_key="${LASTPASS_GROUP}\\${host}\\${project}"
+key="${LASTPASS_GROUP}\\${host}\\${project}"
 
 if [ $# -gt 0 ]; then
     case "${1}" in
-        add)
-            lpass add --password "${lpass_key}"
+        add|generate)
+            lpass show --username "${key}" &> /dev/null && {
+                error "The '${key}' key already exists!"
+                exit 6
+            }
+            case "${1}" in
+                add)
+                    lpass add --password "${key}"
+                    ;;
+                generate)
+                    lpass generate "${key}" 15 > /dev/null
+                    ;;
+            esac
             ;;
-        edit)
-            lpass edit --password "${lpass_key}"
-            ;;
-        generate)
-            lpass generate "${lpass_key}" 15 > /dev/null
-            ;;
-        rm)
-            read -p "Are you sure you want to delete ${lpass_key} [y/N]? " -n 1 -r
-            echo
-            if [[ $REPLY =~ ^[Yy]$ ]]; then
-                echo lpass rm "${lpass_key}"
-            fi
+        edit|rm)
+            lpass show --username "${key}" &>/dev/null || {
+                error "The '${key}' key doesn't exist!"
+                exit 7
+            }
+            case "${1}" in
+                edit)
+                    lpass edit --password "${key}"
+                 ;;
+                rm)
+                    read -p "Are you sure you want to delete ${key} [y/N]?"    \
+                         -n 1                                                  \
+                         -r
+                    echo
+                    if [[ $REPLY =~ ^[Yy]$ ]]; then
+                        lpass rm "${key}"
+                    fi
+                    ;;
+            esac
             ;;
     esac
 else
-    lpass show --password "${lpass_key}"
+    lpass show --password "${key}"
 fi
