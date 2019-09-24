@@ -2,6 +2,22 @@
 
 # Based on https://superuser.com/a/832111
 
+# Add a service like the following to ~/.config/systemd/user/lockmon.service
+#
+# [Unit]
+# Description=Log GNOME locks and unlocks
+#
+# [Service]
+# Type=simple
+# ExecStart=%h/.local/bin/lockmon
+# Restart=always
+# TimeoutStopSec=5
+#
+# [Install]
+# WantedBy=default.target
+#
+# ... and run: systemctl --user enable --now lockmon
+
 exit_report(){
     echo "Monitoring Terminated."
 }
