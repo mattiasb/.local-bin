@@ -187,3 +187,4 @@
 /virtualenv
 /pipenv-resolver
 /pipenv
+/podman-compose
