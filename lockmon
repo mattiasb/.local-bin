@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Based on https://superuser.com/a/832111
+
+exit_report(){
+    echo "Monitoring Terminated."
+}
+
+trap "exit_report; exit;" 0
+
+format-log() {
+    while IFS= read -r line; do
+        echo "$line"                                                           \
+            | grep "boolean"                                                   \
+            | sed 's/   boolean true/Screen Locked/'                           \
+            | sed 's/   boolean false/Screen Unlocked/'
+    done
+}
+
+echo "Monitoring Started."
+dbus-monitor --session "type='signal',interface='org.gnome.ScreenSaver'"       \
+    | format-log                                                               \
