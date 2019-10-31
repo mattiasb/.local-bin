@@ -188,3 +188,7 @@
 /pipenv-resolver
 /pipenv
 /podman-compose
+/dmypy
+/mypy
+/mypyc
+/stubgen
