@@ -47,7 +47,7 @@ function _commit {
         BRANCH=$(git rev-parse --abbrev-ref HEAD | sed -e 's/\//--/gi')
         echo "${BRANCH}: Commit ${msg}" >> "commits.${BRANCH}"
         git add "commits.${BRANCH}"
-        git commit -a -m "${BRANCH}: Commit ${msg}";
+        git commit -a -m "${BRANCH}: Commit ${msg}" -m "This is a test commit!"
     done
 };
 
