@@ -49,7 +49,7 @@ function clone-repo {
     fi
 
     mkdir -p "${repo}"
-    git clone "${url}" "${repo}"
+    git clone --recurse-submodules "${url}" "${repo}"
 }
 
 if [ $# -lt 1 ]; then
