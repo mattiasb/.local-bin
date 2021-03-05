@@ -215,3 +215,6 @@
 /yaml2msgpack
 /cmark
 /pypprint
+rubocop
+ruby-parse
+ruby-rewrite
