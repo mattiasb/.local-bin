@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# TODO:
+# - Make it possible to install the application
+#   - Consider modifying a copy of the manifest to use the dir source for the
+#     last module instead of reimplementing the build logic.
+#     This makes it possible to install, but means full rebuilds.
+#     - It might be possible to mount in the build directory into the sandbox to
+#       still get caching?
+#   - This would mean I might want to have a build-shell and a normal shell
+#   - It might also mean I want two versions of the run target.
+# - Make the completion code work properly
+# - Get some feedback on this idea and if it is sound, move it to a separate
+#   repository.
+
 set -e
 
 ################################################################################
