@@ -10,6 +10,7 @@ function debug {
     if [ ! -v DEBUG ]; then
         return
     fi
+
     var="${1}"
 
     eval "echo \"=== $var: \$$var ===\""
@@ -25,12 +26,12 @@ CURRENT_DEC=$(mktemp tmp.XXXXXXXXXX)
 OTHER_DEC=$(mktemp tmp.XXXXXXXXXX)
 
 delete_decrypted_files() {
-    # debug CURRENT_DEC
+    debug CURRENT_DEC
 
     ansible-vault encrypt --output "$CURRENT" "$CURRENT_DEC"
     rm -f "$ANCESTOR_DEC" "$OTHER_DEC" "$CURRENT_DEC"
 
-    # debug CURRENT
+    debug CURRENT
 }
 trap delete_decrypted_files EXIT
 
