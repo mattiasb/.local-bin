@@ -155,8 +155,6 @@
 /pyreverse
 /symilar
 /tqdm
-/ansible-vault-merge
-/gpg-vault-password-file
 /rst2html.py
 /rst2html4.py
 /rst2html5.py
