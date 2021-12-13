@@ -216,3 +216,6 @@
 rubocop
 ruby-parse
 ruby-rewrite
+pyroute2-cli
+ss2
+viu
