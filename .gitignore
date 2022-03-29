@@ -219,5 +219,5 @@ ruby-rewrite
 pyroute2-cli
 ss2
 viu
-/isort-identify-imports
-
+jiq
+isort-identify-imports
