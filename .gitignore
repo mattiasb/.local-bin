@@ -223,3 +223,8 @@
 /isort-identify-imports
 kubectl
 boltbrowser
+nodeenv
+pyright
+pyright-python
+pyright-python-langserver
+pyright-langserver
