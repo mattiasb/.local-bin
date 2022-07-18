@@ -49,7 +49,16 @@ function clone-repo {
     fi
 
     mkdir -p "${repo}"
-    git clone --recurse-submodules "${url}" "${repo}"
+    git clone --recurse-submodules "${url}" "${repo}" || {
+        if [ -n "$(ls -A "${repo}")" ]; then
+            echo "Couldn't clean up after failed clone!" > /dev/stderr
+            echo "  [${repo}] not empty!" > /dev/stderr
+            return 4
+        fi
+
+        rm -rf "${repo}"
+        return 5
+    }
 }
 
 if [ $# -lt 1 ]; then
