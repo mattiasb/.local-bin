@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# TODO:
+#  - Clean up
+#  - Fix state reporting
+#
+################################################################################
+
 declare -a REPOS=(
     ~/Documents/Magic/decks/
     ~/.config/
