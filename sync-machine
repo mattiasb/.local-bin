@@ -1,0 +1,157 @@
+#!/bin/bash
+
+declare -a REPOS=(
+    ~/Documents/Magic/decks/
+    ~/.config/
+    ~/.local/bin/
+    ~/.config/emacs/
+    ~/Code/github.com/mattiasb/MachineSetup/
+)
+
+declare -A COMMANDS=(
+    # Just sync
+    [~/Documents/Magic/decks/]=""
+    [~/.config/]=""
+    [~/.local/bin/]=""
+    # Complex repositories
+    [~/.config/emacs/]="systemctl --user restart emacs"
+    [~/Code/github.com/mattiasb/MachineSetup/]=""
+)
+
+declare -A STATE=(
+    [neither]=0
+    [pulled]=1
+    [pushed]=2
+    [both]=3
+)
+
+declare -a RECIPE=()
+
+################################################################################
+
+function red {
+    echo "$(tput setaf 1)✗$(tput sgr0) ${*}"
+}
+function yellow {
+    echo "$(tput setaf 3)✓$(tput sgr0) ${*}"
+}
+function green {
+    echo "$(tput setaf 2)✓$(tput sgr0) ${*}"
+}
+function indent {
+    echo "${*}" | pr -to 4
+}
+
+################################################################################
+
+function repo-in-sync {
+    local repo head upstream
+
+    repo="${1}"
+    head="$(git -C "${repo}" rev-parse HEAD)"
+    upstream="$(git -C "${repo}" rev-parse "@{u}")"
+
+    test "${head}" = "${upstream}"
+}
+
+function sync {
+    local repo rrp state
+
+    repo="${1}"
+    # Relative Repo Path
+    rrp="${1/#$HOME/\~}"
+    state=0
+
+    if ! out="$(git -C "${repo}" status --short)"; then
+        red "${rrp} — Failed to check status"
+        indent "${out}"
+        return
+    elif [ -n "${out}" ]; then
+        red "${rrp} — Dirty"
+        return
+    elif ! out="$(git -C "${repo}" fetch -q 2>&1)"; then
+        red "${rrp} — Failed to fetch"
+        indent "${out}"
+        return
+    fi
+
+    if ! repo-in-sync "${repo}"; then
+        if ! out="$(git -C "${repo}" pull --rebase 2>&1)"; then
+            red "${rrp} — Failed to pull/rebase"
+            indent "${out}"
+            return
+        fi
+
+        state=$(( state + STATE[pulled] ))
+        RECIPE+=( "${COMMANDS[${repo}]}" )
+    fi
+
+    if ! repo-in-sync "${repo}"; then
+        if ! out="$(git -C "${repo}" push 2>&1)"; then
+            red "${rrp} — Failed to push"
+            indent "${out}"
+            return
+        fi
+        state=$(( state + STATE[pushed] ))
+    fi
+
+    case "$state" in
+        "${STATE[neither]}") green "${rrp}"
+                             return ;;
+        "${STATE[pulled]}")  yellow "${rrp} — ↓"
+                             return ;;
+        "${STATE[pushed]}")  yellow "${rrp} — ↑"
+                             return ;;
+        "${STATE[both]}")    yellow "${rrp} — ↓↑"
+                             return ;;
+    esac
+}
+
+function parse-args {
+    case "${#}" in
+        0) return ;;
+        1) case "${1}" in
+               -h | --help)
+                   usage "${@}"
+                   exit 0
+                   ;;
+               -d | --debug)
+                   set -x
+                   return
+                   ;;
+               *) usage "${@}"
+                  exit 2
+                  ;;
+           esac
+           return
+           ;;
+        *) usage "${@}"
+           exit 2
+           ;;
+    esac
+}
+
+function usage {
+    echo "$(basename "${0}") [-h | -d]"
+}
+
+function main {
+    local repo cmd
+
+    parse-args "${@}"
+
+    for repo in "${REPOS[@]}"; do
+        sync "${repo}"
+    done
+
+    for cmd in "${RECIPE[@]}"; do
+        echo "Run [${cmd}] ?"
+    done
+}
+
+################################################################################
+
+set -e
+set -o pipefail
+
+main "$@" ; exit $?
