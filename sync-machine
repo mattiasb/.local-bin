@@ -61,40 +61,40 @@ function repo-in-sync {
 }
 
 function sync {
-    local repo rrp state
+    local repo rel state
 
     repo="${1}"
     # Relative Repo Path
-    rrp="${1/#$HOME/\~}"
+    rel="${1/#$HOME/\~}"
     state=0
 
     if ! out="$(git -C "${repo}" status --short)"; then
-        red "${rrp} — Failed to check status"
+        red "${rel} — Failed to check status"
         indent "${out}"
         return
     elif [ -n "${out}" ]; then
-        red "${rrp} — Dirty"
+        red "${rel} — Dirty"
         return
     elif ! out="$(git -C "${repo}" fetch -q 2>&1)"; then
-        red "${rrp} — Failed to fetch"
+        red "${rel} — Failed to fetch"
         indent "${out}"
         return
     fi
 
     if ! repo-in-sync "${repo}"; then
         if ! out="$(git -C "${repo}" pull --rebase 2>&1)"; then
-            red "${rrp} — Failed to pull/rebase"
+            red "${rel} — Failed to pull/rebase"
             indent "${out}"
             return
         fi
 
         state=$(( state + STATE[pulled] ))
-        RECIPE+=( "${COMMANDS[${repo}]}" )
+        RECIPE+=( "${COMMANDS[${rel}]}" )
     fi
 
     if ! repo-in-sync "${repo}"; then
         if ! out="$(git -C "${repo}" push 2>&1)"; then
-            red "${rrp} — Failed to push"
+            red "${rel} — Failed to push"
             indent "${out}"
             return
         fi
@@ -102,13 +102,13 @@ function sync {
     fi
 
     case "$state" in
-        "${STATE[neither]}") green "${rrp}"
+        "${STATE[neither]}") green "${rel}"
                              return ;;
-        "${STATE[pulled]}")  yellow "${rrp} — ↓"
+        "${STATE[pulled]}")  yellow "${rel} — ↓"
                              return ;;
-        "${STATE[pushed]}")  yellow "${rrp} — ↑"
+        "${STATE[pushed]}")  yellow "${rel} — ↑"
                              return ;;
-        "${STATE[both]}")    yellow "${rrp} — ↓↑"
+        "${STATE[both]}")    yellow "${rel} — ↓↑"
                              return ;;
     esac
 }
