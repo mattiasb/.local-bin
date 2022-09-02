@@ -169,9 +169,13 @@ function main {
         sync "${repo}"
     done
 
+    if [ "${RECIPE[#]}" -gt 0 ]; then
+        echo
+    fi
+
     for repo in "${!RECIPE[@]}"; do
         cmd="${RECIPE[$repo]}"
-        if confirm "Run [${cmd}] ?"; then
+        if confirm "$repo \$ ${cmd} ?"; then
             run-in-repo "${repo}" "${cmd}"
         fi
     done
