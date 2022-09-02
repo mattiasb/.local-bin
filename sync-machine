@@ -20,8 +20,8 @@ declare -A COMMANDS=(
     [~/.config/]=""
     [~/.local/bin/]=""
     # Complex repositories
-    [~/.config/emacs/]="systemctl --user restart emacs"
-    [~/Code/github.com/mattiasb/MachineSetup/]=""
+    [~/.config/emacs/]="systemctl --user restart emacs &"
+    [~/Code/github.com/mattiasb/MachineSetup/]="./site.yml -vv -K"
 )
 
 declare -A STATE=(
@@ -31,7 +31,7 @@ declare -A STATE=(
     [both]=3
 )
 
-declare -a RECIPE=()
+declare -A RECIPE=()
 
 ################################################################################
 
@@ -48,7 +48,24 @@ function indent {
     echo "${*}" | pr -to 4
 }
 
+function confirm {
+    read -p "${*} [Y/n] " -n 1 -r -s
+    echo
+    [[ $REPLY == "" || $REPLY =~ ^[Yy]$ ]]
+}
+
 ################################################################################
+
+function run-in-repo {
+    local repo cmd
+
+    repo="${1}"
+    cmd="${2}"
+
+    pushd "${repo}" >/dev/null
+    eval "${cmd}"
+    popd
+}
 
 function repo-in-sync {
     local repo head upstream
@@ -90,7 +107,7 @@ function sync {
 
         state=$(( state + STATE[pulled] ))
         if [ -n  "${COMMANDS[${repo}]}" ]; then
-            RECIPE+=( "${COMMANDS[${repo}]}" )
+            RECIPE+=( [$repo]="${COMMANDS[${repo}]}" )
         fi
     fi
 
@@ -152,8 +169,11 @@ function main {
         sync "${repo}"
     done
 
-    for cmd in "${RECIPE[@]}"; do
-        echo "Run [${cmd}] ?"
+    for repo in "${!RECIPE[@]}"; do
+        cmd="${RECIPE[$repo]}"
+        if confirm "Run [${cmd}] ?"; then
+            run-in-repo "${repo}" "${cmd}"
+        fi
     done
 }
 
