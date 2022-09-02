@@ -169,7 +169,7 @@ function main {
         sync "${repo}"
     done
 
-    if [ "${RECIPE[#]}" -gt 0 ]; then
+    if [ "${#RECIPE[@]}" -gt 0 ]; then
         echo
     fi
 
