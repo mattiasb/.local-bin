@@ -89,7 +89,9 @@ function sync {
         fi
 
         state=$(( state + STATE[pulled] ))
-        RECIPE+=( "${COMMANDS[${repo}]}" )
+        if [ -n  "${COMMANDS[${repo}]}" ]; then
+            RECIPE+=( "${COMMANDS[${repo}]}" )
+        fi
     fi
 
     if ! repo-in-sync "${repo}"; then
