@@ -230,3 +230,13 @@
 /pyright-langserver
 /pip3.10
 ansi2html
+/htmldiff
+/kramdown
+/ldiff
+/reverse_markdown
+/solargraph
+/thor
+/tilt
+/yard
+/yardoc
+/yri
