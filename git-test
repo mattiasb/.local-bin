@@ -45,6 +45,8 @@ function _init {
 }
 
 function _commit {
+    local branch
+
     if  _help-flag "${@}"; then
         _usage
         exit
@@ -59,10 +61,10 @@ function _commit {
     fi
 
     for msg in "$@"; do
-        BRANCH=$(git rev-parse --abbrev-ref HEAD | sed -e 's/\//--/gi')
-        echo "${BRANCH}: Commit ${msg}" >> "commits.${BRANCH}"
-        git add "commits.${BRANCH}"
-        git commit -a -m "${BRANCH}: Commit ${msg}" -m "This is a test commit!"
+        branch=$(git rev-parse --abbrev-ref HEAD | sed -e 's/\//--/gi')
+        echo "${branch}: Commit ${msg}" >> "commits.${branch}"
+        git add "commits.${branch}"
+        git commit -a -m "${branch}: Commit ${msg}" -m "This is a test commit!"
     done
 };
 
