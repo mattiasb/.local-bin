@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright 2017, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+
 function _help-flag {
     [[ " ${*} " == *" --help "* ]] || [[ " ${*} " == *" -h "* ]]
 }

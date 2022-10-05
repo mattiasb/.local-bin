@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright 2018, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+
 LASTPASS_ACCOUNT=mattias.jc.bengtsson@gmail.com
 LASTPASS_GROUP=AnsibleVaults
 

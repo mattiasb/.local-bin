@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright 2016, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+
 if [ -z "${1}" ] || [ -z "${2}" ] || [ -z "${3}" ]; then
     echo "Usage: git rename-branch-remote <remote> <source> <dest>"
     exit 2
