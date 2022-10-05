@@ -1,6 +1,0 @@
-#!/bin/bash
-
-JENKINS_URL=$1
-FILE=${2:-"Jenkinsfile"}
-
-curl -X POST -F "jenkinsfile=<${FILE}" "${JENKINS_URL}/pipeline-model-converter/validate"
