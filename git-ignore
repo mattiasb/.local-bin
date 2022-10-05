@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+function usage {
+    cat <<EOM
+usage: git ignore [<path|pattern>...]
+
+where:
+  <path> is a regular file path.
+  <pattern> is a literal gitignore pattern starting with a '/'.
+EOM
+}
+
+if [[ " ${*} " == *" --help "* ]] || [[ " ${*} " == *" -h "* ]]; then
+    usage
+    exit
+fi
+
+# Check that we're inside a git worktree
+git rev-parse --is-inside-work-tree >/dev/null
+TOPLEVEL="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+if [ "${#}" -le 0 ]; then
+    usage >&2
+    exit 2
+fi
+
+for f in "${@}"; do
+    if [ "${f:0:1}" = '/' ]; then
+        # Take paths beginning with '/' as literal `.gitignore` lines
+        echo "${f}"
+    else
+        # Resolve the rest relative to the git top directory.
+        echo "/$(realpath --relative-to="${TOPLEVEL}" "${f}")"
+    fi
+done >> "${TOPLEVEL}/.gitignore"
