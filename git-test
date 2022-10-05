@@ -17,6 +17,9 @@
 #
 # Author: Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
 
+set -e
+set -o pipefail
+
 function _help-flag {
     [[ " ${*} " == *" --help "* ]] || [[ " ${*} " == *" -h "* ]]
 }
@@ -46,6 +49,9 @@ function _commit {
         _usage
         exit
     fi
+
+    # Check that we're inside a git worktree
+    git rev-parse --is-inside-work-tree >/dev/null
 
     if [ -z "${*}" ]; then
         _usage
