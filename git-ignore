@@ -36,6 +36,6 @@ for f in "${@}"; do
         echo "${f}"
     else
         # Resolve the rest relative to the git top directory.
-        echo "/$(realpath --relative-to="${TOPLEVEL}" "${f}")"
+        echo "/$(realpath --strip --relative-to="${TOPLEVEL}" "${f}")"
     fi
 done >> "${TOPLEVEL}/.gitignore"
