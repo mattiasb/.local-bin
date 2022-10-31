@@ -22,6 +22,7 @@ declare -A COMMANDS=(
     [~/Documents/Magic/decks/]=""
     [~/.config/]=""
     [~/.local/bin/]=""
+    [~/Code/Test/]=""
     # Complex repositories
     [~/.config/emacs/]="systemctl --user restart emacs &"
     [~/Code/github.com/mattiasb/MachineSetup/]="./site.yml -vv -K"
