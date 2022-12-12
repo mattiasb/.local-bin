@@ -3,6 +3,11 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # Copyright 2020, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
 
+if ! [ -x /usr/bin/vagrant ]; then
+    echo "Vagrant not installed!" >&2
+    exit 2
+fi
+
 function idx {
     local str a
     str="${1}"
