@@ -58,6 +58,10 @@ function confirm {
     [[ $REPLY == "" || $REPLY =~ ^[Yy]$ ]]
 }
 
+function with-tilde {
+    echo "${1/#$HOME/\~}"
+}
+
 ################################################################################
 
 function run-in-repo {
@@ -110,8 +114,9 @@ function sync {
         fi
 
         state=$(( state + STATE[pulled] ))
-        if [ -n  "${COMMANDS[${repo}]}" ]; then
-            RECIPE+=( [$repo]="${COMMANDS[${repo}]}" )
+        repo_tilde="$(with-tilde "${repo}")"
+        if [ -n  "${COMMANDS[${repo_tilde}]}" ]; then
+            RECIPE+=( [$repo]="${COMMANDS[${repo_tilde}]}" )
         fi
     fi
 
@@ -179,8 +184,8 @@ function main {
 
     for repo in "${!RECIPE[@]}"; do
         cmd="${RECIPE[$repo]}"
-        if confirm "$repo \$ ${cmd} ?"; then
-            run-in-repo "${repo}" "${cmd}"
+        if confirm "$(with-tilde "${repo}") \$ ${cmd} ?"; then
+            run-in-repo  repo "${cmd}"
         fi
     done
 }
