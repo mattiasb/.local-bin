@@ -147,20 +147,20 @@ function parse-args {
         1) case "${1}" in
                -h | --help)
                    usage "${@}"
-                   exit 0
+                   return 0
                    ;;
                -d | --debug)
                    set -x
                    return
                    ;;
                *) usage "${@}"
-                  exit 2
+                  return 2
                   ;;
            esac
            return
            ;;
         *) usage "${@}"
-           exit 2
+           return 2
            ;;
     esac
 }
