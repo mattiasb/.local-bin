@@ -25,7 +25,7 @@ declare -A COMMANDS=(
     [~/Code/Test/]=""
     # Complex repositories
     [~/.config/emacs/]="systemctl --user restart emacs &"
-    [~/Code/github.com/mattiasb/MachineSetup/]="./site.yml -vv -K"
+    [~/Code/github.com/mattiasb/MachineSetup/]="./site.yml -v"
 )
 
 declare -A STATE=(
