@@ -4,6 +4,7 @@
 # Copyright 2018, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
 
 set -e
+shopt -s extglob
 
 GIT_GET_BASEDIR=${GIT_GET_BASEDIR:-${HOME}/Code}
 
@@ -29,8 +30,11 @@ function get-repo-dir {
     url="$(with-extension "${1}")"
 
     case "${url}" in
-        http://*|https://*)
-            repo="${url##*//}" ;;
+        http://*|https://*|ssh://*)
+            repo="${url##*//}"
+            repo="${repo/:*([0-9])/}"
+            repo="${repo/*@/}"
+            ;;
         *@*.git)
             repo="${url##*@}"
             repo="${repo/://}"
