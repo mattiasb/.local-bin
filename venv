@@ -4,6 +4,7 @@ set -e
 set -o pipefail
 
 VENV_BASEDIR="${XDG_DATA_HOME:-${HOME}/.local/share}/venv"
+VENV_PYTHON="${VENV_PYTHON:-python}"
 
 ################################################################################
 
@@ -65,7 +66,7 @@ function venv {
 
     flags=("${@}")
 
-    python -m venv "${flags[@]}" "$(get-venv)"
+    ${VENV_PYTHON} -m venv "${flags[@]}" "$(get-venv)"
 }
 
 function ensure-venv {
