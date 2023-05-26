@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Simple podman wrapper that maps user and mounts PWD
+
+uid="$(id -u)"
+gid="$(id -g)"
+
+podman run                                \
+       --user $uid:$gid                   \
+       --userns keep-id:uid=$uid,gid=$gid \
+       --volume "${PWD}:${PWD}"           \
+       --rm                               \
+       -it                                \
+       "${@}"
