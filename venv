@@ -7,14 +7,21 @@ VENV_BASEDIR="${XDG_DATA_HOME:-${HOME}/.local/share}/venv"
 
 ################################################################################
 
-function debug {
-    if [ -v DEBUG ]; then
-        echo "DEBUG: ${*}"
-    fi
+function error {
+    echo "ERROR: ${*}" >&2
 }
 
-function error {
-    echo "ERROR: ${*}" >/&2
+function confirm {
+    local prompt reply
+
+    prompt="${1}"
+
+    read -r -n 1 -p "${prompt}? [Y/n] " reply
+    if [ "$reply" != "" ]; then
+        echo
+    fi
+
+    test "$reply" = "${reply#[Nn]}"
 }
 
 function get-venv {
@@ -28,22 +35,115 @@ function get-venv {
     esac
 }
 
-function main {
-    local flags venv
+function usage {
+    cat <<EOM
+$(basename "${0}"): <COMMAND>
+
+FLAGS
+
+  --help    - Show this help
+
+COMMANDS
+
+  init      - Initialize a new venv
+  activate  - Activate the venv
+  remove    - Remove the virtual env
+  status    - Check if the venv exists
+  upgrade   - Upgrade core dependencies
+
+EOM
+
+}
+
+function venv {
+    local flags
 
     flags=("${@}")
+
+    python -m venv "${flags[@]}" "$(get-venv)"
+}
+
+function ensure-venv {
+    local venv
+
+    venv="${1}"
+
+    if [ ! -d "${venv}" ]; then
+        error "Virtual env doesn't exist!"
+        echo
+        echo 'Create one with "venv init".'
+
+        exit 3
+    fi
+}
+
+function main {
+    local cmd venv
+
+    flags=("${@}")
+    cmd="${1}"
 
     if ! venv="$(get-venv)"; then
         error "This tool only works within your HOME directory!"
         return 2
     fi
 
-    debug "flags: ${flags[*]}"
-    debug "venv: ${venv}"
-    debug "python -m venv ${flags[*]} ${venv}"
-    debug "========="
+    case "${cmd}" in
+        -h|--help)
+            usage
+            ;;
 
-    python -m venv "${flags[@]}" "${venv}"
+        init)
+            if [ -d "${venv}" ]; then
+                error "Virtual env already exists!"
+                exit 3
+            fi
+
+            echo "Creating virtual env..."
+            venv --upgrade-deps
+            ;;
+
+        activate)
+            ensure-venv "${venv}"
+
+            # shellcheck source=/dev/null
+            source "${venv}/bin/activate"
+            exec /bin/bash -i
+            ;;
+
+        remove)
+            if [ ! -d "${venv}" ] || ! confirm "Remove venv"; then
+                return
+            fi
+
+            echo "Removing venv ..."
+            rm -rf "${venv}"
+            ;;
+
+        status)
+            if [ -f "${venv}/bin/activate" ]; then
+                echo "A venv exists at:"
+                echo
+                echo "  ${venv/#$HOME/\~}"
+                echo
+            else
+                echo 'No existing venv. Create one with "venv init".'
+            fi
+            ;;
+
+        upgrade)
+            ensure-venv "${venv}"
+
+            echo "Upgrading venv ..."
+            venv --upgrade-deps
+            ;;
+        
+        *) error "No or unknown command!"
+           echo
+           usage
+           return 2
+           ;;
+    esac
 }
 
 main "${@}"; exit
