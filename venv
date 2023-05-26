@@ -51,6 +51,11 @@ COMMANDS
   status    - Check if the venv exists
   upgrade   - Upgrade core dependencies
 
+ALIASES
+
+  shell     - Same as "activate"
+  rm        - Same as "remove"
+
 EOM
 
 }
@@ -103,7 +108,7 @@ function main {
             venv --upgrade-deps
             ;;
 
-        activate)
+        activate|shell)
             ensure-venv "${venv}"
 
             # shellcheck source=/dev/null
@@ -111,7 +116,7 @@ function main {
             exec /bin/bash -i
             ;;
 
-        remove)
+        remove|rm)
             if [ ! -d "${venv}" ] || ! confirm "Remove venv"; then
                 return
             fi
