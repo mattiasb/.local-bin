@@ -34,7 +34,7 @@ function main {
     flags=("${@}")
 
     if ! venv="$(get-venv)"; then
-        error "This tool only works within your HOME directory"
+        error "This tool only works within your HOME directory!"
         return 2
     fi
 
@@ -42,6 +42,7 @@ function main {
     debug "venv: ${venv}"
     debug "python -m venv ${flags[*]} ${venv}"
     debug "========="
+
     python -m venv "${flags[@]}" "${venv}"
 }
 
