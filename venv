@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+VENV_BASEDIR="${XDG_DATA_HOME:-${HOME}/.local/share}/venv"
+
+################################################################################
+
+function debug {
+    if [ -v DEBUG ]; then
+        echo "DEBUG: ${*}"
+    fi
+}
+
+function error {
+    echo "ERROR: ${*}" >/&2
+}
+
+function get-venv {
+    case "${PWD}" in
+        "${HOME}/"*)
+            echo "${VENV_BASEDIR}/${PWD/${HOME}\//}"
+            return 0
+            ;;
+        *)
+            return 2
+    esac
+}
+
+function main {
+    local flags venv
+
+    flags=("${@}")
+
+    if ! venv="$(get-venv)"; then
+        error "This tool only works within your HOME directory"
+        return 2
+    fi
+
+    debug "flags: ${flags[*]}"
+    debug "venv: ${venv}"
+    debug "python -m venv ${flags[*]} ${venv}"
+    debug "========="
+    python -m venv "${flags[@]}" "${venv}"
+}
+
+main "${@}"; exit
