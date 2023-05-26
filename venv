@@ -74,7 +74,7 @@ function ensure-venv {
 
     venv="${1}"
 
-    if [ ! -d "${venv}" ]; then
+    if [ ! -f "${venv}/bin/activate" ]; then
         error "Virtual env doesn't exist!"
         echo
         echo 'Create one with "venv init".'
@@ -100,7 +100,7 @@ function main {
             ;;
 
         init)
-            if [ -d "${venv}" ]; then
+            if [ -f "${venv}/bin/activate" ]; then
                 error "Virtual env already exists!"
                 exit 3
             fi
