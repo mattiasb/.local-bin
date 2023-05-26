@@ -254,3 +254,6 @@ ansi2html
 /dasel
 /resume
 /poetry
+/pre-commit
+/terraform
+/terraform-ls
