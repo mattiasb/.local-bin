@@ -69,6 +69,10 @@ function venv {
     ${VENV_PYTHON} -m venv "${flags[@]}" "$(get-venv)"
 }
 
+function pyvenv-config {
+    echo "((python-mode . ((pyvenv-activate . \"$(get-venv)\"))))"
+}
+
 function ensure-venv {
     local venv
 
@@ -107,6 +111,10 @@ function main {
 
             echo "Creating virtual env..."
             venv --upgrade-deps
+
+            # TODO: Move this to emacs somehow
+            echo "Writing Emacs pyvenv config"
+            pyvenv-config > ./.dir-locals.el
             ;;
 
         activate|shell)
@@ -124,6 +132,11 @@ function main {
 
             echo "Removing venv ..."
             rm -rf "${venv}"
+
+            # TODO: Move this to emacs somehow
+            if [ -f ./.dir-locals.el ]; then
+                rm  ./.dir-locals.el
+            fi
             ;;
 
         status)
