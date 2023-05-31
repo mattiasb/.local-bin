@@ -5,10 +5,16 @@
 uid="$(id -u)"
 gid="$(id -g)"
 
-podman run                                \
-       --user $uid:$gid                   \
-       --userns keep-id:uid=$uid,gid=$gid \
-       --volume "${PWD}:${PWD}"           \
-       --rm                               \
-       -it                                \
+name="${1##*/}"
+name="${name%%:*}"
+
+podman run                                                                     \
+       --user "${uid}:${gid}"                                                  \
+       --userns "keep-id:uid=${uid},gid=${gid}"                                \
+       --volume "${PWD}:/pwd/${PWD}"                                           \
+       --workdir "/pwd/${PWD}"                                                 \
+       --rm                                                                    \
+       --name "${name}"                                                        \
+       --hostname "${name}"                                                    \
+       -it                                                                     \
        "${@}"
