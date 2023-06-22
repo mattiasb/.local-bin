@@ -257,3 +257,8 @@ ansi2html
 /pre-commit
 /terraform
 /terraform-ls
+/talosctl
+/az
+/az.bat
+/az.completion.sh
+/azps.ps1
