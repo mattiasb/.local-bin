@@ -9,6 +9,7 @@
 /analyze-build
 /analyze-c++
 /analyze-cc
+/ansi2html
 /ansible
 /ansible-config
 /ansible-connection
@@ -160,6 +161,7 @@
 /npm
 /pasteurize
 /pep8
+/pijul
 /pip
 /pip2
 /pip2.7
@@ -261,4 +263,3 @@
 /yasel
 /yasha
 /yri
-ansi2html
