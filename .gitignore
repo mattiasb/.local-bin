@@ -10,6 +10,7 @@
 /analyze-c++
 /analyze-cc
 /ansi2html
+/ansi2html
 /ansible
 /ansible-config
 /ansible-connection
@@ -29,6 +30,7 @@
 /az
 /az.bat
 /az.completion.sh
+/azcopy
 /azps.ps1
 /bash-language-server
 /bear
@@ -99,6 +101,7 @@
 /gp-saml-gui
 /grunt
 /hs
+/ht
 /htmldiff
 /http-server
 /install-check
