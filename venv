@@ -125,6 +125,14 @@ function main {
             exec /bin/bash -i
             ;;
 
+        deactivate)
+            ensure-venv "${venv}"
+
+            # shellcheck source=/dev/null
+            source "${venv}/bin/activate"
+            exec /bin/bash -i
+            ;;
+
         remove|rm)
             if [ ! -d "${venv}" ] || ! confirm "Remove venv"; then
                 return
