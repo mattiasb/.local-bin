@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# A tmux session helper.
+
+set -e
+set -o pipefail
+
+TMS_BASE_SESSION=session
+
+TMS_DEFAULT_SESSION=top
+TMS_TOP_SESSION=top
+
+################################################################################
+
+function tms-packages {
+    local package
+
+    packages=( "${@}" )
+
+    for package in "${packages[@]}"; do
+        if ! command -v "${package}" >/dev/null; then
+            echo "Need to install ${package}!"
+            sudo apt install "${package}"
+        fi
+    done
+}
+
+################################################################################
+
+function tms-attach {
+    local session
+
+    session="${1}"
+    shift
+
+    tmux attach-session -t "${TMS_BASE_SESSION}-${session}" \
+         2> >(grep -v "^can't find session" >&2)
+}
+
+function tms-new {
+    local session
+
+    session="${1}"
+    shift
+
+    tmux new-session -s "${TMS_BASE_SESSION}-${session}" "${@}"
+}
+
+function tms-new-top {
+    tms-new "${TMS_TOP_SESSION}" 'btop' \; \
+            split-window         'htop' \; \
+            split-window         'top'  \; \
+            split-window         'bash' \; \
+            select-layout        'tiled'
+}
+
+function tms-main {
+    local session
+
+    session="${1:-${TMS_DEFAULT_SESSION}}"
+
+    tms-packages tmux
+
+    case "${session}" in
+        top) tms-attach "${TMS_TOP_SESSION}" || tms-new-top
+             return
+             ;;
+        *)   tms-attach "${TMS_TOP_SESSION}" || tms-new-top
+             return
+             ;;
+    esac
+
+}
+
+tms-main "${@}"; exit
