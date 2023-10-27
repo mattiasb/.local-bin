@@ -13,6 +13,7 @@ declare -a REPOS=(
     ~/Documents/Magic/decks/
     ~/.config/
     ~/.local/bin/
+    ~/Code/Test/
     ~/.config/emacs/
     ~/Code/github.com/mattiasb/MachineSetup/
 )
