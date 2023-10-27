@@ -157,7 +157,6 @@ function parse-args {
                   return 2
                   ;;
            esac
-           return
            ;;
         *) usage "${@}"
            return 2
