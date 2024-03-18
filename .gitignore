@@ -69,6 +69,7 @@
 /docopt-completion
 /easy_install*
 /editorconfig
+/eldev
 /epylint
 /eslint
 /eslint-auto-config
@@ -149,6 +150,7 @@
 /luacheck
 /magit
 /mako-render
+/mdformat
 /msgpack2cbor
 /msgpack2json
 /msgpack2msgpack
@@ -158,6 +160,7 @@
 /mypy
 /mypyc
 /ndg_httpclient
+/nexus3
 /node-debug
 /node-inspector
 /nodeenv
@@ -185,6 +188,7 @@
 /pyjwt
 /pylint
 /pyls
+/pylsp
 /pypprint
 /pyreverse
 /pyright
@@ -218,6 +222,7 @@
 /rubocop
 /ruby-parse
 /ruby-rewrite
+/ruff
 /rust-gdb
 /rustc
 /rustdoc
@@ -249,7 +254,10 @@
 /toml2yaml
 /tqdm
 /trepanjs
+/tsc
+/tsserver
 /twitch
+/typescript-language-server
 /vaultify
 /virtualenv
 /virtualenv-clone
@@ -262,17 +270,9 @@
 /yaml2msgpack
 /yaml2toml
 /yaml2yaml
+/yamlfix
 /yard
 /yardoc
 /yasel
 /yasha
 /yri
-/pylsp
-/eldev
-/yamlfix
-/mdformat
-/ruff
-/nexus3
-/tsc
-/tsserver
-/typescript-language-server
