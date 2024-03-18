@@ -273,3 +273,6 @@
 /mdformat
 /ruff
 /nexus3
+/tsc
+/tsserver
+/typescript-language-server
