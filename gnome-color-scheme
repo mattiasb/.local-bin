@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright 2024, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+
+set -e
+set -o pipefail
+
+
+################################################################################
+
+function main {
+    case "$(gsettings get org.gnome.desktop.interface color-scheme)" in
+        "'default'"|"'prefer-light'") echo light ;;
+        "'prefer-dark'")              echo dark ;
+    esac
+}
+
+main "${@}"; exit
