@@ -1,0 +1,118 @@
+#!/bin/bash
+
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright 2024, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+
+set -e
+set -o pipefail
+
+
+################################################################################
+
+function add-impairment {
+    local dev
+
+    dev="${1}"
+    shift
+
+    sudo tc qdisc add dev "${dev}" root netem "${@}"
+}
+
+function turn-on {
+    local dev
+
+    dev="${1}"
+
+    echo Turning on network impairments...
+
+    add-impairment "${dev}" delay 10000ms
+}
+
+function turn-off {
+    local dev
+
+    dev="${1}"
+
+    sudo tc qdisc delete dev "${dev}" root netem
+}
+
+function is-netdev {
+    test -L "/sys/class/net/${1}"
+}
+
+################################################################################
+
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+function usage {
+    cat <<EOM
+
+Usage: $(basename "${0}") [-h | --help] <on|off>
+
+  -h, --help    Show this help message.
+
+EOM
+}
+
+function parse-args {
+    local opts flags script
+
+    script="$(basename "${0}")"
+    flags="help,on,off"
+    opts="$(getopt -o h --long "${flags}" -n "${script}" -- "${@}")"
+    eval set -- "$opts"
+
+    OPT_STATE=on
+    ARG_DEV=
+
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+            --on)
+                OPT_STATE=on
+                shift
+                ;;
+            --off)
+                OPT_STATE=off
+                shift
+                ;;
+            -- ) shift; break ;;
+            *)   break ;;
+        esac
+    done
+
+    if [ "${#}" -lt 1 ]; then
+        usage
+        echo
+        error "No device!"
+        return 2
+    fi
+
+    ARG_DEV="${1}"
+    shift
+
+    if ! is-netdev "${ARG_DEV}"; then
+        error "Not a network device: ${ARG_DEV}!"
+        return 3
+    fi
+
+    export OPT_STATE
+    export ARG_DEV
+}
+
+function main {
+    parse-args "${@}"
+
+    case "${OPT_STATE}" in
+        on)   turn-on "${ARG_DEV}" ;;
+        off) turn-off "${ARG_DEV}" ;;
+    esac
+}
+
+main "${@}"; exit
