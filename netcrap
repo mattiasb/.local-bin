@@ -10,30 +10,24 @@ set -o pipefail
 ################################################################################
 
 function add-impairment {
-    local dev
+    sudo tc qdisc add dev "${ARG_DEV}" root netem "${@}"
+}
 
-    dev="${1}"
-    shift
-
-    sudo tc qdisc add dev "${dev}" root netem "${@}"
+# shellcheck disable=SC2317
+function show-impairments {
+    sudo tc qdisc show dev "${ARG_DEV}"
 }
 
 function turn-on {
-    local dev
-
-    dev="${1}"
-
     echo Turning on network impairments...
 
-    add-impairment "${dev}" delay 10000ms
+    add-impairment delay 100000ms
 }
 
 function turn-off {
-    local dev
+    echo Turning off network impairments...
 
-    dev="${1}"
-
-    sudo tc qdisc delete dev "${dev}" root netem
+    sudo tc qdisc delete dev "${ARG_DEV}" root netem
 }
 
 function is-netdev {
@@ -82,8 +76,8 @@ function parse-args {
                 OPT_STATE=off
                 shift
                 ;;
-            -- ) shift; break ;;
-            *)   break ;;
+            --) shift; break ;;
+            *)  break ;;
         esac
     done
 
@@ -108,10 +102,9 @@ function parse-args {
 
 function main {
     parse-args "${@}"
-
     case "${OPT_STATE}" in
-        on)   turn-on "${ARG_DEV}" ;;
-        off) turn-off "${ARG_DEV}" ;;
+        on)   turn-on           ;;
+        off)  turn-off          ;;
     esac
 }
 
