@@ -1,0 +1,3 @@
+#!/bin/bash
+
+/usr/bin/emacs --init-directory=~/Code/github.com/mattiasb/emacs-2.0/ "${@}"
