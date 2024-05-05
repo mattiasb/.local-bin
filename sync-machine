@@ -15,6 +15,7 @@ declare -a REPOS=(
     ~/.local/bin/
     ~/Code/Test/
     ~/Code/github.com/mattiasb/MachineSetup/
+    ~/Code/github.com/mattiasb/emacs-2.0/
 )
 
 declare -A COMMANDS=(
