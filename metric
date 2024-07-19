@@ -1,0 +1,61 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+
+################################################################################
+
+function usage {
+    cat <<EOM
+
+Usage: $(basename "${0}") [-h | --help] <#UN|# UNIT>
+
+  -h, --help    Show this help message.
+
+EOM
+}
+
+function metric-unit {
+    case "${unit}" in
+        mi|mile|miles)        echo "km"    ;;
+        mph|"miles per hour") echo "kph"   ;;
+        mi/h)                 echo "km/h"  ;;
+        in|inch|inches)       echo "cm"    ;;
+        ft|feet|foots)        echo "m"     ;;
+        yd|yard|yards)        echo "m"     ;;
+        ac|acre|acres)        echo "m2"    ;;
+        gal|gallon|gallons)   echo "l"     ;;
+    esac
+}
+
+function split {
+    local val group
+
+    val="${1}"
+    group="${2}"
+
+    sed -E 's/([0-9]*)([a-z][a-z0-9]+)/'"\\${group}"'/' <<< "${val}"
+}
+
+function main {
+    local val unit result metric
+
+    case "${#}" in
+        0) usage; exit 2 ;;
+        1) val="$(split  "${1}" 1)"
+           unit="$(split "${1}" 2)"
+           ;;
+        *) val="${1}"
+           shift
+           unit="${*}"
+    esac
+
+    metric="$(metric-unit "${unit}")"
+
+    result="$(/bin/units -t -o "%.${#val}f" "${val} ${unit}" "${metric}")"
+
+    echo "${result} ${metric}"
+}
+
+main "${@}"; exit
