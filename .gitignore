@@ -152,6 +152,7 @@
 /luacheck
 /magit
 /mako-render
+/marksman
 /mdformat
 /msgpack2cbor
 /msgpack2json
