@@ -1,3 +1,6 @@
 #!/bin/bash
 
-/usr/bin/emacs --init-directory=~/Code/github.com/mattiasb/emacs-2.0/ -debug "${@}"
+DIR="${HOME}/Code/github.com/mattiasb/emacs-2.0"
+
+"${DIR}/aux/build.el"
+/usr/bin/emacs --init-directory="${DIR}/" -debug "${@}"
