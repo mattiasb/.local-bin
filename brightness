@@ -1,0 +1,112 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+
+################################################################################
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+function cmd-exist {
+    builtin type -P "${1}" &>/dev/null
+}
+
+################################################################################
+
+function read-value {
+    local type value
+
+    type="${1}"
+    value="${2}"
+
+    { grep -oP "${type} value = +\K\w+" | tr -d '\n'; } <<< "${value}"
+}
+
+function get-brightness {
+    local value
+
+    value="$(sudo ddcutil getvcp 10)"
+
+    echo -n "Current brightness is "
+    read-value current "${value}"
+    echo -n '/'
+    read-value max     "${value}"
+    echo
+}
+
+function set-brightness {
+    sudo ddcutil setvcp 10 "${1}"
+}
+
+################################################################################
+
+function parse-args {
+    local opts flags script
+
+    script="$(basename "${0}")"
+    flags="help"
+    opts="$(getopt -o h --long "${flags}" -n "${script}" -- "${@}")"
+    eval set -- "$opts"
+
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+
+    case "${1}" in
+        ''|*[!0-9]*)
+            error "Bad brighness value. Should be 0-10!"
+            return 3
+            ;;
+        *)
+            if ! (( 0 < $1 || $1 <= 100 )) ; then
+                error "Bad brighness value. Should be 0-10!"
+                return 3
+            fi
+
+            ARG_BRIGHTNESS="${1}"
+            ;;
+    esac
+
+    export ARG_BRIGHTNESS
+}
+
+function usage {
+    cat <<EOM
+Usage: $(basename "${0}") <BRIGHTNESS>
+
+Set brightness of external display to 0-10 (in steps of 10%).
+EOM
+
+}
+
+function main {
+    parse-args "${@}"
+
+    if ! cmd-exist ddcutil; then
+        error "Missing ddcutil. Install before proceeding!"
+        return 4
+    fi
+
+    if [ -v DEBUG  ]; then
+        get-brightness
+    fi
+
+    set-brightness "${ARG_BRIGHTNESS}"
+
+    if [ -v DEBUG  ]; then
+        get-brightness
+    fi
+}
+
+main "${@}"; exit
