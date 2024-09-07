@@ -1,0 +1,78 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+APP="com.valvesoftware.Steam"
+APP_DIR="${HOME}/.var/app/${APP}"
+
+################################################################################
+
+function is-game {
+    local file pattern
+
+    file="${1}"
+
+    patterns=(
+        'Exec=steam steam://rungameid/'
+        'Icon=steam_'
+    )
+
+    for pattern in "${patterns[@]}"; do
+        if ! grep "${pattern}" "${file}" &>/dev/null; then
+            return 2
+        fi
+    done
+}
+
+function icon {
+    local id icons
+
+    id="${1}"
+    icons="${APP_DIR}/.local/share/icons/hicolor/"
+
+    find "${icons}" -name "steam_icon_${id}.png" | tail -n 1
+}
+
+function desktop-file {
+    local id name icon
+
+    id="${1}"
+    name="${2}"
+
+    icon="$(icon "${id}")"
+
+    cat <<EOM
+[Desktop Entry]
+Name=${name}
+Comment=Play this game on Steam
+Exec=flatpak run com.valvesoftware.Steam steam://rungameid/${id}
+Icon=${icon}
+Terminal=false
+Type=Application
+Categories=Game;
+EOM
+}
+
+function games {
+    local -a files
+
+    mapfile -t files < <(
+        find "${APP_DIR}/.local/share/applications/" -name '*.desktop'
+    )
+
+    for f in "${files[@]}"; do
+        if is-game "${f}"; then
+            id=$(grep -oP 'Exec=.+ steam://rungameid/\K\w+' "${f}")
+            name=$(grep -oP 'Name=\K.+' "${f}")
+            dest="${HOME}/.local/share/applications/${name}.desktop"
+            desktop-file "${id}" "${name}" > "${dest}"
+        fi
+    done
+}
+
+function main {
+    games
+}
+
+main "${@}"; exit
