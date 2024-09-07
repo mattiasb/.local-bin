@@ -26,6 +26,7 @@ function metric-unit {
         yd|yard|yards)        echo "m"     ;;
         ac|acre|acres)        echo "m2"    ;;
         gal|gallon|gallons)   echo "l"     ;;
+        lbs|pounds)           echo "kg"    ;;
     esac
 }
 
