@@ -264,6 +264,8 @@
 /tsserver
 /twitch
 /typescript-language-server
+/uv
+/uvx
 /vaultify
 /virtualenv
 /virtualenv-clone
