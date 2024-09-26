@@ -143,6 +143,7 @@
 /keyring
 /kramdown
 /kubectl
+/kubelogin
 /ldiff
 /lego
 /lego-4.9.1
