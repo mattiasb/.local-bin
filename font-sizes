@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+
+################################################################################
+
+
+function setting {
+    local path key value
+
+    path="${1}"
+    key="${2}"
+    value="${3}"
+
+    gsettings set "org.gnome.desktop.${path}" "${key}" "${value}"
+}
+
+function font-sizes {
+    local size mono
+
+    size="Cantarell ${1}"
+    mono="JetBrains Mono Medium ${2}"
+
+    setting interface      monospace-font-name "${mono}"
+    setting interface      document-font-name  "${size}"
+    setting interface      font-name           "${size}"
+    setting wm.preferences titlebar-font       "${size}"
+}
+
+
+function usage {
+    cat <<EOM
+
+Usage: $(basename "${0}") [-h | --help] <home|work>
+
+  -h, --help    Show this help message.
+
+EOM
+}
+
+function main {
+    case "${1}" in
+        -h|--help) usage       ;;
+        work) font-sizes 14 15 ;;
+        *)    font-sizes 10 11 ;;
+    esac
+}
+
+main "${@}"; exit
