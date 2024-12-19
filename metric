@@ -16,6 +16,10 @@ Usage: $(basename "${0}") [-h | --help] <#UN|# UNIT>
 EOM
 }
 
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
 function metric-unit {
     case "${unit}" in
         mi|mile|miles)        echo "km"    ;;
@@ -27,6 +31,10 @@ function metric-unit {
         ac|acre|acres)        echo "m2"    ;;
         gal|gallon|gallons)   echo "l"     ;;
         lbs|pounds)           echo "kg"    ;;
+        *)
+            error "Unknown unit!"
+            return 2
+            ;;
     esac
 }
 
