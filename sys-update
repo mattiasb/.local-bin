@@ -3,6 +3,15 @@
 # SPDX-License-Identifier: CC0-1.0
 # Copyright 2016, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
 
-pkcon refresh force           || exit $?
-pkcon update --only-download  || exit $?
-pkcon offline-trigger         || exit $?
+set -e
+set -o pipefail
+
+################################################################################
+
+function main {
+    sudo dnf upgrade -y --offline
+    echo
+    sudo dnf offline reboot
+}
+
+main "${@}"; exit
