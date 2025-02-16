@@ -49,7 +49,7 @@ function parse-args {
     script="$(basename "${0}")"
     flags="help"
     opts="$(getopt -o h --long "${flags}" -n "${script}" -- "${@}")"
-    eval set -- "$opts"
+    eval set -- "${opts}"
 
     while true; do
         case "${1}" in
