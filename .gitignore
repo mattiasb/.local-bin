@@ -63,6 +63,7 @@
 /cquery
 /dasel
 /debug-usage
+/devcontainer
 /distro
 /dmypy
 /dockpin
@@ -229,6 +230,7 @@
 /ruby-parse
 /ruby-rewrite
 /ruff
+/rust-analyzer
 /rust-gdb
 /rustc
 /rustdoc
@@ -285,5 +287,3 @@
 /yasel
 /yasha
 /yri
-/rust-analyzer
-/devcontainer
