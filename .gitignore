@@ -49,6 +49,7 @@
 /cbor2cbor
 /cbor2json
 /cbor2msgpack
+/cbor2py
 /cbor2toml
 /cbor2yaml
 /cc
@@ -139,6 +140,7 @@
 /json2json
 /json2lua
 /json2msgpack
+/json2py
 /json2toml
 /json2yaml
 /keyring
@@ -159,6 +161,7 @@
 /msgpack2cbor
 /msgpack2json
 /msgpack2msgpack
+/msgpack2py
 /msgpack2toml
 /msgpack2yaml
 /my-spotify
@@ -259,6 +262,7 @@
 /toml2cbor
 /toml2json
 /toml2msgpack
+/toml2py
 /toml2toml
 /toml2yaml
 /tqdm
@@ -279,6 +283,7 @@
 /yaml2cbor
 /yaml2json
 /yaml2msgpack
+/yaml2py
 /yaml2toml
 /yaml2yaml
 /yamlfix
