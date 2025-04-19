@@ -1,0 +1,164 @@
+#!/bin/bash
+
+set -eu
+set -o pipefail
+
+BIN_DIR="${HOME}/.local/bin"
+APP_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/flatpak/app"
+
+declare -a ARG_APPS=()
+
+################################################################################
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+################################################################################
+
+function commands {
+    local cmd ret
+    local -a cmds
+
+    cmds=( "${@}" )
+    ret=0
+
+    for cmd in "${cmds[@]}"; do
+        if ! command -v "${cmd}" > /dev/null; then
+            ret=1
+            error "Missing command: ${cmd}"
+        fi
+    done
+
+    return "${ret}"
+}
+
+function default-command {
+    local app
+
+    app="${1}"
+
+    flatpak run --command=cat "${app}" /app/manifest.json | jq -r '.command'
+}
+
+function symlink-app {
+    local app src dest
+
+    app="${1}"
+
+    if [ ! -d "${APP_DIR}/${app}" ]; then
+        error "${app} isn't a know app!"
+    fi
+
+    src="${APP_DIR}/${app}/current/active/export/bin/${app}"
+    dest="${BIN_DIR}/$(default-command "${app}")"
+
+    echo "Symlinking ${app} ⇒ $(basename "${dest}") ..."
+    if [ "${OPT_FORCE}" = true ]; then
+        ln -sf "${src}" "${dest}"
+    else
+        ln -s "${src}" "${dest}"
+    fi
+}
+
+function all-apps {
+    local app
+
+    for app in "${APP_DIR}"/*; do
+        basename "${app}"
+    done
+}
+
+################################################################################
+
+function usage {
+    cat <<EOM
+
+Usage: $(basename "${0}") [-h | --help] [-f | --force] [-a | --all] [<APP>...]
+
+  -h, --help    Show this help message.
+  -a, --all     Add symlinks for all flatpaks.
+  -f, --force   Overwrite existing files.
+
+Make symlinks for Flatpak apps to ${BIN_DIR}.
+EOM
+}
+
+function parse-args {
+    local opts short long name
+
+    name="$(basename "${0}")"
+    long="help,all,force"
+    short="haf"
+
+    if ! opts="$(getopt -o "${short}" --long "${long}" -n "${name}" -- "${@}")"
+    then
+        usage
+        return 2
+    fi
+
+    eval set -- "${opts}"
+
+    OPT_ALL=false
+    OPT_FORCE=false
+    ARG_APPS=()
+
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+            -a | --all)
+                shift
+                OPT_ALL=true
+                ;;
+            -f | --force)
+                shift
+                OPT_FORCE=true
+                ;;
+
+            -- ) shift; break ;;
+            * )  break ;;
+        esac
+    done
+
+    if [ "${OPT_ALL}" = true ]; then
+        mapfile -t ARG_APPS < <(all-apps)
+    else
+        ARG_APPS=( "${@}" )
+    fi
+
+    if [ "${#ARG_APPS[@]}" -eq 0 ]; then
+        error "No apps to symlink!"
+        usage
+        return 2
+    fi
+
+    export OPT_ALL
+    export OPT_FORCE
+    export ARG_APPS
+}
+
+function main {
+    local app
+
+    if ! commands flatpak jq ; then
+        echo
+        echo "Install the missing commands before trying again."
+        return 3
+    fi
+
+    if [ ! -d "${BIN_DIR}" ]; then
+        echo "Creating ${BIN_DIR} ..."
+        mkdir -p "${BIN_DIR}"
+    fi
+
+    parse-args "${@}"
+
+    for app in "${ARG_APPS[@]}"; do
+        symlink-app "${app}"
+    done
+}
+
+main "${@}"; exit
