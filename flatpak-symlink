@@ -17,8 +17,6 @@ function error {
     echo "ERROR: ${*}" >/dev/stderr
 }
 
-################################################################################
-
 function commands {
     local cmd ret
     local -a cmds
@@ -35,6 +33,8 @@ function commands {
 
     return "${ret}"
 }
+
+################################################################################
 
 function default-command {
     local app
