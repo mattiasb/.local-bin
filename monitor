@@ -36,10 +36,10 @@ function main {
     port="${1:-}"
     
     case "${port}" in
-        displayLink|DVI|dvi) screen=DVI-I-1         ;;
-        hdmi|HDMI)           screen=HDMI-1          ;;
-        dp|DP|display-port)  screen=DP-1            ;;
-        *)                   screen="$(probe-port)" ;;
+        displayLink|DVI|dvi) screen=DVI-I-1                                   ;;
+        hdmi|HDMI)           screen=HDMI-1                                    ;;
+        dp|DP|display-port)  screen=DP-1                                      ;;
+        *)                   screen="$(probe-port)"                           ;;
     esac
 
     echo "Setting up ${screen} bottom left of eDP-1"
