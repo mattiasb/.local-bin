@@ -44,6 +44,7 @@ function main {
 
     echo "Setting up ${screen} bottom left of eDP-1"
 
+    # TODO: Expose direction and scaling as flags and env-vars
     gdctl set                                                                  \
           -L -M "${screen}" -p -s 1.0                                          \
           -L -M eDP-1 --left-of "${screen}" -y 1100 -s 1.0
