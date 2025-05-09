@@ -6,6 +6,15 @@
 set -e
 set -o pipefail
 
+declare -A STYLE=(
+    # # Adwaita
+    # [dark]="Adwaita-dark"
+    # [light]="Adwaita-light"
+
+    # Adw-gtk3
+    [dark]="adw-gtk3-dark"
+    [light]="adw-gtk3"
+)
 
 ################################################################################
 
@@ -15,15 +24,16 @@ function set-gtk3-color-scheme {
     scheme="${1}"
 
     echo "GTK3 => ${scheme^^}"
-    gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-${scheme}"
+    gsettings set org.gnome.desktop.interface gtk-theme "'${STYLE[${scheme}]}'"
 }
 
 function main {
     while read -r line ; do
         case "${line}" in
-            *'dark'*)    set-gtk3-color-scheme dark  ;;
-            *'default'*) set-gtk3-color-scheme light ;;
-            *'light'*)   set-gtk3-color-scheme light ;;
+            *'prefer-dark'*)  set-gtk3-color-scheme dark                      ;;
+            *'prefer-light'*) set-gtk3-color-scheme light                     ;;
+            *'default'*)      set-gtk3-color-scheme light                     ;;
+            *) continue ;;
         esac
     done < <( dconf watch /org/gnome/desktop/interface/color-scheme )
 }
