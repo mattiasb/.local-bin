@@ -19,11 +19,13 @@ function has-port {
 }
 
 function probe-port {
-    for port in HDMI-1 DP-1 DVI-I-1; do
-        if has-port "${port}"; then
-            echo "${port}"
-            return
-        fi
+    for i in 1 2 3 4 5 6; do
+        for port in {HDMI,DP,DVI-I}-${i}; do
+            if has-port "${port}"; then
+                echo "${port}"
+                return
+            fi
+        done
     done
 
     error "No recognized attached port!"
@@ -31,16 +33,9 @@ function probe-port {
 }
 
 function main {
-    local screen port
+    local screen
 
-    port="${1:-}"
-    
-    case "${port}" in
-        displayLink|DVI|dvi) screen=DVI-I-1                                   ;;
-        hdmi|HDMI)           screen=HDMI-1                                    ;;
-        dp|DP|display-port)  screen=DP-1                                      ;;
-        *)                   screen="$(probe-port)"                           ;;
-    esac
+    screen="$(probe-port)"
 
     echo "Setting up ${screen} bottom left of eDP-1"
 
