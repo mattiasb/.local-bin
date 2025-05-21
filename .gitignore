@@ -146,6 +146,7 @@
 /keyring
 /kramdown
 /kubectl
+/kubectl-vsphere
 /kubelogin
 /ldiff
 /lego
@@ -270,6 +271,7 @@
 /tsc
 /tsserver
 /twitch
+/ty
 /typescript-language-server
 /uv
 /uvx
@@ -292,5 +294,3 @@
 /yasel
 /yasha
 /yri
-/ty
-/kubectl-vsphere
