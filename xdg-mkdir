@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -eu
+set -o pipefail
+
+
+################################################################################
+
+function main {
+    local type dir
+
+    if [ "${#}" -lt 2 ]; then
+        echo "Usage: ${FUNCNAME[0]} <cache|config|state> <NAME>" >&2
+        echo >&2
+        return 2
+    fi
+
+    type="${1}"
+    dir="${2}"
+
+    case "${type}" in
+        data)    dir="${XDG_DATA_HOME:-${HOME}/.local/share}/${dir}"          ;;
+        cache)   dir="${XDG_CACHE_HOME:-${HOME}/.cache}/${dir}"               ;;
+        config)  dir="${XDG_CONFIG_HOME:-${HOME}/.config}/${dir}"             ;;
+        state)   dir="${XDG_STATE_HOME:-${HOME}/.local/state}/${dir}"         ;;
+        *)       echo "ERROR: Unknown directory type: ${type}" >&2; return 3  ;;
+    esac
+    mkdir -p "${dir}" >&2
+
+    echo "${dir}"
+}
+
+main "${@}"; exit
