@@ -6,10 +6,6 @@ set -o pipefail
 
 ################################################################################
 
-function error {
-    echo "ERROR: ${*}" >/dev/stderr
-}
-
 function choose-secret {
     lpass ls --format="%ag/%an" | grep -Ev '/$' | fzf
 }
