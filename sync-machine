@@ -10,6 +10,7 @@
 ################################################################################
 
 declare -a REPOS=(
+    ~/Documents/Cabinet/
     ~/Documents/Magic/decks/
     ~/.config/
     ~/.local/bin/
@@ -20,6 +21,7 @@ declare -a REPOS=(
 
 declare -A COMMANDS=(
     # Just sync
+    [~/Documents/Cabinet/]=""
     [~/Documents/Magic/decks/]=""
     [~/.config/]=""
     [~/.local/bin/]=""
