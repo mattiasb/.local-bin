@@ -62,6 +62,7 @@
 /conan_build_info
 /conan_server
 /cquery
+/create-private-key.sh
 /dasel
 /debug-usage
 /devcontainer
@@ -147,6 +148,7 @@
 /keyring
 /kramdown
 /kubectl
+/kubectl-aihub
 /kubectl-vsphere
 /kubelogin
 /ldiff
@@ -277,6 +279,7 @@
 /uv
 /uvx
 /vaultify
+/vgr-cert
 /virtualenv
 /virtualenv-clone
 /viu
