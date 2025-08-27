@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -eu
+set -o pipefail
+
+
+################################################################################
+
+function main {
+    local contexts context
+
+    case "${1:-}" in
+        -h | --help)
+            echo "Usage: $(basename "${0}" | tr "-" " ") [CONTEXT|-]"
+            return
+            ;;
+
+        -)  kubectl config unset current-context
+            return
+            ;;
+
+        "") mapfile -t contexts < <(kubectl config get-contexts                \
+                                            --no-headers                       \
+                                            -o name                            \
+                                   )
+            context="$( printf "%s\n" "${contexts[@]}"                         \
+                      | fzf --ansi --height $(( ${#contexts[@]} + 2))          \
+                      )"
+            ;;
+
+        *)  context="${1}" ;;
+    esac
+
+    kubectl config use-context "${context}"
+}
+
+main "${@}"; exit
