@@ -5,6 +5,8 @@
 *.orig
 *~
 /aihub
+/aihub-dockerhub
+/aihub-gnupg
 /aihub-gpg
 /aihub-vgc
 /bash-language-server
@@ -41,6 +43,7 @@
 /kramdown
 /kubectl
 /kubectl-aihub
+/kubectl-aihub-login
 /kubectl-vsphere
 /ldiff
 /msgpack2cbor
@@ -56,6 +59,8 @@
 /pre-commit
 /pylsp
 /remarshal
+/renovate
+/renovate-config-validator
 /resume
 /reverse_markdown
 /rubocop
@@ -79,6 +84,8 @@
 /ty
 /typescript-language-server
 /vgr-cert
+/vscode-json-languageserver
+/yaml-language-server
 /yaml2cbor
 /yaml2json
 /yaml2msgpack
@@ -89,5 +96,3 @@
 /yard
 /yardoc
 /yri
-/aihub-gnupg
-/kubectl-aihub-login
