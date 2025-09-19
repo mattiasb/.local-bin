@@ -18,6 +18,18 @@
 /cbor2py
 /cbor2toml
 /cbor2yaml
+/csvclean
+/csvcut
+/csvformat
+/csvgrep
+/csvjoin
+/csvjson
+/csvlook
+/csvpy
+/csvsort
+/csvsql
+/csvstack
+/csvstat
 /devcontainer
 /dmypy
 /eldev
@@ -30,6 +42,7 @@
 /git-wip
 /helmfile
 /htmldiff
+/in2csv
 /ipython
 /ipython3
 /jp
@@ -67,6 +80,7 @@
 /ruby-parse
 /ruby-rewrite
 /solargraph
+/sql2csv
 /sqlformat
 /stubgen
 /stubtest
