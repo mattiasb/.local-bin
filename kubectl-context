@@ -1,37 +1,60 @@
 #!/bin/bash
 
-set -eu
+set -e
 set -o pipefail
 
 
 ################################################################################
 
-function main {
-    local contexts context
+function usage {
+    cat <<EOM
+Usage: $(basename "${0}" | tr "-" " ") [-h | --help] [CONTEXT|-]
+
+  -h, --help    Show this help message.
+
+EOM
+}
+
+function get-contexts {
+    kubectl config get-contexts --no-headers -o name
+}
+
+function do-complete {
+    if [ "${#}" -lt 2 ]; then
+        get-contexts
+    fi
+}
+
+function set-context {
+    local context
+
+    context="${1}"
+
+    case "${context}" in
+        -) kubectl config unset current-context    ;;
+        *) kubectl config use-context "${context}" ;;
+    esac
+}
+
+function switch-context {
+    local contexts
 
     case "${1:-}" in
-        -h | --help)
-            echo "Usage: $(basename "${0}" | tr "-" " ") [CONTEXT|-]"
-            return
+        -h | --help) usage                                                    ;;
+        "") mapfile -t contexts < <(get-contexts); wait $!
+            set-context "$( printf "%s\n" "${contexts[@]}"                     \
+                          | fzf --ansi --height $(( ${#contexts[@]} + 2))      \
+                          )"
             ;;
-
-        -)  kubectl config unset current-context
-            return
-            ;;
-
-        "") mapfile -t contexts < <(kubectl config get-contexts                \
-                                            --no-headers                       \
-                                            -o name                            \
-                                   )
-            context="$( printf "%s\n" "${contexts[@]}"                         \
-                      | fzf --ansi --height $(( ${#contexts[@]} + 2))          \
-                      )"
-            ;;
-
-        *)  context="${1}" ;;
+        *)  set-context "${1}"                                                ;;
     esac
+}
 
-    kubectl config use-context "${context}"
+function main {
+    case "$(basename "${0}")" in
+        kubectl_complete-*)   do-complete    "${@}" ;;
+        *)                    switch-context "${@}" ;;
+    esac
 }
 
 main "${@}"; exit

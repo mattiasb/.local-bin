@@ -6,40 +6,72 @@ set -o pipefail
 
 ################################################################################
 
-function main {
-    local namespaces namespace context_err
 
-    case "${1:-}" in
-        -h | --help)
-            echo "Usage: $(basename "${0}" | tr "-" " ") [CONTEXT|-]"
-            return
-            ;;
-        *)  ;;
-    esac
+function usage {
+    cat <<EOM
+Usage: $(basename "${0}" | tr "-" " ") [-h | --help] [NAMESPACE|-]
 
-    context_err="error: current-context is not set"
+  -h, --help    Show this help message.
 
-    if [ "$(kubectl config current-context 2>&1)" = "${context_err}" ]; then
-        kubectl context
+EOM
+}
+
+function get-namespaces {
+    local err
+
+    err="error: current-context is not set"
+
+    if [ "$(kubectl config current-context 2>&1)" = "${err}" ]; then
+        kubectl context >/dev/null
     fi
 
-    case "${1:-}" in
-        "") mapfile -t namespaces < <(kubectl get namespaces                   \
-                                              --no-headers                     \
-                                              -o name                          \
-                                          | xargs -n1 basename                 \
-                                     )
-            namespace="$( printf "%s\n" "${namespaces[@]}"                     \
-                        | fzf --ansi --height $(( ${#namespaces[@]} + 2))      \
-                        )"
-            ;;
+    kubectl get namespaces --no-headers -o name | xargs -n1 basename
+}
 
-        -)  namespace=""     ;;
+function set-namespace {
+    local namespace
 
-        *)  namespace="${1}" ;;
-    esac
+    namespace="${1}"
 
+}
+
+
+function set-namespace {
+    local namespace
+
+    namespace="${1}"
+
+    if [ "${namespace}" = "-" ]; then
+        namespace=""
+    fi
     kubectl config set-context --current --namespace="${namespace}"
+}
+
+function do-complete {
+    if [ "${#}" -lt 2 ]; then
+        get-namespaces
+    fi
+}
+
+function switch-namespace {
+    local namespaces
+
+    case "${1:-}" in
+        -h | --help) usage                                                    ;;
+        "") mapfile -t namespaces < <(get-namespaces)
+            set-namespace "$( printf "%s\n" "${namespaces[@]}"                 \
+                            | fzf --ansi --height $(( ${#namespaces[@]} + 2))  \
+                            )"
+            ;;
+        *)  set-namespace "${1}"                                              ;;
+    esac
+}
+
+function main {
+    case "$(basename "${0}")" in
+        kubectl_complete-*)   do-complete      "${@}" ;;
+        *)                    switch-namespace "${@}" ;;
+    esac
 }
 
 main "${@}"; exit
