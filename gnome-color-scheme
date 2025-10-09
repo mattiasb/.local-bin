@@ -9,10 +9,20 @@ set -o pipefail
 
 ################################################################################
 
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
 function main {
-    case "$(gsettings get org.gnome.desktop.interface color-scheme)" in
+    local scheme
+
+    scheme="$(gsettings get org.gnome.desktop.interface color-scheme)"
+
+    case "${scheme}" in
         "'default'"|"'prefer-light'") echo light ;;
-        "'prefer-dark'")              echo dark ;
+        "'prefer-dark'")              echo dark  ;;
+        *)                            error "Unknown color-scheme: ${scheme}" ;;
     esac
 }
 
