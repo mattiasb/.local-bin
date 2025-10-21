@@ -55,9 +55,21 @@ function indent {
 }
 
 function confirm {
-    read -p "${*} [Y/n] " -n 1 -r -s
+    local default
+
+    default="${1}"
+    shift
+
+    case "${default}" in
+        y) read -p "${*} [Y/n] " -n 1 -r -s ;;
+        n) read -p "${*} [N/y] " -n 1 -r -s ;;
+        *) echo "Unknown default value: '${default}'" >&2
+           return 2
+           ;;
+    esac
+
     echo
-    [[ $REPLY == "" || $REPLY =~ ^[Yy]$ ]]
+    [[ ${REPLY:-${default}} =~ ^[Yy]$ ]]
 }
 
 function with-tilde {
@@ -184,8 +196,8 @@ function main {
     fi
 
     for repo in "${!RECIPE[@]}"; do
-        if confirm "$(with-tilde "${repo}") \$ ${cmd} ?"; then
         cmd="${RECIPE[${repo}]}"
+        if confirm y "$(with-tilde "${repo}") \$ ${cmd} ?"; then
             run-in-repo "${repo}" "${cmd}"
         fi
     done
