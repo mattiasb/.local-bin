@@ -61,7 +61,7 @@ function confirm {
 }
 
 function with-tilde {
-    echo "${1/#$HOME/\~}"
+    echo "${1/#${HOME}/\~}"
 }
 
 ################################################################################
@@ -184,8 +184,8 @@ function main {
     fi
 
     for repo in "${!RECIPE[@]}"; do
-        cmd="${RECIPE[$repo]}"
         if confirm "$(with-tilde "${repo}") \$ ${cmd} ?"; then
+        cmd="${RECIPE[${repo}]}"
             run-in-repo "${repo}" "${cmd}"
         fi
     done
