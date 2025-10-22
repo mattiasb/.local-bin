@@ -1,20 +1,126 @@
 #!/bin/bash
 
+set -euo pipefail
+
+################################################################################
 # Simple podman wrapper that maps user and mounts PWD
 
-uid="$(id -u)"
-gid="$(id -g)"
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
 
-name="${1##*/}"
-name="${name%%:*}"
+function usage {
+    cat <<EOM
+Usage: $(basename "${0}") [-h | --help]
 
-podman run                                                                     \
-       --user "${uid}:${gid}"                                                  \
-       --userns "keep-id:uid=${uid},gid=${gid}"                                \
-       --volume "${PWD}:/pwd/${PWD}"                                           \
-       --workdir "/pwd/${PWD}"                                                 \
-       --rm                                                                    \
-       --name "${name}"                                                        \
-       --hostname "${name}"                                                    \
-       -it                                                                     \
-       "${@}"
+  -h, --help    Show this help message.
+
+EOM
+}
+
+function parse-args {
+    local o name opts long
+
+    name="$(basename "${0}")"
+    opts="h"
+    long="help"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    ARG_IMAGE=
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+
+    if [ "${#}" != 1 ]; then
+        usage
+        return 2
+    fi
+
+    ARG_IMAGE="${1}"
+
+    export ARG_IMAGE
+}
+
+################################################################################
+
+function name {
+    local image name
+
+    image="${1}"
+
+    name="${image##*/}"
+
+    echo "pet-${name%%:*}"
+}
+
+function exists {
+    local image
+
+    image="${1}"
+
+    podman container exists "$(name "${image}")"
+}
+
+function running {
+    local image name
+
+    image="${1}"
+    name="$(name "${image}")"
+
+    exists "${image}"
+    test "$(podman inspect -f '{{.State.Status}}' "${name}" 2>&1)" = "running"
+}
+
+function run {
+    local image name uid gid
+
+    image="${1}"
+    name="$(name "${image}")"
+
+    uid="$(id -u)"
+    gid="$(id -g)"
+
+    podman run                                                                 \
+           --user     "${uid}:${gid}"                                          \
+           --userns   "keep-id:uid=${uid},gid=${gid}"                          \
+           --volume   "${PWD}:/host/${PWD}"                                    \
+           --workdir  "/host/${PWD}"                                           \
+           --name     "${name}"                                                \
+           --hostname "${name#pet-}"                                           \
+           --interactive                                                       \
+           --tty                                                               \
+           "${@}"
+}
+
+function start {
+    local image name
+
+    image="${1}"
+    name="$(name "${image}")"
+
+    podman container start -a "${name}"
+}
+
+function main {
+    parse-args "${@}"
+
+    if running "${ARG_IMAGE}"; then
+        error "$(name "${ARG_IMAGE}") is already running"
+        return 2
+    elif exists "${ARG_IMAGE}"; then
+        start "${ARG_IMAGE}"
+    else
+        run "${ARG_IMAGE}"
+    fi
+}
+
+main "${@}"; exit
