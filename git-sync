@@ -1,0 +1,258 @@
+#!/bin/bash
+# shellcheck disable=SC2317
+# shellcheck disable=SC2329
+
+set -euo pipefail
+
+# TODO: Return the possibility to run commands on sync
+
+################################################################################
+
+declare -a REPOS=(
+    ~/Documents/Cabinet/
+    ~/Documents/Magic/decks/
+    ~/.config/
+    ~/.local/bin/
+    ~/Code/Test/
+    ~/Code/github.com/mattiasb/MachineSetup/
+)
+
+readonly STATE_SYNC=0
+readonly STATE_PULL=1
+readonly STATE_PUSH=2
+readonly STATE_BOTH=3
+
+readonly ERR_GIT_NOREPO=10
+readonly ERR_GIT_STATUS=11
+readonly ERR_GIT_DIRTY=12
+readonly ERR_GIT_FETCH=13
+readonly ERR_GIT_PULL=14
+readonly ERR_GIT_PUSH=15
+
+readonly SYNC=✓
+readonly PUSH=↑
+readonly PULL=↓
+readonly BOTH=⇅
+readonly FAIL=×
+
+################################################################################
+
+function home {
+    echo "${1/#${HOME}/\~}"
+}
+
+function debug {
+    if [ -v DEBUG ]; then
+        echo "${FUNCNAME[1]:+${FUNCNAME[1]}: }${*}" >/dev/stderr
+    fi
+}
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+function color {
+    local color
+
+    color="${1}"
+
+    case "${color}" in
+        b|black)   tput setaf 0 ;;
+        r|red)     tput setaf 1 ;;
+        g|green)   tput setaf 2 ;;
+        y|yellow)  tput setaf 3 ;;
+        u|blue)    tput setaf 4 ;;
+        m|magenta) tput setaf 5 ;;
+        c|cyan)    tput setaf 6 ;;
+        w|white)   tput setaf 7 ;;
+        *)         echo "ERROR: No such color ${color}!" >&2
+                   return 128   ;;
+    esac
+    shift
+
+    echo "${@}"
+
+    tput sgr0
+}
+
+function task-fail {
+    local task fail out
+
+    task="${1}"
+    fail="${2}"
+    out="${3-}"
+
+    echo -e "[ $(color r -n "${FAIL}") ] ${task} — ${fail}"
+    if [ -n "${out}"  ]; then
+        echo "${out}" | pr -to 6 >&2
+    fi
+}
+
+function task {
+    local task out code
+    local -a cmd
+
+    task="${1}"
+    shift
+    cmd=("${@}")
+
+    code=0
+
+    out="$("${cmd[@]}")" || code="${?}"
+
+    case "${code}" in
+        "${STATE_SYNC}") echo -e "[ $(color g -n "${SYNC}") ] ${task}"        ;;
+        "${STATE_PULL}") echo -e "[ $(color y -n "${PULL}") ] ${task}"        ;;
+        "${STATE_PUSH}") echo -e "[ $(color y -n "${PUSH}") ] ${task}"        ;;
+        "${STATE_BOTH}") echo -e "[ $(color y -n "${BOTH}") ] ${task}"        ;;
+
+        "${ERR_GIT_DIRTY}")  task-fail "${task}" "Dirty"                      ;;
+        "${ERR_GIT_NOREPO}") task-fail "${task}" "Not a repo"                 ;;
+
+        "${ERR_GIT_STATUS}") task-fail "${task}" "Status failed"  "${out}"    ;;
+        "${ERR_GIT_FETCH}")  task-fail "${task}" "Fetch failed"   "${out}"    ;;
+        "${ERR_GIT_PULL}")   task-fail "${task}" "Pull failed"    "${out}"    ;;
+        "${ERR_GIT_PUSH}")   task-fail "${task}" "Push failed"    "${out}"    ;;
+        *)                   task-fail "${task}" "Unknown errror" "${out}"    ;;
+    esac
+}
+
+################################################################################
+
+function git-default-branch {
+    local repo
+
+    repo="${1}"
+
+    git -C "${repo}" symbolic-ref refs/remotes/origin/HEAD | sed 's,.*/,,'
+}
+
+function git-state {
+    local repo head remote base main
+
+    repo="${1}"
+
+    main="$(git-default-branch "${repo}")"
+    head="$(git -C "${repo}" rev-parse "${main}")"
+    remote="$(git -C "${repo}" rev-parse "origin/${main}")"
+    base="$(git -C "${repo}" merge-base "${head}" "${remote}")"
+
+    if   [ "${head}" = "${remote}" ]; then
+        echo sync
+    elif [ "${base}" = "${remote}" ]; then
+        echo ahead
+    elif [ "${base}" = "${head}"   ]; then
+        echo behind
+    else
+        echo diverged
+    fi
+}
+
+function git-pull {
+    local repo
+
+    repo="${1}"
+
+    if ! git -C "${1}" pull --rebase 2>&1; then
+        return "${ERR_GIT_PULL}"
+    fi
+}
+
+function git-push {
+    local repo
+
+    repo="${1}"
+
+    if ! git -C "${1}" push 2>&1; then
+        return "${ERR_GIT_PUSH}"
+    fi
+}
+
+function git-sync-repo {
+    local repo out state
+
+    repo="${1}"
+
+    if ! git -C "${repo}" rev-parse &>/dev/null; then
+        return "${ERR_GIT_NOREPO}"
+    fi
+
+    if ! out="$(git -C "${repo}" status --short)"; then
+        echo "${out}" >&2
+        return "${ERR_GIT_STATUS}"
+    elif [ -n "${out}" ]; then
+        return "${ERR_GIT_DIRTY}"
+    fi
+
+    if ! git -C "${repo}" fetch -q 2>&1; then
+        return "${ERR_GIT_FETCH}"
+    fi
+
+    state="$(git-state "${repo}")"
+    debug "state: ${state}"
+    case "${state}" in
+        sync)     return "${STATE_SYNC}" ;;
+        behind)   git-pull "${repo}"
+                  return "${STATE_PULL}" ;;
+        ahead)    git-push "${repo}"
+                  return "${STATE_PUSH}" ;;
+        diverged) git-pull "${repo}"
+                  git-push "${repo}"
+                  return "${STATE_PULL}" ;;
+        *)        error "Internal error. Unknown state '${state}'"
+                  return 128
+                  ;;
+    esac
+}
+
+################################################################################
+
+function usage {
+    cat <<EOM
+Sync git repositories.
+
+Usage: $(basename "${0}") [-h | --help]
+
+  -h, --help    Show this help message.
+
+EOM
+
+}
+
+function parse-args {
+    local o name opts long
+
+    name="$(basename "${0}")"
+    opts="h"
+    long="help"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+}
+
+function main {
+    local -a repos
+
+    parse-args "${@}"
+
+    case "${#}" in
+        1) task "$(home "${1}")" git-sync-repo "${1}"; return                 ;;
+        0) repos=( "${REPOS[@]}" )                                            ;;
+        *) repos=( "${@}" )                                                   ;;
+    esac
+
+    xargs -n 1 -P 8 git sync <<< "${repos[@]}"
+}
+
+main "${@}"; exit
