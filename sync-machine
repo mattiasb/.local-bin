@@ -54,6 +54,10 @@ function indent {
     echo "${*}" | pr -to 4
 }
 
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
 function confirm {
     local default
 
@@ -104,7 +108,7 @@ function sync {
 
     repo="${1}"
     # Relative Repo Path
-    rel="${1/#$HOME/\~}"
+    rel="${1/#${HOME}/\~}"
     state=0
 
     if ! out="$(git -C "${repo}" status --short)"; then
@@ -130,7 +134,7 @@ function sync {
         state=$(( state + STATE[pulled] ))
         repo_tilde="$(with-tilde "${repo}")"
         if [ -n  "${COMMANDS[${repo_tilde}]}" ]; then
-            RECIPE+=( [$repo]="${COMMANDS[${repo_tilde}]}" )
+            RECIPE+=( [${repo}]="${COMMANDS[${repo_tilde}]}" )
         fi
     fi
 
@@ -143,7 +147,7 @@ function sync {
         state=$(( state + STATE[pushed] ))
     fi
 
-    case "$state" in
+    case "${state}" in
         "${STATE[neither]}") green "${rel}"
                              return ;;
         "${STATE[pulled]}")  yellow "${rel} — ↓"
@@ -152,6 +156,8 @@ function sync {
                              return ;;
         "${STATE[both]}")    yellow "${rel} — ↓↑"
                              return ;;
+        *)                   error "Bad state: '${state}'!"
+                             return 128 ;;
     esac
 }
 
