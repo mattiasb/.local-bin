@@ -48,6 +48,20 @@ function error {
     echo "ERROR: ${*}" >/dev/stderr
 }
 
+function ierror {
+    local line func file
+    local i=0
+
+    echo -e "INTERNAL ERROR: ${*}" >/dev/stderr
+    echo -e "\nStacktrace:\n"
+
+    while caller $((i++)); do :; done | while read -r line func file; do
+        echo -e "    $(basename "${file}"):${line}\t${func}()"
+    done >&2
+    echo
+    exit 128
+}
+
 function color {
     local color
 
@@ -125,12 +139,25 @@ function config-repos {
 
 ################################################################################
 
+function git {
+    local repo
+
+    repo="${1}"
+    shift
+
+    if ! command git -C "${repo}" rev-parse &>/dev/null; then
+        ierror "Not a repository: '${repo}'"
+    fi
+
+    command git -C "${repo}" "${@}"
+}
+
 function git-default-branch {
     local repo
 
     repo="${1}"
 
-    git -C "${repo}" symbolic-ref refs/remotes/origin/HEAD | sed 's,.*/,,'
+    git "${repo}" symbolic-ref refs/remotes/origin/HEAD | sed 's,.*/,,'
 }
 
 function git-state {
@@ -139,9 +166,9 @@ function git-state {
     repo="${1}"
 
     main="$(git-default-branch "${repo}")"
-    head="$(git -C "${repo}" rev-parse "${main}")"
-    remote="$(git -C "${repo}" rev-parse "origin/${main}")"
-    base="$(git -C "${repo}" merge-base "${head}" "${remote}")"
+    head="$(git "${repo}" rev-parse "${main}")"
+    remote="$(git "${repo}" rev-parse "origin/${main}")"
+    base="$(git "${repo}" merge-base "${head}" "${remote}")"
 
     if   [ "${head}" = "${remote}" ]; then
         echo sync
@@ -159,7 +186,7 @@ function git-pull {
 
     repo="${1}"
 
-    if ! git -C "${1}" pull --rebase 2>&1; then
+    if ! git "${1}" pull --rebase 2>&1; then
         return "${ERR_GIT_PULL}"
     fi
 }
@@ -169,7 +196,7 @@ function git-push {
 
     repo="${1}"
 
-    if ! git -C "${1}" push 2>&1; then
+    if ! git "${1}" push 2>&1; then
         return "${ERR_GIT_PUSH}"
     fi
 }
@@ -179,18 +206,18 @@ function git-sync-repo {
 
     repo="${1}"
 
-    if ! git -C "${repo}" rev-parse &>/dev/null; then
+    if ! git "${repo}" rev-parse &>/dev/null; then
         return "${ERR_GIT_NOREPO}"
     fi
 
-    if ! out="$(git -C "${repo}" status --short)"; then
+    if ! out="$(git "${repo}" status --short)"; then
         echo "${out}" >&2
         return "${ERR_GIT_STATUS}"
     elif [ -n "${out}" ]; then
         return "${ERR_GIT_DIRTY}"
     fi
 
-    if ! git -C "${repo}" fetch -q 2>&1; then
+    if ! git "${repo}" fetch -q 2>&1; then
         return "${ERR_GIT_FETCH}"
     fi
 
