@@ -235,7 +235,6 @@ function git-sync-repo {
     fi
 
     state="$(git-state "${repo}")"
-    debug "state: ${state}"
     case "${state}" in
         sync)     return "${STATE_SYNC}" ;;
         behind)   git-pull "${repo}"
