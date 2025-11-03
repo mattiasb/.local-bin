@@ -101,10 +101,10 @@ function task {
     out="$("${cmd[@]}")" || code="${?}"
 
     case "${code}" in
-        "${STATE_SYNC}") echo -e "[ $(color g -n "${SYNC}") ] ${task}"        ;;
-        "${STATE_PULL}") echo -e "[ $(color y -n "${PULL}") ] ${task}"        ;;
-        "${STATE_PUSH}") echo -e "[ $(color y -n "${PUSH}") ] ${task}"        ;;
-        "${STATE_BOTH}") echo -e "[ $(color y -n "${BOTH}") ] ${task}"        ;;
+        "${STATE_SYNC}")     echo -e "[ $(color g -n "${SYNC}") ] ${task}"    ;;
+        "${STATE_PULL}")     echo -e "[ $(color y -n "${PULL}") ] ${task}"    ;;
+        "${STATE_PUSH}")     echo -e "[ $(color y -n "${PUSH}") ] ${task}"    ;;
+        "${STATE_BOTH}")     echo -e "[ $(color y -n "${BOTH}") ] ${task}"    ;;
 
         "${ERR_GIT_DIRTY}")  task-fail "${task}" "Dirty"                      ;;
         "${ERR_GIT_NOREPO}") task-fail "${task}" "Not a repo"                 ;;
