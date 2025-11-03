@@ -160,12 +160,19 @@ function task {
 }
 
 function config-repos {
+    local repo
+    local -a repos
+
     if [ ! -f "${CONFIG}" ]; then
         error "Loading '$(tilde "${CONFIG}")': No such file!"
         return 2
     fi
 
-    yq '.repos[]' "${CONFIG}"
+    mapfile -t repos < <(yq '.repos[]' "${CONFIG}"); wait $!
+    for repo in "${repos[@]}"; do
+        home "${repo}"
+    done
+}
 }
 
 ################################################################################
