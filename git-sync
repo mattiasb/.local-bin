@@ -312,7 +312,8 @@ EOM
 
 function main {
     local o name opts long
-    local parallel list_repos repo
+    local opt_parallel opt_repos
+    local repo
     local -a repos
 
     name="$(basename "${0}")"
@@ -321,8 +322,8 @@ function main {
     o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
     eval set -- "${o}"
 
-    parallel=8
-    list_repos=0
+    opt_parallel=8
+    opt_repos=0
 
     while true; do
         case "${1}" in
@@ -331,17 +332,17 @@ function main {
                 exit
                 ;;
             -p | --parallel)
-                parallel=8
+                opt_parallel=8
                 shift
                 ;;
 
             -s | --serial)
-                parallel=1
+                opt_parallel=1
                 shift
                 ;;
 
             -r | --repos)
-                list_repos=1
+                opt_repos=1
                 shift
                 ;;
 
@@ -350,7 +351,7 @@ function main {
         esac
     done
 
-    if [ "${list_repos}" = 1 ]; then
+    if [ "${opt_repos}" = 1 ]; then
         mapfile -t repos < <(config-repos); wait $!
         for repo in "${repos[@]}"; do
             tilde "${repo}"
@@ -365,7 +366,7 @@ function main {
         *) repos=( "${@}" )                                                   ;;
     esac
 
-    xargs -n 1 -P "${parallel}" git sync <<< "${repos[@]}"
+    xargs -n 1 -P "${opt_parallel}" git sync <<< "${repos[@]}"
 }
 
 main "${@}"; exit
