@@ -16,12 +16,13 @@ readonly STATE_PUSH=12
 readonly STATE_BOTH=13
 
 readonly ERR_GIT_NOREPO=20
-readonly ERR_GIT_STATUS=21
-readonly ERR_GIT_DIRTY=22
-readonly ERR_GIT_FETCH=23
-readonly ERR_GIT_CONFLICT=24
-readonly ERR_GIT_ABORT=25
-readonly ERR_GIT_PUSH=26
+readonly ERR_GIT_NOTMAIN=21
+readonly ERR_GIT_STATUS=22
+readonly ERR_GIT_DIRTY=23
+readonly ERR_GIT_FETCH=24
+readonly ERR_GIT_CONFLICT=25
+readonly ERR_GIT_ABORT=26
+readonly ERR_GIT_PUSH=27
 
 readonly SYNC=✓
 readonly PUSH=↑
@@ -140,6 +141,7 @@ function task {
 
         "${ERR_GIT_DIRTY}")    task-fail "${task}" "Dirty"                    ;;
         "${ERR_GIT_NOREPO}")   task-fail "${task}" "Not a repo"               ;;
+        "${ERR_GIT_NOTMAIN}")  task-fail "${task}" "Not on main"              ;;
         "${ERR_GIT_CONFLICT}") task-fail "${task}" "Merge conflict"           ;;
 
         "${ERR_GIT_STATUS}")   task-error "${task}" "Status"         "${out}" ;;
@@ -180,6 +182,24 @@ function git-main-branch {
     repo="${1}"
 
     git "${repo}" symbolic-ref refs/remotes/origin/HEAD | sed 's,.*/,,'
+}
+
+function git-branch {
+    local repo
+
+    repo="${1}"
+
+    git "${repo}" rev-parse --abbrev-ref HEAD
+}
+
+function git-on-main {
+    local repo
+
+    repo="${1}"
+
+    if [ "$(git-main-branch "${repo}")" != "$(git-branch "${repo}")" ]; then
+        return "${ERR_GIT_NOTMAIN}"
+    fi
 }
 
 function git-state {
@@ -237,6 +257,7 @@ function git-sync-repo {
     if ! git "${repo}" rev-parse &>/dev/null; then
         return "${ERR_GIT_NOREPO}"
     fi
+    git-on-main "${repo}"
 
     if ! out="$(git "${repo}" status --short)"; then
         echo "${out}" >&2
