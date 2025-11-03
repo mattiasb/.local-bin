@@ -8,6 +8,8 @@ set -euo pipefail
 
 ################################################################################
 
+readonly GIT_TIMEOUT=5s
+
 readonly CONFIG="${XDG_CONFIG_HOME:-${HOME}/.config}/git-sync.conf"
 
 readonly STATE_SYNC=0
@@ -23,6 +25,8 @@ readonly ERR_GIT_FETCH=24
 readonly ERR_GIT_CONFLICT=25
 readonly ERR_GIT_ABORT=26
 readonly ERR_GIT_PUSH=27
+
+readonly ERR_GIT_TIMEOUT=124
 
 readonly SYNC=✓
 readonly PUSH=↑
@@ -148,6 +152,7 @@ function task {
         "${ERR_GIT_FETCH}")    task-error "${task}" "Fetch"          "${out}" ;;
         "${ERR_GIT_ABORT}")    task-error "${task}" "Rebase abort"   "${out}" ;;
         "${ERR_GIT_PUSH}")     task-error "${task}" "Push"           "${out}" ;;
+        "${ERR_GIT_TIMEOUT}")  task-error "${task}" "Timeout"        "${out}" ;;
         *)                     task-error "${task}" "Unknown errror" "${out}" ;;
     esac
 }
@@ -254,9 +259,35 @@ function git-push {
 
     repo="${1}"
 
-    if ! git "${1}" push 2>&1; then
-        return "${ERR_GIT_PUSH}"
+    if timeout "${GIT_TIMEOUT}" git -C "${repo}" push; then
+        return
+    else
+        code="${?}"
     fi
+
+    case "${code}" in
+        0)   return                                                           ;;
+        124) return "${ERR_GIT_TIMEOUT}"                                      ;;
+        *)   return "${ERR_GIT_PUSH}"                                         ;;
+    esac
+}
+
+function git-fetch {
+    local repo out
+
+    repo="${1}"
+
+    if timeout "${GIT_TIMEOUT}" git -C "${repo}" fetch -q; then
+        return
+    else
+        code="${?}"
+    fi
+
+    case "${code}" in
+        0)   return                                                           ;;
+        124) return "${ERR_GIT_TIMEOUT}"                                      ;;
+        *)   return "${ERR_GIT_FETCH}"                                        ;;
+    esac
 }
 
 function git-sync-repo {
@@ -274,9 +305,7 @@ function git-sync-repo {
         return "${ERR_GIT_DIRTY}"
     fi
 
-    if ! git "${repo}" fetch -q 2>&1; then
-        return "${ERR_GIT_FETCH}"
-    fi
+    git-fetch "${repo}"
 
     state="$(git-state "${repo}")"
     case "${state}" in
