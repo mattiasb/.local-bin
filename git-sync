@@ -100,7 +100,9 @@ function task-error {
     out="${3-}"
 
     task-fail "${task}" "${failure}"
-    echo "${out}" | pr -to 6 >&2
+    if [ -n "${out}"  ]; then
+        echo "${out}" | pr -to 6 >&2
+    fi
 }
 
 function task-fail {
