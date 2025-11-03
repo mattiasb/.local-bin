@@ -108,9 +108,21 @@ function task {
     shift
     cmd=("${@}")
 
-    code=0
-
-    out="$("${cmd[@]}")" || code="${?}"
+    # Disable errexit so we can catch the exit code.
+    #
+    # If we don't do this and instead do a `|| code="${?}"`
+    # then the subshell will have errexit disabled and
+    # won't error out early. This happens *even* if we
+    # re-enable it inside that subshell!
+    #
+    # We still need to re-enable it in the subshell to
+    # actually get back proper errexit.
+    #
+    # Bash is great.
+    set +e
+    out="$(set -e; "${cmd[@]}")"
+    code="${?}"
+    set -e
 
     case "${code}" in
         "${STATE_SYNC}")     echo -e "[ $(color g -n "${SYNC}") ] ${task}"    ;;
