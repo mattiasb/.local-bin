@@ -11,8 +11,6 @@ set -euo pipefail
 readonly CONFIG="${XDG_CONFIG_HOME:-${HOME}/.config}/git-sync.conf"
 
 readonly STATE_SYNC=0
-readonly ERR_GIT_PULL=14
-readonly ERR_GIT_PUSH=15
 readonly STATE_PULL=11
 readonly STATE_PUSH=12
 readonly STATE_BOTH=13
@@ -21,6 +19,8 @@ readonly ERR_GIT_NOREPO=20
 readonly ERR_GIT_STATUS=21
 readonly ERR_GIT_DIRTY=22
 readonly ERR_GIT_FETCH=23
+readonly ERR_GIT_CONFLICT=24
+readonly ERR_GIT_ABORT=25
 readonly ERR_GIT_PUSH=26
 
 readonly SYNC=✓
@@ -140,10 +140,11 @@ function task {
 
         "${ERR_GIT_DIRTY}")    task-fail "${task}" "Dirty"                    ;;
         "${ERR_GIT_NOREPO}")   task-fail "${task}" "Not a repo"               ;;
+        "${ERR_GIT_CONFLICT}") task-fail "${task}" "Merge conflict"           ;;
 
         "${ERR_GIT_STATUS}")   task-error "${task}" "Status"         "${out}" ;;
         "${ERR_GIT_FETCH}")    task-error "${task}" "Fetch"          "${out}" ;;
-        "${ERR_GIT_PULL}")     task-error "${task}" "Pull"           "${out}" ;;
+        "${ERR_GIT_ABORT}")    task-error "${task}" "Rebase abort"   "${out}" ;;
         "${ERR_GIT_PUSH}")     task-error "${task}" "Push"           "${out}" ;;
         *)                     task-error "${task}" "Unknown errror" "${out}" ;;
     esac
@@ -202,14 +203,20 @@ function git-state {
     fi
 }
 
-function git-pull {
+function git-rebase {
     local repo
 
     repo="${1}"
 
-    if ! git "${1}" pull --rebase 2>&1; then
-        return "${ERR_GIT_PULL}"
+    if git "${repo}" rebase 2>&1; then
+        return
     fi
+
+    if git "${repo}" rebase --abort 2>&1; then
+        return "${ERR_GIT_CONFLICT}"
+    fi
+
+    return "${ERR_GIT_ABORT}"
 }
 
 function git-push {
@@ -245,11 +252,11 @@ function git-sync-repo {
     state="$(git-state "${repo}")"
     case "${state}" in
         sync)     return "${STATE_SYNC}" ;;
-        behind)   git-pull "${repo}"
+        behind)   git-rebase "${repo}"
                   return "${STATE_PULL}" ;;
         ahead)    git-push "${repo}"
                   return "${STATE_PUSH}" ;;
-        diverged) git-pull "${repo}"
+        diverged) git-rebase "${repo}"
                   git-push "${repo}"
                   return "${STATE_BOTH}" ;;
         *)        error "Internal error. Unknown state '${state}'"
