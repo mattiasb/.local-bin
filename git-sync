@@ -87,17 +87,25 @@ function color {
     tput sgr0
 }
 
-function task-fail {
-    local task fail out
+function task-error {
+    local task failure out
 
     task="${1}"
-    fail="${2}"
+    failure="${2}"
     out="${3-}"
 
-    echo -e "[ $(color r -n "${FAIL}") ] ${task} — ${fail}"
-    if [ -n "${out}"  ]; then
-        echo "${out}" | pr -to 6 >&2
-    fi
+    task-fail "${task}" "${failure}"
+    echo "${out}" | pr -to 6 >&2
+}
+
+function task-fail {
+    local task failure out
+
+    task="${1}"
+    failure="${2}"
+    out="${3-}"
+
+    echo -e "[ $(color r -n "${FAIL}") ] ${task} — ${failure}"
 }
 
 function task {
@@ -125,19 +133,19 @@ function task {
     set -e
 
     case "${code}" in
-        "${STATE_SYNC}")     echo -e "[ $(color g -n "${SYNC}") ] ${task}"    ;;
-        "${STATE_PULL}")     echo -e "[ $(color y -n "${PULL}") ] ${task}"    ;;
-        "${STATE_PUSH}")     echo -e "[ $(color y -n "${PUSH}") ] ${task}"    ;;
-        "${STATE_BOTH}")     echo -e "[ $(color y -n "${BOTH}") ] ${task}"    ;;
+        "${STATE_SYNC}")       echo -e "[ $(color g -n "${SYNC}") ] ${task}"  ;;
+        "${STATE_PULL}")       echo -e "[ $(color y -n "${PULL}") ] ${task}"  ;;
+        "${STATE_PUSH}")       echo -e "[ $(color y -n "${PUSH}") ] ${task}"  ;;
+        "${STATE_BOTH}")       echo -e "[ $(color y -n "${BOTH}") ] ${task}"  ;;
 
-        "${ERR_GIT_DIRTY}")  task-fail "${task}" "Dirty"                      ;;
-        "${ERR_GIT_NOREPO}") task-fail "${task}" "Not a repo"                 ;;
+        "${ERR_GIT_DIRTY}")    task-fail "${task}" "Dirty"                    ;;
+        "${ERR_GIT_NOREPO}")   task-fail "${task}" "Not a repo"               ;;
 
-        "${ERR_GIT_STATUS}") task-fail "${task}" "Status failed"  "${out}"    ;;
-        "${ERR_GIT_FETCH}")  task-fail "${task}" "Fetch failed"   "${out}"    ;;
-        "${ERR_GIT_PULL}")   task-fail "${task}" "Pull failed"    "${out}"    ;;
-        "${ERR_GIT_PUSH}")   task-fail "${task}" "Push failed"    "${out}"    ;;
-        *)                   task-fail "${task}" "Unknown errror" "${out}"    ;;
+        "${ERR_GIT_STATUS}")   task-error "${task}" "Status"         "${out}" ;;
+        "${ERR_GIT_FETCH}")    task-error "${task}" "Fetch"          "${out}" ;;
+        "${ERR_GIT_PULL}")     task-error "${task}" "Pull"           "${out}" ;;
+        "${ERR_GIT_PUSH}")     task-error "${task}" "Push"           "${out}" ;;
+        *)                     task-error "${task}" "Unknown errror" "${out}" ;;
     esac
 }
 
