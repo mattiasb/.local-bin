@@ -9,12 +9,12 @@ set -euo pipefail
 ################################################################################
 
 declare -a REPOS=(
-    ~/Documents/Cabinet/
-    ~/Documents/Magic/decks/
-    ~/.config/
-    ~/.local/bin/
-    ~/Code/Test/
-    ~/Code/github.com/mattiasb/MachineSetup/
+    ~/.config
+    ~/.local/bin
+    ~/Code/Test
+    ~/Code/github.com/mattiasb/MachineSetup
+    ~/Documents/Cabinet
+    ~/Documents/Magic/decks
 )
 
 readonly STATE_SYNC=0
