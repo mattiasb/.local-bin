@@ -305,22 +305,24 @@ Usage: $(basename "${0}") [-h | --help]
   -h, --help       Show this help message.
   -p, --parallel   Run in parallel (Default)
   -s, --serial     Run in serial
+  -r, --repos      List all repositories instead of syncing
 EOM
 
 }
 
 function main {
     local o name opts long
-    local parallel repo
+    local parallel list_repos repo
     local -a repos
 
     name="$(basename "${0}")"
-    opts="hps"
-    long="help,parallel,serial"
+    opts="hpsr"
+    long="help,parallel,serial,repos"
     o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
     eval set -- "${o}"
 
     parallel=8
+    list_repos=0
 
     while true; do
         case "${1}" in
@@ -338,10 +340,23 @@ function main {
                 shift
                 ;;
 
+            -r | --repos)
+                list_repos=1
+                shift
+                ;;
+
             -- ) shift; break ;;
             * ) break ;;
         esac
     done
+
+    if [ "${list_repos}" = 1 ]; then
+        mapfile -t repos < <(config-repos); wait $!
+        for repo in "${repos[@]}"; do
+            tilde "${repo}"
+        done
+        return
+    fi
 
     case "${#}" in
         1) task "$(tilde "${1}")" git-sync-repo "$(home "${1}")"
