@@ -259,27 +259,40 @@ Sync git repositories.
 
 Usage: $(basename "${0}") [-h | --help]
 
-  -h, --help    Show this help message.
-
+  -h, --help       Show this help message.
+  -p, --parallel   Run in parallel (Default)
+  -s, --serial     Run in serial
 EOM
 
 }
 
 function main {
     local o name opts long
+    local parallel repo
     local -a repos
 
     name="$(basename "${0}")"
-    opts="h"
-    long="help"
+    opts="hps"
+    long="help,parallel,serial"
     o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
     eval set -- "${o}"
+
+    parallel=8
 
     while true; do
         case "${1}" in
             -h | --help)
                 usage
                 exit
+                ;;
+            -p | --parallel)
+                parallel=8
+                shift
+                ;;
+
+            -s | --serial)
+                parallel=1
+                shift
                 ;;
 
             -- ) shift; break ;;
@@ -294,7 +307,7 @@ function main {
         *) repos=( "${@}" )                                                   ;;
     esac
 
-    xargs -n 1 -P 8 git sync <<< "${repos[@]}"
+    xargs -n 1 -P "${parallel}" git sync <<< "${repos[@]}"
 }
 
 main "${@}"; exit
