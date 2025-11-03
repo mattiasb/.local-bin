@@ -8,15 +8,7 @@ set -euo pipefail
 
 ################################################################################
 
-declare -a REPOS=(
-    ~/.config
-    ~/.local/bin
-    ~/Code/Test
-    ~/Code/github.com/mattiasb/MachineSetup
-    ~/Code/github.com/mattiasb/emacs-2.0
-    ~/Documents/Cabinet
-    ~/Documents/Magic/decks
-)
+readonly CONFIG="${XDG_CONFIG_HOME:-${HOME}/.config}/git-sync.conf"
 
 readonly STATE_SYNC=0
 readonly STATE_PULL=1
@@ -116,6 +108,15 @@ function task {
         "${ERR_GIT_PUSH}")   task-fail "${task}" "Push failed"    "${out}"    ;;
         *)                   task-fail "${task}" "Unknown errror" "${out}"    ;;
     esac
+}
+
+function config-repos {
+    if [ ! -f "${CONFIG}" ]; then
+        error "Loading '$(tilde "${CONFIG}")': No such file!"
+        return 2
+    fi
+
+    yq '.repos[]' "${CONFIG}"
 }
 
 ################################################################################
@@ -249,7 +250,7 @@ function main {
 
     case "${#}" in
         1) task "$(home "${1}")" git-sync-repo "${1}"; return                 ;;
-        0) repos=( "${REPOS[@]}" )                                            ;;
+        0) mapfile -t repos < <(config-repos); wait $!                        ;;
         *) repos=( "${@}" )                                                   ;;
     esac
 
