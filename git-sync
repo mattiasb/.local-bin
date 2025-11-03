@@ -265,8 +265,9 @@ EOM
 
 }
 
-function parse-args {
+function main {
     local o name opts long
+    local -a repos
 
     name="$(basename "${0}")"
     opts="h"
@@ -285,12 +286,6 @@ function parse-args {
             * ) break ;;
         esac
     done
-}
-
-function main {
-    local -a repos
-
-    parse-args "${@}"
 
     case "${#}" in
         1) task "$(tilde "${1}")" git-sync-repo "$(home "${1}")"
