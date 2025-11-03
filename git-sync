@@ -163,13 +163,23 @@ function config-repos {
 
 ################################################################################
 
+function git-is-repo {
+    local repo
+
+    repo="${1}"
+
+    if ! command git -C "${repo}" rev-parse &>/dev/null; then
+        return "${ERR_GIT_NOREPO}"
+    fi
+}
+
 function git {
     local repo
 
     repo="${1}"
     shift
 
-    if ! command git -C "${repo}" rev-parse &>/dev/null; then
+    if ! git-is-repo "${repo}"; then
         ierror "Not a repository: '${repo}'"
     fi
 
@@ -254,9 +264,7 @@ function git-sync-repo {
 
     repo="${1}"
 
-    if ! git "${repo}" rev-parse &>/dev/null; then
-        return "${ERR_GIT_NOREPO}"
-    fi
+    git-is-repo "${repo}"
     git-on-main "${repo}"
 
     if ! out="$(git "${repo}" status --short)"; then
