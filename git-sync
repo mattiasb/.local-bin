@@ -172,6 +172,18 @@ function config-repos {
         home "${repo}"
     done
 }
+
+# NOTE: Unused
+function config-remotes {
+    local repo
+    local -a repos
+
+    mapfile -t repos < <(config-repos); wait $!
+
+    for repo in "${repos[@]}"; do
+        git "${repo}" remote get-url origin \
+            | sed -nr 's/(https?:\/\/([^\/]+?)|[a-zA-Z0-9_]+@([^:]+)).+/\2\3/p'
+    done | uniq
 }
 
 ################################################################################
