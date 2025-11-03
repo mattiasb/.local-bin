@@ -244,7 +244,7 @@ function git-sync-repo {
                   return "${STATE_PUSH}" ;;
         diverged) git-pull "${repo}"
                   git-push "${repo}"
-                  return "${STATE_PULL}" ;;
+                  return "${STATE_BOTH}" ;;
         *)        error "Internal error. Unknown state '${state}'"
                   return 128
                   ;;
