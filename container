@@ -9,45 +9,10 @@ function error {
     echo "ERROR: ${*}" >/dev/stderr
 }
 
-function usage {
-    cat <<EOM
-Usage: $(basename "${0}") [-h | --help]
-
-  -h, --help    Show this help message.
-
-EOM
-}
-
-function parse-args {
-    local o name opts long
-
-    name="$(basename "${0}")"
-    opts="h"
-    long="help"
-    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
-    eval set -- "${o}"
-
-    ARG_IMAGE=
-    while true; do
-        case "${1}" in
-            -h | --help)
-                usage
-                exit
-                ;;
-
-            -- ) shift; break ;;
-            * ) break ;;
-        esac
-    done
-
-    if [ "${#}" != 1 ]; then
-        usage
-        return 2
+function debug {
+    if [ -v DEBUG ]; then
+        echo "${FUNCNAME[1]:+${FUNCNAME[1]}: }${*}" >/dev/stderr
     fi
-
-    ARG_IMAGE="${1}"
-
-    export ARG_IMAGE
 }
 
 ################################################################################
@@ -70,6 +35,14 @@ function exists {
     podman container exists "$(name "${image}")"
 }
 
+function cmd {
+    local image
+
+    image="${1}"
+
+    podman image inspect "${image}" | jq -r '.[].Config.Cmd[]'
+}
+
 function running {
     local image name
 
@@ -81,45 +54,101 @@ function running {
 }
 
 function run {
-    local image name uid gid
+    local image user name
 
     image="${1}"
+    user="${2:-}"
     name="$(name "${image}")"
 
-    uid="$(id -u)"
-    gid="$(id -g)"
-
     podman run                                                                 \
-           --user     "${uid}:${gid}"                                          \
-           --userns   "keep-id:uid=${uid},gid=${gid}"                          \
-           --volume   "${PWD}:/host/${PWD}"                                    \
-           --workdir  "/host/${PWD}"                                           \
+           ${user:+--user=${user}}                                             \
+           --userns   "keep-id"                                                \
+           --volume   "${PWD}:/host/${PWD#/}"                                  \
+           --workdir  "/host/${PWD#/}"                                         \
            --name     "${name}"                                                \
            --hostname "${name#pet-}"                                           \
            --interactive                                                       \
            --tty                                                               \
-           "${@}"
+           "${image}"
 }
 
 function start {
-    local image name
+    local image user name
+
+    image="${1}"
+    user="${2:-}"
+    name="$(name "${image}")"
+
+    podman container start "${name}" | { grep -v "${name}" ||: ; }
+    podman container exec -it ${user:+--user ${user}} "${name}" "$(cmd "${image}")"
+}
+
+function stop {
+    local image user name
 
     image="${1}"
     name="$(name "${image}")"
 
-    podman container start -a "${name}"
+    podman container rm --force -t 1 "${name}" | { grep -v "${name}" ||: ; }
+}
+
+################################################################################
+
+
+function usage {
+    cat <<EOM
+Usage: $(basename "${0}") [-h | --help] <IMAGE> <FLAGS>
+
+  -h, --help    Show this help message.
+
+Run or exec into a container made from IMAGE.
+
+FLAGS are passed verbatim to either run or exec so
+should be a flag that works for both subcommands.
+
+EOM
 }
 
 function main {
-    parse-args "${@}"
+    local o name opts long
+    local image root stop
 
-    if running "${ARG_IMAGE}"; then
-        error "$(name "${ARG_IMAGE}") is already running"
+    name="$(basename "${0}")"
+    opts="hrs"
+    long="help,root,stop"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    root=false
+    stop=false
+    while true; do
+        case "${1}" in
+            -h | --help) usage                                                ;;
+            -r | --root) root=true                                            ;;
+            -s | --stop) stop=true                                            ;;
+            -- ) shift; break                                                 ;;
+            * )         break                                                 ;;
+        esac
+        shift
+    done
+
+    image="${1}"
+    if [ -z "${image}" ]; then
+        usage
         return 2
-    elif exists "${ARG_IMAGE}"; then
-        start "${ARG_IMAGE}"
+    fi
+
+    if [ "${stop}" = true ]; then
+        echo "Stopping ..."
+        stop "${image}"
+    elif running "${image}"; then
+        echo "Re-attaching ..."
+        podman attach "$(name "${image}")"
+    elif exists "${image}"; then
+        echo "Starting ..."
+        start "${image}" ${root:+root}
     else
-        run "${ARG_IMAGE}"
+        run   "${image}" ${root:+root}
     fi
 }
 
