@@ -134,7 +134,7 @@ function task {
     #
     # Bash is great.
     set +e
-    out="$(set -e; "${cmd[@]}")"
+    out="$(set -e; "${cmd[@]}" 2>&1)"
     code="${?}"
     set -e
 
@@ -263,11 +263,11 @@ function git-rebase {
 
     repo="${1}"
 
-    if git "${repo}" rebase 2>&1; then
+    if git "${repo}" rebase; then
         return
     fi
 
-    if git "${repo}" rebase --abort 2>&1; then
+    if git "${repo}" rebase --abort; then
         return "${ERR_GIT_CONFLICT}"
     fi
 
@@ -318,7 +318,7 @@ function git-sync-repo {
     git-is-repo "${repo}"
     git-on-main "${repo}"
 
-    if ! out="$(git "${repo}" status --short)"; then
+    if ! out="$(git "${repo}" status --short 2>&1)"; then
         echo "${out}" >&2
         return "${ERR_GIT_STATUS}"
     elif [ -n "${out}" ]; then
