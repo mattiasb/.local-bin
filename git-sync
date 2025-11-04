@@ -24,6 +24,7 @@ readonly ERR_GIT_FETCH=24
 readonly ERR_GIT_CONFLICT=25
 readonly ERR_GIT_ABORT=26
 readonly ERR_GIT_PUSH=27
+readonly ERR_GIT_CLONE=28
 
 readonly ERR_GIT_TIMEOUT=124
 
@@ -153,6 +154,7 @@ function task {
         "${ERR_GIT_FETCH}")    task-error "${task}" "Fetch"          "${out}" ;;
         "${ERR_GIT_ABORT}")    task-error "${task}" "Rebase abort"   "${out}" ;;
         "${ERR_GIT_PUSH}")     task-error "${task}" "Push"           "${out}" ;;
+        "${ERR_GIT_CLONE}")    task-error "${task}" "Clone"          "${out}" ;;
         "${ERR_GIT_TIMEOUT}")  task-error "${task}" "Timeout"        "${out}" ;;
         *)                     task-error "${task}" "Unknown errror" "${out}" ;;
     esac
@@ -167,10 +169,23 @@ function config-repos {
         return 2
     fi
 
-    mapfile -t repos < <(yq '.repos[]' "${CONFIG}"); wait $!
-    for repo in "${repos[@]}"; do
-        home "${repo}"
-    done
+    yq '.repositories | keys[]' "${CONFIG}"
+}
+
+function config {
+    local repo field q value
+
+    repo="${1}"
+    field="${2}"
+
+    q=".repositories[\"${repo}\"].${field}"
+    value="$(yq "${q}" "${CONFIG}")"
+
+    if [ "${value}" = "null" ]; then
+        ierror "The '${field}' field is unset for ${repo}. q=${q}"
+    fi
+
+    echo "${value}"
 }
 
 # NOTE: Unused
@@ -274,6 +289,27 @@ function git-rebase {
     return "${ERR_GIT_ABORT}"
 }
 
+function git-clone {
+    local repo url out
+
+    repo="${1}"
+    url="${2}"
+
+    echo timeout "${GIT_TIMEOUT}" git clone "${url}" "${repo}"
+    if timeout "${GIT_TIMEOUT}" git clone "${url}" "${repo}"; then
+        return
+    else
+        code="${?}"
+    fi
+
+    case "${code}" in
+        0)   return                                                           ;;
+        124) return "${ERR_GIT_TIMEOUT}"                                      ;;
+        *)   return "${ERR_GIT_CLONE}"                                        ;;
+    esac
+
+}
+
 function git-push {
     local repo
 
@@ -311,9 +347,16 @@ function git-fetch {
 }
 
 function git-sync-repo {
-    local repo out state
+    local repo url name
+    local out state
 
     repo="${1}"
+    url="${2}"
+
+    if [ ! -e "${repo}" ]; then
+        git-clone "${repo}" "${url}"
+        return "${STATE_PULL}"
+    fi
 
     git-is-repo "${repo}"
     git-on-main "${repo}"
@@ -362,7 +405,7 @@ EOM
 function main {
     local o name opts long
     local opt_parallel opt_repos
-    local repo
+    local repo repo_url repo_name
     local -a repos
 
     name="$(basename "${0}")"
@@ -409,7 +452,10 @@ function main {
     fi
 
     case "${#}" in
-        1) task "$(tilde "${1}")" git-sync-repo "$(home "${1}")"
+        1) repo="${1}"
+           repo_url="$(config  "${repo}" url)"
+           repo_name="$(config "${repo}" name)"
+           task "${repo_name}" git-sync-repo "$(home "${repo}")" "${repo_url}"
            return                                                             ;;
         0) mapfile -t repos < <(config-repos); wait $!                        ;;
         *) repos=( "${@}" )                                                   ;;
