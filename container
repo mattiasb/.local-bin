@@ -126,7 +126,7 @@ function main {
         shift
     done
 
-    image="${1}"
+    image="${1:-}"
     if [ -z "${image}" ]; then
         usage
         return 2
