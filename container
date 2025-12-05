@@ -5,18 +5,6 @@ set -euo pipefail
 ################################################################################
 # Simple podman wrapper that maps user and mounts PWD
 
-function error {
-    echo "ERROR: ${*}" >/dev/stderr
-}
-
-function debug {
-    if [ -v DEBUG ]; then
-        echo "${FUNCNAME[1]:+${FUNCNAME[1]}: }${*}" >/dev/stderr
-    fi
-}
-
-################################################################################
-
 function name {
     local image name
 
