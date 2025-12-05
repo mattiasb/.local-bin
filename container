@@ -117,7 +117,7 @@ function main {
     stop=false
     while true; do
         case "${1}" in
-            -h | --help) usage                                                ;;
+            -h | --help) usage; return                                        ;;
             -r | --root) root=true                                            ;;
             -s | --stop) stop=true                                            ;;
             -- ) shift; break                                                 ;;
