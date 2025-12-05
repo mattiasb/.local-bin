@@ -94,6 +94,8 @@ function usage {
 Usage: $(basename "${0}") [-h | --help] <IMAGE> <FLAGS>
 
   -h, --help    Show this help message.
+  -r, --root    Run as root.
+  -s, --stop    Stop container.
 
 Run or exec into a container made from IMAGE.
 
