@@ -66,14 +66,15 @@ function run {
 }
 
 function start {
-    local image user name
+    local image user name cmd
 
     image="${1}"
     user="${2:-}"
     name="$(name "${image}")"
+    cmd="$(cmd "${image}")"
 
     podman container start "${name}" | { grep -v "${name}" ||: ; }
-    podman container exec -it ${user:+--user ${user}} "${name}" "$(cmd "${image}")"
+    podman container exec -it ${user:+--user ${user}} "${name}" "${cmd}"
 }
 
 function stop {
