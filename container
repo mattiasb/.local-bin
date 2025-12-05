@@ -6,13 +6,18 @@ set -euo pipefail
 # Simple podman wrapper that maps user and mounts PWD
 
 function name {
-    local image name
+    local image nametag tag
 
     image="${1}"
 
-    name="${image##*/}"
+    nametag="${image##*/}"
+    name="${nametag%%:*}"
+    tag="${nametag##*:}"
 
-    echo "pet-${name%%:*}"
+    case "${tag}" in
+        latest) echo "pet-${name}"        ;;
+        *)      echo "pet-${name}-${tag}" ;;
+    esac | tr -dc '\-[:alnum:]'
 }
 
 function exists {
