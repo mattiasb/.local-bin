@@ -4,6 +4,7 @@
 *#*
 *.orig
 *~
+/adbsync
 /aihub
 /aihub-dockerhub
 /aihub-gnupg
