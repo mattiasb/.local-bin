@@ -22,11 +22,11 @@ function usage {
     cat <<EOM
 Usage: $(basename "${0}") [-h | --help]
 
-  -h, --help    Show this help message.
-  -u, --user    Copy username.
-  -p, --pass    Copy password.
-  -c, --clear   Clear clip board.
-  -s, --show    Show instead of copy to clipboard.
+  -h, --help         Show this help message.
+  -u, --[no-]user    Copy username.
+  -p, --[no-]pass    Copy password.
+  -c, --[no-]clear   Clear clip board.
+  -s, --show         Show instead of copy to clipboard.
 
 EOM
 }
@@ -35,27 +35,30 @@ function parse-args {
     local o name opts long
 
     name="$(basename "${0}")"
-    opts="hupcs"
-    long="help,user,pass,clear,show"
+    opts="upcsh"
+    long="user,pass,clear,no-user,no-pass,no-clear,show,help"
     o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
     eval set -- "${o}"
 
-    OPT_USER=false
-    OPT_PASS=false
-    OPT_CLEAR=false
+    OPT_USER=true
+    OPT_PASS=true
+    OPT_CLEAR=true
     OPT_SHOW=false
 
     ARG_SECRET=
 
     while true; do
         case "${1}" in
-            -u | --user)  shift ; OPT_USER=true  ;;
-            -p | --pass)  shift ; OPT_PASS=true  ;;
-            -c | --clear) shift ; OPT_CLEAR=true ;;
-            -s | --show)  shift ; OPT_SHOW=true ;;
-            -h | --help)  usage ; exit           ;;
-            -- )          shift ; break          ;;
-            * ) break ;;
+            -u | --user)  shift ; OPT_USER=true                               ;;
+            -p | --pass)  shift ; OPT_PASS=true                               ;;
+            -c | --clear) shift ; OPT_CLEAR=true                              ;;
+            --no-user)    shift ; OPT_USER=false                              ;;
+            --no-pass)    shift ; OPT_PASS=false                              ;;
+            --no-clear)   shift ; OPT_CLEAR=false                             ;;
+            -s | --show)  shift ; OPT_SHOW=true                               ;;
+            -h | --help)  usage ; exit                                        ;;
+            -- )          shift ; break                                       ;;
+            * ) break                                                         ;;
         esac
     done
 
