@@ -391,15 +391,50 @@ function git-sync-repo {
 ################################################################################
 
 function usage {
+    local name
+
+    name="$(basename "${0}" | tr "-" " ")"
+
     cat <<EOM
 Sync git repositories.
 
-Usage: $(basename "${0}") [-h | --help]
+Usage: ${name} [-h | --help]
 
   -h, --help       Show this help message.
   -p, --parallel   Run in parallel (Default)
   -s, --serial     Run in serial
   -r, --repos      List all repositories instead of syncing
+
+CONFIGURATION
+
+  ${name} can be configured by a config file which is read from here:
+
+    ${CONFIG}
+
+  The basic structure of the config (which is in YAML) is:
+
+    # -*- mode: yaml; -*-
+    ---
+    repositories:
+      <WORKTREE-PATH>:
+        name: <NAME>
+        url: <URL-TO-REMOTE>
+      ~/Projects/linux/torvalds:
+        name: Kernel — Upstream
+        url: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+
+  Example:
+
+    # -*- mode: yaml; -*-
+    ---
+    repositories:
+      ~/Projects/linux/torvalds:
+        name: Kernel — Linus Torvalds
+        url: git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+      ~/Projects/linux/efi:
+        name: Kernel — EFI
+        url: git://git.kernel.org/pub/scm/linux/kernel/git/efi/efi.git
+
 EOM
 
 }
