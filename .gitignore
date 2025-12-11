@@ -9,6 +9,7 @@
 /aihub-dockerhub
 /aihub-gnupg
 /aihub-gpg
+/aihub-install
 /aihub-model
 /aihub-models
 /aihub-vgc
@@ -61,6 +62,7 @@
 /kubectl-aihub
 /kubectl-aihub-login
 /kubectl-vsphere
+/kubeseal
 /ldiff
 /msgpack2cbor
 /msgpack2json
