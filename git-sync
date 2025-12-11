@@ -5,6 +5,7 @@ set -euo pipefail
 
 # TODO: Return the possibility to run commands on sync
 # TODO: Break this out into its own repository
+# TODO: Use git config settings over a YAML-file
 
 ################################################################################
 
