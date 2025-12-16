@@ -1,0 +1,92 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# TODO
+# - Support sending the path to a Dockerfile and thus using its ignore file.
+#   - Look at `podman build --ignorefile` and check if "${dockerfile}.ignore"
+#     exists.
+
+################################################################################
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+function usage {
+    cat <<EOM
+Usage: $(basename "${0}") [-h | --help] <CMD>
+
+  -h, --help    Show this help message.
+
+Where CMD is one of
+
+  context   —  Get context of a build.
+
+EOM
+}
+
+################################################################################
+
+# shellcheck disable=SC2329
+function context {
+    local dir
+
+    dir="${1:-${PWD}}"
+
+    pushd "${dir}" >/dev/null
+
+    podman build --no-cache --progress plain --file - . \
+           <<EOF | grep -E '^!' | cut -c 7-
+FROM busybox
+COPY .    /ctx
+RUN  find /ctx -type f -exec echo "!{}" \;
+EOF
+
+    popd >/dev/null
+}
+
+################################################################################
+
+function main {
+    local o name opts long
+
+    name="$(basename "${0}")"
+    opts="h"
+    long="help"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+
+    cmd="${1:-}"
+    shift
+
+    case "${cmd}" in
+        context)
+            "${cmd}" "${@}"
+            ;;
+        *)
+            if [ -z "${cmd}" ]; then
+                error "Missing command!"
+            else
+                error "Unknown command '${cmd}'"
+            fi
+
+            usage
+            return 2
+            ;;
+    esac
+}
+
+main "${@}"; exit "${?}"
