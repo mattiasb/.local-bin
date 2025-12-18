@@ -79,8 +79,17 @@ function parse-args {
     export ARG_SECRET
 }
 
+# shellcheck disable=SC2329
+function cleanup {
+    if [ "${OPT_CLEAR}" = true ]; then
+        wl-copy -c
+    fi
+}
+
 function main {
     parse-args "${@}"
+
+    trap cleanup EXIT
 
     if [ "${OPT_USER}" = true ]; then
         show --user "${ARG_SECRET}"
