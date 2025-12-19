@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -euo pipefail
+
+
+################################################################################
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+################################################################################
+
+function k8s-logged-in {
+    if ! kubectl "${@}" auth whoami &>/dev/null; then
+        error "Not logged in!"
+        echo
+        return 2
+    fi
+}
+
+function main {
+    local resource
+
+    k8s-logged-in "${@}"
+
+    echo
+    for resource in cronjobs jobs pods; do
+        cat <<-EOM
+		${resource^^}
+
+		$(kubectl "${@}" get "${resource}" | pr -to 4)
+
+	EOM
+    done
+}
+
+main "${@}"; exit
