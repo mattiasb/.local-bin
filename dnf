@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Wrap DNF in some heuristics to automatically sudo when necessary
+
+set -euo pipefail
+
+
+################################################################################
+
+function help {
+    [[ " ${*} " == *" --help "* ]] || [[ " ${*} " == *" -h "* ]]
+}
+
+function complete {
+    [[ " ${*} " == *" --complete"* ]]
+}
+
+function unprivileged {
+    debug "@: ${*}"
+
+    while true; do
+        case "${1}" in
+            -*) shift;                                                        ;;
+            install|remove|upgrade|update|downgrade|reinstall)    return 1    ;;
+            autoremove|swap|groupinstall|groupremove|groupupdate) return 1    ;;
+            builddep|config-manager)                              return 1    ;;
+            history) case "${2}" in
+                         undo|redo|rollback) return 1                         ;;
+                         *) return                                            ;;
+                     esac                                                     ;;
+            *) return                                                         ;;
+        esac
+    done
+}
+
+function main {
+    if help "${@}" || complete "${@}"; then
+        exec /usr/bin/dnf "${@}"
+    elif unprivileged "${@}"; then
+        # Stay quiet about syncing repos.
+        exec /usr/bin/dnf --quiet --cacheonly "${@}"
+    else
+        exec sudo /usr/bin/dnf "${@}"
+    fi
+}
+
+main "${@}"; exit
