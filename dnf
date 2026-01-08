@@ -16,8 +16,6 @@ function complete {
 }
 
 function unprivileged {
-    debug "@: ${*}"
-
     while true; do
         case "${1}" in
             -*) shift;                                                        ;;
