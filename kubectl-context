@@ -6,7 +6,7 @@ set -o pipefail
 
 ################################################################################
 
-# shellcheck disable=SC2317
+# shellcheck disable=SC2329
 function debug-comp {
     echo "${FUNCNAME[1]:+${FUNCNAME[1]}: }${*}" >> /tmp/kubectl-context.comp.log
 }
