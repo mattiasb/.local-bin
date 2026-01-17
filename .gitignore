@@ -61,7 +61,14 @@
 /kubectl
 /kubectl-aihub
 /kubectl-aihub-login
+/kubectl-context
+/kubectl-each
+/kubectl-namespace
+/kubectl-secret
 /kubectl-vsphere
+/kubectl_complete-context
+/kubectl_complete-namespace
+/kubectl_complete-secret
 /kubeseal
 /ldiff
 /msgpack2cbor
