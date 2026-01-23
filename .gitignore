@@ -91,6 +91,7 @@
 /rubocop
 /ruby-parse
 /ruby-rewrite
+/s3-config
 /solargraph
 /sql2csv
 /sqlformat
