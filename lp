@@ -1,8 +1,27 @@
 #!/bin/bash
 
-set -eu
-set -o pipefail
+set -euo pipefail
 
+
+################################################################################
+
+# shellcheck disable=SC2329
+function debug {
+    if [ -v DEBUG ]; then
+        echo "${FUNCNAME[1]:+${FUNCNAME[1]}: }${*}" >/dev/stderr
+    fi
+}
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+function error-usage {
+    error "${*}"
+    echo
+    usage
+    return 2
+}
 
 ################################################################################
 
@@ -11,101 +30,93 @@ function choose-secret {
 }
 
 function show {
-    if [ "${OPT_SHOW}" = true ]; then
-        lpass show "${@}"
-    else
-        lpass show -c "${@}"
-    fi
+    local secret
+    local -a fields
+
+    secret="${1}"
+    fields=( "${@:2}" )
+
+    for field in "${fields[@]}"; do
+        echo -n "${field^}: "
+        lpass show "--${field}" "${secret}"
+    done
 }
+
+function copy {
+    local secret
+    local -a fields
+
+    secret="${1}"
+    fields=( "${@:2}" )
+
+    for field in "${fields[@]}"; do
+        lpass show --clip "--${field}" "${secret}"
+        read -rp "Copied ${field} …"
+    done
+}
+
+################################################################################
 
 function usage {
     cat <<EOM
-Usage: $(basename "${0}") [-h | --help]
+Usage: $(basename "${0}") [-h | --help] <COMMAND> [FIELD] [SECRET]
 
   -h, --help         Show this help message.
-  -u, --[no-]user    Copy username.
-  -p, --[no-]pass    Copy password.
-  -c, --[no-]clear   Clear clip board.
-  -s, --show         Show instead of copy to clipboard.
 
+Where
+
+  COMMAND  —  Either copy or show.
+  FIELD    —  Either url, user[name], pass[word], user-pass or all.
+  SECRET   —  Name of secret.
 EOM
 }
 
-function parse-args {
+function main {
     local o name opts long
+    local cmd field secret
+    local -a fields=()
 
     name="$(basename "${0}")"
-    opts="upcsh"
-    long="user,pass,clear,no-user,no-pass,no-clear,show,help"
+    opts="h"
+    long="help"
     o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
     eval set -- "${o}"
 
-    OPT_USER=true
-    OPT_PASS=true
-    OPT_CLEAR=true
-    OPT_SHOW=false
-
-    ARG_SECRET=
-
     while true; do
         case "${1}" in
-            -u | --user)  shift ; OPT_USER=true                               ;;
-            -p | --pass)  shift ; OPT_PASS=true                               ;;
-            -c | --clear) shift ; OPT_CLEAR=true                              ;;
-            --no-user)    shift ; OPT_USER=false                              ;;
-            --no-pass)    shift ; OPT_PASS=false                              ;;
-            --no-clear)   shift ; OPT_CLEAR=false                             ;;
-            -s | --show)  shift ; OPT_SHOW=true                               ;;
             -h | --help)  usage ; exit                                        ;;
             -- )          shift ; break                                       ;;
             * ) break                                                         ;;
         esac
     done
 
-    if [ "${OPT_USER}" = false ] && [ "${OPT_PASS}" = false ]; then
-        OPT_PASS=true
-    fi
+    cmd="${1:-}"
+    case "${cmd}" in
+        copy|show)                                                            ;;
+        '') error-usage "Missing command"                                     ;;
+        *)  error-usage "Unknown command '${cmd}'"                            ;;
+    esac
 
-    if [ "${#}" -gt 0 ]; then
-        ARG_SECRET="${1}"
-    else
-        ARG_SECRET="$(choose-secret)"
-    fi
+    field="${2:-}"
+    case "${field}" in
+        user|username) fields=(username)                                      ;;
+        pass|password) fields=(password)                                      ;;
+        user-pass)     fields=(username password)                             ;;
+        all)           fields=(url username password)                         ;;
+        '')            fields=(username password)                             ;;
+        *)  error-usage "Unknown field '${field}'"                            ;;
+    esac
+    unset field
 
-    export OPT_USER
-    export OPT_PASS
-    export OPT_CLEAR
-    export OPT_SHOW
-    export ARG_SECRET
-}
+    secret="${3:-$(choose-secret)}"
 
-# shellcheck disable=SC2329
-function cleanup {
-    if [ "${OPT_CLEAR}" = true ]; then
-        wl-copy -c
-    fi
-}
+    trap 'wl-copy -c' EXIT
 
-function main {
-    parse-args "${@}"
-
-    trap cleanup EXIT
-
-    if [ "${OPT_USER}" = true ]; then
-        show --user "${ARG_SECRET}"
-        if [ "${OPT_PASS}" = true ] || [ "${OPT_CLEAR}" = true ]; then
-            read -rp "Copied username …"
-        fi
-    fi
-
-    if [ "${OPT_PASS}" = true ]; then
-        show --password "${ARG_SECRET}"
-        if [ "${OPT_CLEAR}" = true ]; then
-            read -rp "Copied password …"
-            wl-copy -c
-        fi
-    fi
-
+    case "${cmd}" in
+        show) show "${secret}" "${fields[@]}"                                 ;;
+        copy) copy "${secret}" "${fields[@]}"                                 ;;
+        *)    error-usage "Unknown command '${cmd}'"                          ;;
+    esac
 }
 
 main "${@}"; exit
