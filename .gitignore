@@ -79,6 +79,8 @@
 /msgpack2yaml
 /mypy
 /mypyc
+/passhole
+/ph
 /pipenv
 /pipenv-resolver
 /pre-commit
