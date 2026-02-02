@@ -59,13 +59,12 @@ function copy {
 
 function usage {
     cat <<EOM
-Usage: $(basename "${0}") [-h | --help] <COMMAND> [FIELD] [SECRET]
+Usage: $(basename "${0}") [-h | --help] <copy|show> [FIELD] [SECRET]
 
   -h, --help         Show this help message.
 
 Where
 
-  COMMAND  —  Either copy or show.
   FIELD    —  Either url, user[name], pass[word], user-pass or all.
   SECRET   —  Name of secret.
 EOM
