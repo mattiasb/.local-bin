@@ -30,15 +30,19 @@ function choose-secret {
 }
 
 function show {
-    local secret
+    local secret value plain
     local -a fields
 
-    secret="${1}"
-    fields=( "${@:2}" )
+    plain="${1}"
+    secret="${2}"
+    fields=( "${@:3}" )
 
     for field in "${fields[@]}"; do
-        echo -n "${field^}: "
-        lpass show "--${field}" "${secret}"
+        value="$(lpass show "--${field}" "${secret}")"
+        if [ "${plain}" = false  ]; then
+            echo -n "${field^}: "
+        fi
+        echo "${value}"
     done
 }
 
@@ -62,6 +66,7 @@ function usage {
 Usage: $(basename "${0}") [-h | --help] <copy|show> [FIELD] [SECRET]
 
   -h, --help         Show this help message.
+  -p, --plain        Don't show field name prefix for the show command.
 
 Where
 
@@ -72,19 +77,27 @@ EOM
 
 function main {
     local o name opts long
-    local cmd field secret
+    local cmd field secret plain
     local -a fields=()
 
     name="$(basename "${0}")"
-    opts="h"
-    long="help"
+    opts="h,p"
+    long="help,plain"
     o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
     eval set -- "${o}"
 
+    plain=false
     while true; do
         case "${1}" in
-            -h | --help)  usage ; exit                                        ;;
-            -- )          shift ; break                                       ;;
+            -h | --help)  usage
+                          exit
+                          ;;
+            -p | --plain) plain=true
+                          shift
+                          ;;
+            -- )          shift
+                          break
+                          ;;
             * ) break                                                         ;;
         esac
     done
@@ -112,8 +125,8 @@ function main {
     trap 'wl-copy -c' EXIT
 
     case "${cmd}" in
-        show) show "${secret}" "${fields[@]}"                                 ;;
-        copy) copy "${secret}" "${fields[@]}"                                 ;;
+        show) show "${plain}" "${secret}" "${fields[@]}"                      ;;
+        copy) copy            "${secret}" "${fields[@]}"                      ;;
         *)    error-usage "Unknown command '${cmd}'"                          ;;
     esac
 }
