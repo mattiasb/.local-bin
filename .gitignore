@@ -58,7 +58,6 @@
 /json2toml
 /json2yaml
 /kramdown
-/kubectl
 /kubectl-aihub
 /kubectl-aihub-login
 /kubectl-context
