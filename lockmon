@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright 2026, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+# SPDX-License-Identifier: CC-BY-SA-3.0
+
 # Based on https://superuser.com/a/832111
 
 # Add a service like the following to ~/.config/systemd/user/lockmon.service

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright 2026, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
 DIR="${HOME}/Code/github.com/mattiasb/emacs-2.0"
 
 "${DIR}/aux/build.el"

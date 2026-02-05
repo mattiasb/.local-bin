@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright 2026, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+
 # Wrap DNF in some heuristics to automatically sudo when necessary
 
 set -euo pipefail
