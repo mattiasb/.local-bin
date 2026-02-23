@@ -79,7 +79,7 @@ Usage: $(basename "${0}") [-h | --help] <copy|show> [FIELD] [SECRET]
 
 Where
 
-  FIELD    —  Either url, user[name], pass[word], user-pass or all.
+  FIELD    —  Either uris, user[name], pass[word], user-pass or all.
   SECRET   —  Name of secret.
 EOM
 }
@@ -123,7 +123,7 @@ function main {
         user|username) fields=(username)                                      ;;
         pass|password) fields=(password)                                      ;;
         user-pass)     fields=(username password)                             ;;
-        all)           fields=(url username password)                         ;;
+        all)           fields=(uris username password)                        ;;
         '')            fields=(username password)                             ;;
         *)  error-usage "Unknown field '${field}'"                            ;;
     esac
