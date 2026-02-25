@@ -5,6 +5,11 @@
 
 set -euo pipefail
 
+declare -A FIELDS=(
+    [uris]=show
+    [username]=show
+    [password]=hide
+)
 
 ################################################################################
 
@@ -56,7 +61,7 @@ function show {
 }
 
 function copy {
-    local secret
+    local secret suffix
     local -a fields
 
     secret="${1}"
@@ -64,7 +69,12 @@ function copy {
 
     for field in "${fields[@]}"; do
         rbw get --clipboard --field "${field}" "${secret}"
-        read -rp "Copied ${field} …"
+        if [ "${FIELDS[${field}]}" = "show" ]; then
+            suffix="[ $(rbw get --field "${field}" "${secret}") ] …"
+        else
+            suffix="…"
+        fi
+        read -rp "Copied ${field} ${suffix}"
     done
 }
 
