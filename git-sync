@@ -34,11 +34,11 @@ readonly ERR_GIT_CLONE=28
 
 readonly ERR_GIT_TIMEOUT=124
 
-readonly SYNC=✓
-readonly PUSH=↑
-readonly PULL=↓
-readonly BOTH=⇅
-readonly FAIL=×
+readonly ICON_OKAY=✓
+readonly ICON_PUSH=↑
+readonly ICON_PULL=↓
+readonly ICON_BOTH=⇅
+readonly ICON_FAIL=×
 
 ################################################################################
 
@@ -118,7 +118,7 @@ function task-fail {
     failure="${2}"
     out="${3-}"
 
-    echo -e "[ $(color r -n "${FAIL}") ] ${task} — ${failure}"
+    echo -e "[ $(color r -n "${ICON_FAIL}") ] ${task} — ${failure}"
 }
 
 function task {
@@ -146,10 +146,10 @@ function task {
     set -e
 
     case "${code}" in
-        "${STATE_SYNC}")       echo -e "[ $(color g -n "${SYNC}") ] ${task}"  ;;
-        "${STATE_PULL}")       echo -e "[ $(color y -n "${PULL}") ] ${task}"  ;;
-        "${STATE_PUSH}")       echo -e "[ $(color y -n "${PUSH}") ] ${task}"  ;;
-        "${STATE_BOTH}")       echo -e "[ $(color y -n "${BOTH}") ] ${task}"  ;;
+        "${STATE_SYNC}")  echo -e "[ $(color g -n "${ICON_OKAY}") ] ${task}"  ;;
+        "${STATE_PULL}")  echo -e "[ $(color y -n "${ICON_PULL}") ] ${task}"  ;;
+        "${STATE_PUSH}")  echo -e "[ $(color y -n "${ICON_PUSH}") ] ${task}"  ;;
+        "${STATE_BOTH}")  echo -e "[ $(color y -n "${ICON_BOTH}") ] ${task}"  ;;
 
         "${ERR_GIT_DIRTY}")    task-fail "${task}" "Dirty"                    ;;
         "${ERR_GIT_NOREPO}")   task-fail "${task}" "Not a repo"               ;;
