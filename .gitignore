@@ -63,10 +63,12 @@
 /kubectl-context
 /kubectl-each
 /kubectl-namespace
+/kubectl-pv
 /kubectl-secret
 /kubectl-vsphere
 /kubectl_complete-context
 /kubectl_complete-namespace
+/kubectl_complete-pv
 /kubectl_complete-secret
 /kubeseal
 /ldiff
