@@ -35,8 +35,8 @@ readonly ERR_GIT_CLONE=28
 readonly ERR_GIT_TIMEOUT=124
 
 readonly ICON_OKAY=✓
-readonly ICON_PUSH=↑
 readonly ICON_PULL=↓
+readonly ICON_PUSH=↑
 readonly ICON_BOTH=⇅
 readonly ICON_FAIL=×
 
