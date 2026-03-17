@@ -72,6 +72,7 @@
 /kubectl_complete-secret
 /kubeseal
 /ldiff
+/minikube
 /msgpack2cbor
 /msgpack2json
 /msgpack2msgpack
