@@ -62,6 +62,7 @@
 /kubectl-aihub-login
 /kubectl-context
 /kubectl-each
+/kubectl-everything
 /kubectl-namespace
 /kubectl-pv
 /kubectl-secret
