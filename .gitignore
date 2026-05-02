@@ -43,6 +43,7 @@
 /git-fpaste
 /git-local
 /git-ls
+/git-sync
 /git-wip
 /helmfile
 /htmldiff
