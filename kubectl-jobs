@@ -23,19 +23,33 @@ function k8s-logged-in {
 }
 
 function main {
-    local resource
+    local kind resource empty=
 
     k8s-logged-in "${@}"
 
-    echo
-    for resource in cronjobs jobs pods; do
-        cat <<-EOM
-		${resource^^}
+    for kind in cronjobs jobs pods; do
+        if ! resource="$(kubectl "${@}" get "${kind}" |& pr -to 4)"; then
+            error "Failed to get '${kind}'!"
+        fi
 
-		$(kubectl "${@}" get "${resource}" | pr -to 4)
+        case "${resource}" in
+            *'No resources found in'*|'') continue                            ;;
+            *)                                                                ;;
+        esac
+
+        unset empty
+
+        cat <<-EOM
+		${kind^^}
+
+		${resource}
 
 	EOM
     done
+
+    if [ -v empty ]; then
+        echo "No resources found."
+    fi
 }
 
 main "${@}"; exit
