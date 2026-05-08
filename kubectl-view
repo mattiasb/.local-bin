@@ -1,0 +1,49 @@
+#!/bin/bash
+
+set -euo pipefail
+
+
+################################################################################
+
+function main {
+    local o name opts long
+    local opt_ctx opt_ns
+    local resource name
+
+    name="$(basename "${0}")"
+    opts="hc:n:o:"
+    long="help,context:,namespace:,output:"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    opt_ctx=""
+    opt_ns=""
+    opt_out="yaml"
+    while true; do
+        case "${1}" in
+            -h | --help)      usage            ; exit    ;;
+            -c | --context)   opt_ctx="${2}"   ; shift 2 ;;
+            -n | --namespace) opt_ns="${2}"    ; shift 2 ;;
+            -o | --output)    opt_out="${2,,}" ; shift 2 ;;
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+
+    case "${opt_out}" in
+        yaml|json|YAML|JSON) ;;
+        *) error "Unsupported format '${opt_out}'. Use YAML or JSON"          ;;
+    esac
+
+    resource="${1}"
+    name="${2}"
+    shift 2
+
+    kubectl ${opt_ctx:+--context="${opt_ctx}"}                                 \
+            ${opt_ns:+--namespace="${opt_ns}"}                                 \
+            get "${resource}" "${name}"                                        \
+            --output "${opt_out,,}"                                            \
+            "${@}" | bat -l yaml
+}
+
+main "${@}"; exit
