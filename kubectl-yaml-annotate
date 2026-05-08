@@ -106,13 +106,16 @@ def annotate_file(file_path: str, index_data: Dict[str, List[Dict[str, str]]]):
         lines = [
             ln
             for ln in lines
-            if not ln.strip().startswith("# yaml-language-server: $schema")
+            if not (
+                ln.strip().startswith("# yaml-language-server: $schema")
+                or ln.strip().startswith("# $schema:")
+            )
         ]
 
         if api_version and kind:
             schema_url = find_schema_url(api_version, kind, index_data)
             if schema_url:
-                lines.insert(0, f"# yaml-language-server: $schema={schema_url}")
+                lines.insert(0, f"# $schema: {schema_url}")
         docs.append("\n".join(lines))
 
     with open(file_path, "w") as f:
