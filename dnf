@@ -20,7 +20,7 @@ function complete {
 
 function unprivileged {
     while true; do
-        case "${1}" in
+        case "${1:-}" in
             -*) shift;                                                        ;;
             install|remove|upgrade|update|downgrade|reinstall)    return 1    ;;
             autoremove|swap|groupinstall|groupremove|groupupdate) return 1    ;;
@@ -29,7 +29,7 @@ function unprivileged {
                          undo|redo|rollback) return 1                         ;;
                          *) return                                            ;;
                      esac                                                     ;;
-            *) return                                                         ;;
+            *)  return                                                        ;;
         esac
     done
 }
