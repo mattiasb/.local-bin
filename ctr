@@ -58,7 +58,7 @@ function context {
 
     podman build --no-cache --progress plain --file - . \
            <<EOF | grep -E '^!' | cut -c 7-
-FROM busybox
+FROM docker.io/library/busybox
 COPY .    /ctx
 RUN  find /ctx -type f -exec echo "!{}" \;
 EOF
