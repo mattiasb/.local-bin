@@ -3,6 +3,9 @@
 # Copyright 2026, Mattias Bengtsson <mattias.jc.bengtsson@gmail.com>
 # SPDX-License-Identifier: GPL-3.0-only
 
+# Dynamic dispatch
+# shellcheck disable=SC2329
+
 set -euo pipefail
 
 # TODO
@@ -31,13 +34,27 @@ EOM
 
 ################################################################################
 
-# shellcheck disable=SC2329
+function pull {
+    local img out
+
+    img="${1}"
+
+    if ! out="$(podman pull --policy missing "${img}" 2>&1)"; then
+        error "Failed to pull '${img}'!"
+        echo
+        echo "${out}" | pr -to 4
+        return 2
+    fi
+}
+
 function context {
     local dir
 
     dir="${1:-${PWD}}"
 
     pushd "${dir}" >/dev/null
+
+    pull docker.io/library/busybox
 
     podman build --no-cache --progress plain --file - . \
            <<EOF | grep -E '^!' | cut -c 7-
