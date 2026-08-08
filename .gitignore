@@ -76,6 +76,9 @@
 /kubeseal
 /ldiff
 /minikube
+/mitmdump
+/mitmproxy
+/mitmweb
 /msgpack2cbor
 /msgpack2json
 /msgpack2msgpack
