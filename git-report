@@ -1,0 +1,153 @@
+#!/bin/bash
+
+set -euo pipefail
+
+################################################################################
+## Utils
+
+# shellcheck disable=SC2329
+function debug {
+    if [ -v DEBUG ]; then
+        echo "${FUNCNAME[1]:+${FUNCNAME[1]}: }${*}" >/dev/stderr
+    fi
+}
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+function error-usage {
+    error "${*}"
+    echo
+    usage
+    return 2
+}
+
+function header {
+    echo -e "\n${*^^}\n"
+}
+
+################################################################################
+## Commands
+
+function cmd-branches {
+    git for-each-ref refs/heads/                                               \
+        --format='%(refname:short):%(committerdate:relative)'                  \
+        --sort=committerdate                                                   \
+        | column -t -s ':'
+}
+
+function cmd-tags {
+    local filter objecttype
+
+    filter="${1:-}"
+
+    case "${filter}" in
+        annotated)    objecttype=tag                                          ;;
+        light-weight) objecttype=commit                                       ;;
+
+        '') for filter in annotated light-weight; do
+                header   "${filter}"
+                cmd-tags "${filter}" | pr -to 2
+            done
+            echo
+            return
+            ;;
+        *)  error-usage "Unknown tag filter: ${filter}"
+    esac
+
+    git for-each-ref refs/tags/ --format "%(objecttype) %(refname:short)"      \
+        | grep -E "^${objecttype} .+\$"                                        \
+        | cut -d " " -f 2 ; # ← bash-ts-mode workaround
+}
+
+################################################################################
+## Main
+
+function usage {
+    cat <<EOM
+Usage: git report <branches|tags> [FLAGS]
+
+  -h, --help              Show this help message.
+
+Where:
+
+  git report branches  —  Show branches with age of last commit
+  git report tags      —  Show tags (annotated or light-weight)
+
+EOM
+}
+
+function usage-tags {
+    cat <<EOM
+Usage: git report tags [-f <FILTER> | --filter=<FILTER>]
+
+  -h, --help              Show this help message.
+  -f <F>, --filter=<F>    Filter tags (annotated or light-weight).
+
+Show tags. Optionally filtered by type.
+
+EOM
+}
+
+function usage-branches {
+    cat <<EOM
+Usage: git report branches
+
+  -h, --help              Show this help message.
+
+Show branches with age of last commit.
+
+EOM
+}
+
+function main {
+    local o name opts long
+    local cmd
+    local opt_filter opt_help
+
+    name="$(basename "${0}")"
+    opts="hf:"
+    long="help,filter:"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    opt_filter=
+    opt_help=false
+    while true; do
+        case "${1}" in
+            -h | --help)
+                opt_help=true
+                shift
+                ;;
+
+            -f|--filter)
+                opt_filter="${2}"
+                shift 2
+            ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+
+    cmd="${1:-}"
+
+    if [ "${opt_help}" = true ]; then
+        case "${cmd}" in
+            branches) usage-branches                                          ;;
+            tags)     usage-tags                                              ;;
+            *)        usage                                                   ;;
+        esac
+        return
+    fi
+
+    case "${cmd}" in
+        branches) cmd-branches  "${@:2}"                                      ;;
+        tags)     cmd-tags      "${opt_filter}"                               ;;
+        '')       error-usage   "Missing command!"                            ;;
+        *)        error-usage   "Unknown command: ${cmd} !"                   ;;
+    esac
+}
+
+main "${@}"; exit
