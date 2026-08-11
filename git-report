@@ -31,7 +31,16 @@ function header {
 ## Commands
 
 function cmd-branches {
-    git for-each-ref refs/heads/                                               \
+    local remote refs
+
+    remote="${1:-}"
+
+    case "${remote}" in
+        '') refs="refs/heads/"                                                ;;
+        *)  refs="refs/remotes/${remote}/"                                    ;;
+    esac
+
+    git for-each-ref "${refs}"                                                 \
         --format='%(refname:short):%(committerdate:relative)'                  \
         --sort=committerdate                                                   \
         | column -t -s ':'
@@ -98,11 +107,11 @@ EOM
 
 function usage-branches {
     cat <<EOM
-Usage: git report branches
+Usage: git report branches [REMOTE]
 
   -h, --help              Show this help message.
 
-Show branches with age of last commit.
+Show branches from REMOTE (default to local) with age of last commit.
 
 EOM
 }
