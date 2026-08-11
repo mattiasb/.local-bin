@@ -46,13 +46,13 @@ function cmd-tags {
         annotated)    objecttype=tag                                          ;;
         light-weight) objecttype=commit                                       ;;
 
-        '') for filter in annotated light-weight; do
-                header   "${filter}"
-                cmd-tags "${filter}" | pr -to 2
-            done
-            echo
-            return
-            ;;
+        all) for filter in annotated light-weight; do
+                 header   "${filter}"
+                 cmd-tags "${filter}" | pr -to 2
+             done
+             echo
+             return
+             ;;
         *)  error-usage "Unknown tag filter: ${filter}"
     esac
 
@@ -83,9 +83,15 @@ function usage-tags {
 Usage: git report tags [-f <FILTER> | --filter=<FILTER>]
 
   -h, --help              Show this help message.
-  -f <F>, --filter=<F>    Filter tags (annotated or light-weight).
+  -f <F>, --filter=<F>    Filter tags.
 
 Show tags. Optionally filtered by type.
+
+Filters:
+
+  all           —  Show all tags (Default).
+  annotated     —  Show only annotated tags.
+  light-weight  —  Show only light weight tags.
 
 EOM
 }
