@@ -7,6 +7,10 @@ set -euo pipefail
 : "${XDG_CONFIG_HOME:=${HOME}/.config}"
 : "${XDG_CACHE_HOME:=${HOME}/.cache}"
 
+: "${VERBOSE:=0}"
+
+export VERBOSE
+
 export PROJECT_CACHE_DIR="${XDG_CACHE_HOME}/project"
 export PROJECT_CONFIG_DIR="${XDG_CONFIG_HOME}/project"
 
@@ -199,6 +203,10 @@ function cmd-index {
     out="$(find-projects)"
 
     echo "${out}" > "${PROJECT_INDEX}"
+
+    if [ "${VERBOSE}" = 1 ]; then
+        echo "Indexed $(wc -l < "${PROJECT_INDEX}") projects."
+    fi
 }
 
 function cmd-list {
@@ -284,8 +292,8 @@ function main {
     local cmd
 
     name="$(basename "${0}")"
-    opts="h"
-    long="help"
+    opts="hv"
+    long="help,verbose"
     o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
     eval set -- "${o}"
 
@@ -295,6 +303,8 @@ function main {
                 usage
                 exit
                 ;;
+
+            -v | --verbose) VERBOSE=1; shift ;;
 
             -- ) shift; break ;;
             * ) break ;;
