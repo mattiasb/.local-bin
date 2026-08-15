@@ -1,0 +1,321 @@
+#!/bin/bash
+
+set -euo pipefail
+
+: "${XDG_DATA_HOME:=${HOME}/.local/share}"
+: "${XDG_STATE_HOME:=${HOME}/.local/state}"
+: "${XDG_CONFIG_HOME:=${HOME}/.config}"
+: "${XDG_CACHE_HOME:=${HOME}/.cache}"
+
+export PROJECT_CACHE_DIR="${XDG_CACHE_HOME}/project"
+export PROJECT_CONFIG_DIR="${XDG_CONFIG_HOME}/project"
+
+export PROJECT_INDEX="${PROJECT_CACHE_DIR}/project.idx"
+export PROJECT_CONFIG="${PROJECT_CONFIG_DIR}/config.yaml"
+
+################################################################################
+## Utils
+
+# shellcheck disable=SC2329
+function debug {
+    if [ -v DEBUG ]; then
+        echo "${FUNCNAME[1]:+${FUNCNAME[1]}: }${*}" >/dev/stderr
+    fi
+}
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+function error-usage {
+    error "${*}"
+    echo
+    usage
+    return 2
+}
+
+function check-command {
+    local cmd
+
+    cmd="${1}"
+
+    if ! command -v "${cmd}" >/dev/null; then
+        error "Missing command: ${cmd}"
+        return 2
+    fi
+}
+
+function color {
+    local color
+
+    color="${1}"
+
+    if ! maxcolors=$(tput colors 2>/dev/null) || [ "${maxcolors}" -lt 8 ]; then
+        echo "${@:2}"
+        return
+    fi
+
+    case "${color}" in
+        b|black)   tput setaf 0 ;;
+        r|red)     tput setaf 1 ;;
+        g|green)   tput setaf 2 ;;
+        y|yellow)  tput setaf 3 ;;
+        u|blue)    tput setaf 4 ;;
+        m|magenta) tput setaf 5 ;;
+        c|cyan)    tput setaf 6 ;;
+        w|white)   tput setaf 7 ;;
+        *)         echo "ERROR: No such color ${color}!" >&2
+                   return 2     ;;
+    esac
+
+    echo "${@:2}"
+
+    tput sgr0
+}
+
+function task {
+    local msg out
+    local -a cmd
+
+    msg="${1}"
+    cmd=("${@:2}")
+
+    printf "%-30s" "${msg} ... "
+
+    if out="$("${cmd[@]}" 2>&1)"; then
+        echo -e "[ $(color g -n ✓) ]"
+    else
+        echo -e "[ $(color r -n ×) ]"
+        echo "${out}" | pr -to 6 >&2
+        return 1
+    fi
+}
+
+################################################################################
+## Helpers
+
+function find-projects-in-path {
+    local path
+
+    path="${1}"
+    depth="${2:-}"
+
+    find "${path}"                                                             \
+         ${depth:+-maxdepth "${depth}"}                                        \
+         \(  -type d,l -name '.git'                                            \
+         -or -type f   -name '.project'                                        \
+         \)                                                                    \
+         -and -not -wholename '*.flatpak-builder/*'                            \
+         -printf '%h\n'
+}
+
+function find-projects {
+    local path
+    local -a paths=()
+
+    mapfile -t paths < <(config-index-paths); wait $!
+
+    { for path in "${paths[@]}"; do
+          find-projects-in-path "${path}" "$(config-index-depth "${path}")"
+      done
+      config-projects
+    } | env env LC_COLLATE=C sort
+}
+
+# shellcheck disable=SC2329
+function init-readme {
+    local project
+
+    project="${1}"
+
+    echo -e "# $(basename "${project}")\n" > "${project}/README.md"
+}
+
+# shellcheck disable=SC2329
+function init-gitignore {
+    local project
+
+    project="${1}"
+
+    echo -e "*~\n*#*" > "${project}/.gitignore"
+}
+
+# shellcheck disable=SC2329
+function init-commit {
+    local project
+
+    project="${1}"
+
+    git -C "${project}" add README.md .gitignore
+    git -C "${project}" commit -m "Initial commit"
+}
+
+################################################################################
+## Config
+
+function config-query {
+    yq "${@}" "${PROJECT_CONFIG}"
+}
+
+function config-expanded {
+    local query expand
+
+    query="${1:-}"
+    expand='sub("^~/", env(HOME) + "/")'
+
+    config-query " .projects[]       |= ${expand}
+                 | .index[] |= .path |= ${expand}
+                 ${query:+| ${query}}
+                 "
+}
+
+function config-index-paths {
+    config-expanded '.index[] | .path'
+}
+
+function config-index-depth {
+    local path
+
+    path="${1}"
+
+    config-expanded ' .index[]
+                    | select(.path == "'"${path}"'")
+                    | .depth + 1 // ""
+                    '
+}
+
+function config-projects {
+    config-expanded '.projects[]'
+}
+
+################################################################################
+## Commands
+
+function cmd-index {
+    local out
+
+    mkdir -p "${PROJECT_CACHE_DIR}"
+
+    out="$(find-projects)"
+
+    echo "${out}" > "${PROJECT_INDEX}"
+}
+
+function cmd-list {
+    if ! [ -f "${PROJECT_INDEX}" ]; then
+        cmd-index
+    fi
+
+    cat "${PROJECT_INDEX}"
+}
+
+function cmd-choose {
+    check-command fzf
+
+    cmd-list | fzf
+}
+
+function cmd-create {
+    local name project
+
+    name="${1:-}"
+
+    if [ -z "${name}" ]; then
+        error-usage "Missing argument: name"
+    fi
+
+    check-command git
+
+    project="${HOME}/Code/github.com/mattiasb/${name}"
+
+    task "Create directory"       mkdir -p        "${project}"
+    task "Create repository"      git init        "${project}"
+    task "Create README"          init-readme     "${project}"
+    task "Create .gitignore"      init-gitignore  "${project}"
+    task "Create Initial commit"  init-commit     "${project}"
+    task "Project reindex"        cmd-index
+}
+
+## Internal
+
+function cmd-complete {
+    local base prefix
+
+    base="${1}"
+    prefix="${2}"
+
+    cmd-list | grep "${base}/${prefix}" | sed -r "s|${base}/||"
+}
+
+function cmd-debug {
+    local cmd
+
+    cmd="${1:-}"
+
+    case "${cmd}" in
+        config)              config-query "${@:2}"                            ;;
+        config-index-paths)  config-index-paths                               ;;
+        config-index-depth)  config-index-depth "${@:2}"                      ;;
+        config-projects)     config-projects                                  ;;
+        find)                find-projects                                    ;;
+        '')                  error-usage  "Missing command!"                  ;;
+        *)                   error-usage  "Unknown command: ${cmd} !"         ;;
+    esac
+}
+
+################################################################################
+
+function usage {
+    local name
+
+    name=$(basename "${0}")
+
+    cat <<EOM
+Usage: ${name} <choose|index|list>
+       ${name} create <NAME>
+
+  -h, --help    Show this help message.
+
+EOM
+}
+
+function main {
+    local o name opts long
+    local cmd
+
+    name="$(basename "${0}")"
+    opts="h"
+    long="help"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+
+    cmd="${1:-}"
+    case "${cmd}" in
+        choose)   cmd-choose                                                  ;;
+        index)    cmd-index                                                   ;;
+        ls|list)  cmd-list                                                    ;;
+
+        create)   cmd-create   "${@:2}"                                       ;;
+
+        # Internal
+        complete) cmd-complete "${@:2}"                                       ;;
+        debug)    cmd-debug    "${@:2}"                                       ;;
+
+        '')       error-usage  "Missing command!"                             ;;
+        *)        error-usage  "Unknown command: ${cmd} !"                    ;;
+    esac
+}
+
+main "${@}"; exit
