@@ -75,6 +75,7 @@
 /kubectl_complete-secret
 /kubeseal
 /ldiff
+/lefthook
 /minikube
 /mitmdump
 /mitmproxy
