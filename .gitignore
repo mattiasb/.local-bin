@@ -111,6 +111,7 @@
 /talosctl
 /thor
 /tilt
+/tofu-ls
 /toml2cbor
 /toml2json
 /toml2msgpack
