@@ -1,0 +1,96 @@
+#!/bin/bash
+
+set -euo pipefail
+
+: "${GIT_FORALL_TASK:=false}"
+
+################################################################################
+
+function color {
+    local color
+
+    color="${1}"
+
+    if ! maxcolors=$(tput colors 2>/dev/null) || [ "${maxcolors}" -lt 8 ]; then
+        echo "${@:2}"
+        return
+    fi
+
+    case "${color}" in
+        b|black)   tput setaf 0 ;;
+        r|red)     tput setaf 1 ;;
+        g|green)   tput setaf 2 ;;
+        y|yellow)  tput setaf 3 ;;
+        u|blue)    tput setaf 4 ;;
+        m|magenta) tput setaf 5 ;;
+        c|cyan)    tput setaf 6 ;;
+        w|white)   tput setaf 7 ;;
+        *)         echo "ERROR: No such color ${color}!" >&2
+                   return 2     ;;
+    esac
+
+    echo "${@:2}"
+
+    tput sgr0
+}
+
+function task {
+    local msg out
+    local -a cmd
+
+    msg="${1}"
+    cmd=("${@:2}")
+
+    printf "%-55s" "${msg}  "
+
+    if out="$("${cmd[@]}" 2>&1)"; then
+        echo -e "[ $(color g -n ✓) ]"
+    else
+        echo -e "[ $(color r -n ×) ]"
+        echo "${out}" | pr -to 6 >&2
+        return 1
+    fi
+}
+
+################################################################################
+## Git helpers
+
+function merge-base {
+    local out
+
+    if out="$(git merge-base HEAD "@{upstream}" 2>/dev/null)"; then
+        echo "${out}"
+        return
+    elif out="$(git merge-base HEAD main   2>/dev/null)"; then
+        echo "${out}"
+        return
+    elif out="$(git merge-base HEAD master 2>/dev/null)"; then
+        echo "${out}"
+        return
+    else
+        echo "Couldn't find a merge base!"
+        return 2
+    fi
+}
+
+
+################################################################################
+## Main
+
+function main {
+    case "${#}" in
+        0) error-usage "Missing command!"                                     ;;
+        *)                                                                    ;;
+    esac
+
+    if [ "${GIT_FORALL_TASK}" = true ]; then
+        task "$(git log -n 1 --pretty=format:'%s')" "${@}"
+    else
+        env GIT_FORALL_TASK=true git rebase -x "git for-all ${*}"              \
+            "$(merge-base)"                                                    \
+            |& grep -vE '(Executing:|Successfully rebased).+'
+    fi
+}
+
+
+main "${@}"; exit
