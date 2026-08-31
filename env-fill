@@ -87,8 +87,9 @@ EOM
 
 function main {
     local o name opts long
-    local var
+    local template var
     local -a vars=()
+    local -A env=()
 
     name="$(basename "${0}")"
     opts="h"
@@ -115,16 +116,38 @@ function main {
     done
     export OPT_NO_EMPTY
 
+    template="${1}"
+    shift
+
     check-vars "${@}"
 
+    mapfile -t vars < <(envsubst -v "${template}"); wait $!
+
+    for var in "${vars[@]}"; do
+        env["${var}"]="\${${var}}"
+    done
+
+    debug "env: $(typeset -p env)"
+
     for var in "${@}"; do
+        if [ ! -v "env[${var%%=*}]" ]; then
+            continue
+        fi
+        debug "var: ${var}"
         case "${var}" in
-            *=*) vars+=( "${var}" )                                           ;;
-            *)   vars+=( "${var}=${!var}" )                                   ;;
+            *=*) env["${var%%=*}"]="${var#*=}"                                ;;
+            *)   env["${var}"]="${!var:-}"                                    ;;
         esac
     done
 
-    env -i "${vars[@]}" envsubst
+    debug "env: $(typeset -p env)"
+
+    vars=()
+    for var in "${!env[@]}"; do
+        vars+=( "${var}=${env[${var}]}" )
+    done
+
+    env -i "${vars[@]}" envsubst <<< "${template}"
 }
 
 main "${@}"; exit
