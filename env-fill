@@ -1,0 +1,130 @@
+#!/bin/bash
+
+set -euo pipefail
+
+
+################################################################################
+## Utils
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+# shellcheck disable=SC2329
+function debug {
+    if [ -v DEBUG ]; then
+        echo "${FUNCNAME[1]:+${FUNCNAME[1]}: }${*}" >/dev/stderr
+    fi
+}
+
+function sep {
+    local separator
+
+    separator="${1}"
+    shift
+
+    case "${#}" in
+        0)                                                                    ;;
+        1) echo "${1}"                                                        ;;
+        *) echo "${1}$(printf "${separator} %s" "${@:2}")"                    ;;
+    esac
+}
+
+function check-var {
+    local var
+
+    var="${1}"
+
+    case "${var}" in
+        *=)  test "${OPT_NO_EMPTY}" = false; return                           ;;
+        *=*) return                                                           ;;
+        *)                                                                    ;;
+    esac
+
+    test -v "${var}"
+    if [ "${OPT_NO_EMPTY}" = true ]; then
+        test -n "${!var:-}"
+    fi
+}
+
+function check-vars {
+    local var msg
+    local -a vars=()
+
+    for var in "${@}"; do
+        if ! check-var "${var}"; then
+            vars+=( "${var%%=*}" )
+        fi
+    done
+
+    msg="Unset"
+    if [ "${OPT_NO_EMPTY}" = true ]; then
+        msg+=" or empty"
+    fi
+
+    case "${#vars[@]}" in
+        0) return                                                             ;;
+        1) error "${msg} var: ${vars[0]}"                                     ;;
+        *) error "${msg} vars: $(sep , "${vars[@]}")"                         ;;
+    esac
+
+    return "${#vars[@]}"
+}
+
+################################################################################
+
+function usage {
+    cat <<EOM
+Run envsubst with a curated and validated environment.
+
+Usage: $(basename "${0}") [-h | --help] [VAR]...
+
+  -h, --help        Show this help message.
+      --no-empty    Fail on empty variables.
+
+EOM
+}
+
+function main {
+    local o name opts long
+    local var
+    local -a vars=()
+
+    name="$(basename "${0}")"
+    opts="h"
+    long="help,no-empty"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    OPT_NO_EMPTY=false
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            --no-empty)
+                OPT_NO_EMPTY=true
+                shift
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+    export OPT_NO_EMPTY
+
+    check-vars "${@}"
+
+    for var in "${@}"; do
+        case "${var}" in
+            *=*) vars+=( "${var}" )                                           ;;
+            *)   vars+=( "${var}=${!var}" )                                   ;;
+        esac
+    done
+
+    env -i "${vars[@]}" envsubst
+}
+
+main "${@}"; exit
