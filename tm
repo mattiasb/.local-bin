@@ -6,7 +6,7 @@ set -euo pipefail
 ################################################################################
 
 function fzf {
-    command fzf --height "~100%"
+    command fzf --info=hidden --no-separator --height "~100%"
 }
 
 function tm-has-session {
