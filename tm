@@ -5,6 +5,10 @@ set -euo pipefail
 
 ################################################################################
 
+function fzf {
+    command fzf --height "~100%"
+}
+
 function tm-has-session {
     local session
 
@@ -52,7 +56,7 @@ function main {
         case "${#sessions[@]}" in
             0) session=default                                                ;;
             1) session="${sessions[0]}"                                       ;;
-            *) session="$(tm-sessions | fzf --height "~100%")"                ;;
+            *) session="$(printf '%s\n' "${sessions[@]}" | fzf)"              ;;
         esac
     fi
 
