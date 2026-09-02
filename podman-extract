@@ -1,0 +1,68 @@
+#!/bin/bash
+
+set -euo pipefail
+
+
+################################################################################
+
+function color {
+    local color
+
+    color="${1}"
+
+    if ! maxcolors=$(tput colors 2>/dev/null) || [ "${maxcolors}" -lt 8 ]; then
+        echo "${@:2}"
+        return
+    fi
+
+    case "${color}" in
+        b|black)   tput setaf 0 ;;
+        r|red)     tput setaf 1 ;;
+        g|green)   tput setaf 2 ;;
+        y|yellow)  tput setaf 3 ;;
+        u|blue)    tput setaf 4 ;;
+        m|magenta) tput setaf 5 ;;
+        c|cyan)    tput setaf 6 ;;
+        w|white)   tput setaf 7 ;;
+        *)         echo "ERROR: No such color ${color}!" >&2
+                   return 2     ;;
+    esac
+
+    echo "${@:2}"
+
+    tput sgr0
+}
+
+function task {
+    local msg out
+    local -a cmd
+
+    msg="${1}"
+    cmd=("${@:2}")
+
+    printf "%-60s" "${msg} ... "
+
+    if out="$("${cmd[@]}" 2>&1)"; then
+        echo -e "[ $(color g -n ✓) ]"
+    else
+        echo -e "[ $(color r -n ×) ]"
+        echo "${out}" | pr -to 6 >&2
+        return 1
+    fi
+}
+
+################################################################################
+
+function main {
+    local image ctr
+
+    image="${1:?Missing image}"
+    ctr="$(basename "${image}")"
+    ctr="tmp_${ctr%%:*}"
+
+    task "Create Container [${ctr}]" podman create --name="${ctr}" "${image}"
+    task "Unpack Container [${ctr}]" podman export "${ctr}" | tar t
+    task "Remove Container [${ctr}]" podman rm "${ctr}"
+}
+
+main "${@}"; exit
