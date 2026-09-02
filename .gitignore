@@ -68,6 +68,7 @@
 /kubectl-namespace
 /kubectl-pv
 /kubectl-secret
+/kubectl-show
 /kubectl-vsphere
 /kubectl_complete-context
 /kubectl_complete-namespace
