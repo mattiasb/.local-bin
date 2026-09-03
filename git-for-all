@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-: "${GIT_FORALL_TASK:=false}"
-
 ################################################################################
 
 function color {
@@ -78,15 +76,42 @@ function merge-base {
 ## Main
 
 function main {
+    local o name opts long
+    local opt_task
+
+    name="$(basename "${0}")"
+    opts="h"
+    long="help,run-task"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    opt_task=false
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            --run-task)
+                opt_task=true
+                shift
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+
     case "${#}" in
         0) error-usage "Missing command!"                                     ;;
         *)                                                                    ;;
     esac
 
-    if [ "${GIT_FORALL_TASK}" = true ]; then
+    if [ "${opt_task}" = true ]; then
         task "$(git log -n 1 --pretty=format:'%s')" "${@}"
     else
-        env GIT_FORALL_TASK=true git rebase -x "git for-all ${*}"              \
+        git rebase -x "git for-all --run-task -- ${*}"                         \
             "$(merge-base)"                                                    \
             |& grep -vE '(Executing:|Successfully rebased).+'
     fi
