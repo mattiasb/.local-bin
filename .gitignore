@@ -64,6 +64,7 @@
 /kubectl-aihub-login
 /kubectl-capacity
 /kubectl-context
+/kubectl-doc
 /kubectl-each
 /kubectl-everything
 /kubectl-namespace
