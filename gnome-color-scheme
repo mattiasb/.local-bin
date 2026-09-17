@@ -20,8 +20,8 @@ function main {
     scheme="$(gsettings get org.gnome.desktop.interface color-scheme)"
 
     case "${scheme}" in
-        "'default'"|"'prefer-light'") echo light ;;
-        "'prefer-dark'")              echo dark  ;;
+        "'default'"|"'prefer-light'") echo light                              ;;
+        "'prefer-dark'")              echo dark                               ;;
         *)                            error "Unknown color-scheme: ${scheme}" ;;
     esac
 }
