@@ -8,13 +8,20 @@ set -o pipefail
 
 
 ################################################################################
-
+## Utils
 
 function error {
     echo "ERROR: ${*}" >/dev/stderr
 }
 
-function main {
+function error-usage {
+    error "${*}"
+    echo
+    usage
+    return 2
+}
+
+function get-scheme {
     local scheme
 
     scheme="$(gsettings get org.gnome.desktop.interface color-scheme)"
@@ -23,6 +30,57 @@ function main {
         "'default'"|"'prefer-light'") echo light                              ;;
         "'prefer-dark'")              echo dark                               ;;
         *)                            error "Unknown color-scheme: ${scheme}" ;;
+    esac
+}
+
+
+################################################################################
+## Main
+
+function usage {
+    cat <<EOM
+Usage: $(basename "${0}") [-h | --help] [--is=<dark|light>]
+
+  -h, --help    Show this help message.
+
+EOM
+}
+
+function main {
+    local o name opts long
+    local is scheme
+
+    name="$(basename "${0}")"
+    opts="h"
+    long="help,is:"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    is=""
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            --is)
+                is="${2}"
+                shift 2
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+
+    scheme="$(get-scheme)"
+
+    case "${is}" in
+        light|dark)
+            test "${is}" = "${scheme}"                                        ;;
+        '') get-scheme                                                        ;;
+        *)  error-usage "Unknown color-scheme '${is}'"                        ;;
     esac
 }
 
