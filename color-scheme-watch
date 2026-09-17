@@ -21,21 +21,35 @@ declare -A STYLE=(
 
 ################################################################################
 
+function tmux-reload {
+    echo "TMUX: Reload config ..."
+    tmux source-file ~/.config/tmux/tmux.conf
+}
+
 function set-gtk3-color-scheme {
     local scheme
 
     scheme="${1}"
 
-    echo "GTK3 => ${scheme^^}"
+    echo "GTK3: Set ${scheme^} theme ..."
     gsettings set org.gnome.desktop.interface gtk-theme "'${STYLE[${scheme}]}'"
+}
+
+function on-scheme-change {
+    local scheme
+
+    scheme="${1}"
+
+    tmux-reload
+    set-gtk3-color-scheme "${scheme}"
 }
 
 function main {
     while read -r line ; do
         case "${line}" in
-            *'prefer-dark'*)  set-gtk3-color-scheme dark                      ;;
-            *'prefer-light'*) set-gtk3-color-scheme light                     ;;
-            *'default'*)      set-gtk3-color-scheme light                     ;;
+            *'prefer-dark'*)  on-scheme-change dark                           ;;
+            *'prefer-light'*) on-scheme-change light                          ;;
+            *'default'*)      on-scheme-change light                          ;;
             *) continue ;;
         esac
     done < <( dconf watch /org/gnome/desktop/interface/color-scheme )
