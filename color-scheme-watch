@@ -22,8 +22,10 @@ declare -A STYLE=(
 ################################################################################
 
 function tmux-reload {
-    echo "TMUX: Reload config ..."
-    tmux source-file ~/.config/tmux/tmux.conf
+    if tmux run 2>/dev/null; then
+        echo "TMUX: Reload config ..."
+        tmux source-file ~/.config/tmux/tmux.conf
+    fi
 }
 
 function set-gtk3-color-scheme {
