@@ -5,51 +5,185 @@
 
 set -euo pipefail
 
+: "${KUBECTL_JOBS_NAMESPACE:=}"
+export KUBECTL_JOBS_NAMESPACE
+
+: "${KUBECTL_JOBS_CONTEXT:=}"
+export KUBECTL_JOBS_CONTEXT
+
+: "${KUBECTL_JOBS_SELECTOR:=}"
+export KUBECTL_JOBS_SELECTOR
 
 ################################################################################
+
+# shellcheck disable=SC2329
+function debug {
+    if [ -v DEBUG ]; then
+        echo "${FUNCNAME[1]:+${FUNCNAME[1]}: }${*}" >/dev/stderr
+    fi
+}
 
 function error {
     echo "ERROR: ${*}" >/dev/stderr
 }
 
+function string-join {
+    local sep
+
+    sep="${1}"
+    case "${#}" in
+        0)                                                                    ;;
+        1) echo "${2}"                                                        ;;
+        *) echo "${2}$(printf "${sep}%s" "${@:3}")"                           ;;
+    esac
+}
+
 ################################################################################
 
+function k8s {
+    kubectl ${KUBECTL_JOBS_CONTEXT:+--context="${KUBECTL_JOBS_CONTEXT}"}       \
+            ${KUBECTL_JOBS_NAMESPACE:+--namespace="${KUBECTL_JOBS_NAMESPACE}"} \
+            "${@}"
+}
+
 function k8s-logged-in {
-    if ! kubectl "${@}" auth whoami &>/dev/null; then
+    if ! k8s auth whoami &>/dev/null; then
         error "Not logged in!"
         echo
         return 2
     fi
 }
 
-function main {
+function k8s-job-names {
+    local -a flags=(
+        --output json
+        ${KUBECTL_JOBS_SELECTOR:+--selector "${KUBECTL_JOBS_SELECTOR}"}
+    )
+    # k8s get job "${flags[@]}"
+    if ! k8s get job "${flags[@]}" | jq -r '.items[].metadata.name'; then
+        error "Failed to get jobs names"
+    fi
+}
+
+function k8s-get {
+    local kind selector
+
+    kind="${1}"
+    selector="${2:-${KUBECTL_JOBS_SELECTOR:-}}"
+
+    k8s get "${kind}" ${selector:+--selector "${selector}"}
+}
+
+function k8s-show {
+    local kind selector
+
+    kind="${1}"
+    selector="${2:-}"
+
+    if ! resource="$(k8s-get "${kind}" "${selector}" |& pr -to 4)"; then
+        error "Failed to get '${kind}'!"
+        return 1
+    fi
+
+    case "${resource}" in
+        *'No resources found'*|'') return                                     ;;
+        *)                                                                    ;;
+    esac
+
+    cat <<-EOM
+
+	${kind^^}
+
+	${resource}
+
+EOM
+
+}
+
+function k8s-jobs {
     local kind resource empty=
+    local -a jobs=()
+    local -A kinds=()
 
     k8s-logged-in "${@}"
 
-    for kind in cronjobs jobs pods; do
-        if ! resource="$(kubectl "${@}" get "${kind}" |& pr -to 4)"; then
-            error "Failed to get '${kind}'!"
+    kinds=( [cronjob]="" [job]="" )
+
+    mapfile -t jobs < <(k8s-job-names)
+    if [ "${#jobs[@]}" -gt 0 ]; then
+        kinds[pod]="job-name in ($(string-join ',' "${jobs[@]}"))"
+    fi
+
+    for kind in "${!kinds[@]}"; do
+        if ! resource="$(k8s-show "${kind}" "${kinds[${kind}]}")"; then
+            return 1
         fi
 
-        case "${resource}" in
-            *'No resources found in'*|'') continue                            ;;
-            *)                                                                ;;
-        esac
-
-        unset empty
-
-        cat <<-EOM
-		${kind^^}
-
-		${resource}
-
-	EOM
+        if [ -n "${resource}" ]; then
+            unset empty
+            echo "${resource}"
+        fi
     done
 
     if [ -v empty ]; then
-        echo "No resources found."
+        echo "No jobs found."
+    else
+        echo
     fi
+}
+
+################################################################################
+
+function usage {
+    cat <<EOM
+Usage: $(basename "${0}") [-h | --help]
+
+  -h, --help              Show this help message.
+  -c, --context=<CTX>     Override current context.
+  -n, --namespace=<NS>    Override current context namespace.
+  -l, --selector=<QUERY>  Filter resources by a label query.
+
+EOM
+}
+
+function main {
+    local o name opts long
+
+    name="$(basename "${0}")"
+    opts="hn:c:l:"
+    long="help,namespace:,context:,selector:"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            -n | --namespace)
+                KUBECTL_JOBS_NAMESPACE="${2}"
+                shift 2
+                ;;
+
+            -c | --context)
+                KUBECTL_JOBS_CONTEXT="${2}"
+                shift 2
+                ;;
+
+            -l | --selector)
+                KUBECTL_JOBS_SELECTOR="${2}"
+                shift 2
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
+
+    # k8s-job-names
+    k8s-jobs "${@}"
 }
 
 main "${@}"; exit
