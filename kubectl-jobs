@@ -62,6 +62,7 @@ function k8s-job-names {
     # k8s get job "${flags[@]}"
     if ! k8s get job "${flags[@]}" | jq -r '.items[].metadata.name'; then
         error "Failed to get jobs names"
+        return 1
     fi
 }
 
