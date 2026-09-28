@@ -6,4 +6,8 @@
 DIR="${HOME}/Code/github.com/mattiasb/emacs-2.0"
 
 "${DIR}/aux/build.el"
-/usr/bin/emacs --init-directory="${DIR}/" -debug "${@}"
+/usr/bin/emacs --init-directory="${DIR}/" -debug                               \
+               --fg-daemon=main                                                \
+               --no-site-file                                                  \
+               --no-site-lisp                                                  \
+               "${@}"
