@@ -43,7 +43,7 @@ function main {
             ${opt_ns:+--namespace="${opt_ns}"}                                 \
             get "${resource}" "${name}"                                        \
             --output "${opt_out,,}"                                            \
-            "${@}" | bat -l yaml
+            "${@}" | bat -l yaml --paging=always
 }
 
 main "${@}"; exit
