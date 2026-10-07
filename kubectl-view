@@ -21,10 +21,10 @@ function main {
     opt_out="yaml"
     while true; do
         case "${1}" in
-            -h | --help)      usage            ; exit    ;;
-            -c | --context)   opt_ctx="${2}"   ; shift 2 ;;
-            -n | --namespace) opt_ns="${2}"    ; shift 2 ;;
-            -o | --output)    opt_out="${2,,}" ; shift 2 ;;
+            -h | --help)      usage            ; exit                         ;;
+            -c | --context)   opt_ctx="${2}"   ; shift 2                      ;;
+            -n | --namespace) opt_ns="${2}"    ; shift 2                      ;;
+            -o | --output)    opt_out="${2,,}" ; shift 2                      ;;
             -- ) shift; break ;;
             * ) break ;;
         esac
