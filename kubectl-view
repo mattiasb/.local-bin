@@ -4,6 +4,22 @@ set -euo pipefail
 
 
 ################################################################################
+## Utils
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+function error-usage {
+    error "${*}"
+    echo
+    usage
+    return 2
+}
+
+################################################################################
+## Main
+
 function usage {
     cat <<EOM
 Usage: $(basename "${0}") [-h | --help] <RESOURCE> <NAME>
@@ -46,8 +62,16 @@ function main {
         *) error "Unsupported format '${opt_out}'. Use YAML or JSON"          ;;
     esac
 
-    resource="${1}"
-    name="${2}"
+    resource="${1:-}"
+    if [ -z "${resource}" ]; then
+        error-usage "Missing argument: RESOURCE"
+    fi
+
+    name="${2:-}"
+    if [ -z "${name}" ]; then
+        error-usage "Missing argument: NAME"
+    fi
+
     shift 2
 
     kubectl ${opt_ctx:+--context="${opt_ctx}"}                                 \
