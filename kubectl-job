@@ -101,7 +101,10 @@ EOM
 
 }
 
-function k8s-jobs {
+################################################################################
+## Commands
+
+function cmd-list {
     local kind resource empty=
     local -a jobs=()
     local -A kinds=()
@@ -133,16 +136,41 @@ function k8s-jobs {
     fi
 }
 
+function cmd-create {
+    local cronjob job
+
+    cronjob="${1:-}"
+    job="${cronjob}--$(whoami)-$(date -I)"
+
+    k8s create job --from="cronjob/${cronjob}" "${job}"
+
+    echo "Waiting for logs ..."
+    until k8s logs "job/${job}" &>/dev/null; do
+        sleep '0.3'
+    done
+    echo
+
+    k8s logs --follow "job/${job}" --pod-running-timeout=3m | pr -to 4
+    echo
+    echo Done
+}
+
 ################################################################################
 
 function usage {
     cat <<EOM
-Usage: $(basename "${0}") [-h | --help]
+Usage: $(basename "${0}") [-h | --help] list
+Usage: $(basename "${0}") [-h | --help] create <CRONJOB>
 
   -h, --help              Show this help message.
   -c, --context=<CTX>     Override current context.
   -n, --namespace=<NS>    Override current context namespace.
   -l, --selector=<QUERY>  Filter resources by a label query.
+
+Subcommands
+
+ list     —  List CronJobs, Jobs and their Pods.
+ create   —  Create a Job from an existing CronJob.
 
 EOM
 }
@@ -183,8 +211,13 @@ function main {
         esac
     done
 
-    # k8s-job-names
-    k8s-jobs "${@}"
+    cmd="${1:-}"
+    case "${cmd}" in
+        list)   cmd-list    "${@:2}"                                          ;;
+        create) cmd-create  "${@:2}"                                          ;;
+        '')     error-usage "Missing command!"                                ;;
+        *)      error-usage "Unknown command: ${cmd} !"                       ;;
+    esac
 }
 
 main "${@}"; exit
