@@ -38,6 +38,12 @@ function string-join {
     esac
 }
 
+function kill-jobs {
+    { kill "${@}"
+      wait -n "${@}"
+    } &>/dev/null
+}
+
 ################################################################################
 
 function k8s {
@@ -138,13 +144,20 @@ function cmd-list {
 
 function cmd-create {
     local cronjob job
+    local -a pids=()
 
     cronjob="${1:-}"
     job="${cronjob}--$(whoami)-$(date -I)"
 
-    k8s create job --from="cronjob/${cronjob}" "${job}"
+    k8s create job --from="cronjob/${cronjob}" "${job}" >/dev/null
 
-    echo "Waiting for logs ..."
+    k8s wait --for=condition=complete "job/${job}" &>/dev/null &
+    pids+=("${!}")
+
+    k8s wait --for=condition=failed "job/${job}" &>/dev/null &
+    pids+=("${!}")
+
+    echo "Wait for logs ..."
     until k8s logs "job/${job}" &>/dev/null; do
         sleep '0.3'
     done
@@ -152,7 +165,15 @@ function cmd-create {
 
     k8s logs --follow "job/${job}" --pod-running-timeout=3m | pr -to 4
     echo
-    echo Done
+
+    if wait -n "${pids[@]}"; then
+        echo Done
+        kill-jobs "${pids[@]}"
+    else
+        echo Failed
+        kill-jobs "${pids[@]}"
+        return 2
+    fi
 }
 
 ################################################################################
