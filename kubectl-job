@@ -185,7 +185,7 @@ function usage {
 
     cat <<EOM
 Usage: ${name} [-h | --help] list
-Usage: ${name} [-h | --help] create <CRONJOB>
+       ${name} [-h | --help] create <CRONJOB>
 
   -h, --help              Show this help message.
   -c, --context=<CTX>     Override current context.
