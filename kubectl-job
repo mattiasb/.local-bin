@@ -179,9 +179,13 @@ function cmd-create {
 ################################################################################
 
 function usage {
+    local name
+
+    name="$(basename "${0}" | tr "-" " ")"
+
     cat <<EOM
-Usage: $(basename "${0}") [-h | --help] list
-Usage: $(basename "${0}") [-h | --help] create <CRONJOB>
+Usage: ${name} [-h | --help] list
+Usage: ${name} [-h | --help] create <CRONJOB>
 
   -h, --help              Show this help message.
   -c, --context=<CTX>     Override current context.
