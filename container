@@ -59,7 +59,7 @@ function run {
     podman run                                                                 \
            ${user:+--user=${user}}                                             \
            --userns   "keep-id"                                                \
-           --volume   "${PWD}:/host/${PWD#/}"                                  \
+           --volume   "${PWD}:/host/${PWD#/}:ro"                               \
            --workdir  "/host/${PWD#/}"                                         \
            --name     "${name}"                                                \
            --hostname "${name#pet-}"                                           \
