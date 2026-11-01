@@ -1,0 +1,94 @@
+#!/bin/bash
+
+set -euo pipefail
+
+: "${EMACS_SOCKET:=main}"
+
+declare -a IGNORED=(
+    "emacsclient: can't find socket; have you started the server?"
+    'emacsclient: To start the server in Emacs, type "M-x server-start".'
+)
+
+################################################################################
+## Utils
+
+function string-join {
+    local sep
+
+    sep="${1}"
+    case "${#}" in
+        0)                                                                    ;;
+        1) echo "${2}"                                                        ;;
+        *) echo "${2}$(printf "${sep}%s" "${@:3}")"                           ;;
+    esac
+}
+
+################################################################################
+
+function ignore {
+    grep -vE "($(string-join "|" "${@}"))"
+}
+
+function service {
+    local cmd
+
+    cmd="${1}"
+
+    echo -n "${cmd^}ing Emacs ... "
+
+    if systemctl --user "${cmd}" emacs; then
+        echo Done.
+    else
+        echo Failed.
+        return 2
+    fi
+}
+
+function client {
+    exec emacsclient --create-frame                                            \
+         --socket "${EMACS_SOCKET}"                                            \
+         --alternate-editor "${0} --start ${*}"                                \
+         "${@}" 2> >(ignore "${IGNORED[@]}")
+}
+
+################################################################################
+## Main
+
+function usage {
+    cat <<EOM
+Usage: $(basename "${0}") [-h | --help]
+
+  -h, --help      Show this help message.
+      --start-up  Start the ${EMACS_SOCKET} Emacs service.
+EOM
+}
+
+function main {
+    local o name opts long
+    local cmd
+
+    name="$(basename "${0}")"
+    opts="h"
+    long="help,start,restart"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    cmd=""
+    while true; do
+        case "${1}" in
+            -h | --help) usage       ;  exit                                  ;;
+            --start)     cmd=start   ;  shift                                 ;;
+            --restart)   cmd=restart ;  shift                                 ;;
+            -- )         shift       ;  break                                 ;;
+            * )                         break                                 ;;
+        esac
+    done
+
+    if [ -n "${cmd}" ]; then
+        service "${cmd}"
+    fi
+
+    client "${@}"
+}
+
+main "${@}"; exit
