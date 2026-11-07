@@ -167,14 +167,23 @@ function config-expanded {
     query="${1:-}"
     expand='sub("^~/", env(HOME) + "/")'
 
-    config-query " .projects[]       |= ${expand}
-                 | .index[] |= .path |= ${expand}
+    config-query " .projects[]        |= ${expand}
+                 | .index[]  |= .path |= ${expand}
+                 | .output[] |= .path |= ${expand}
                  ${query:+| ${query}}
                  "
 }
 
 function config-index-paths {
     config-expanded '.index[] | .path'
+}
+
+# shellcheck disable=SC2329
+function config-output-emacs-paths {
+    config-expanded ' .output[]
+                    | select(.type == "emacs-project")
+                    | .path
+                    '
 }
 
 function config-index-depth {
@@ -193,16 +202,44 @@ function config-projects {
 }
 
 ################################################################################
+## Output
+
+function output-index {
+    printf '%s\n' "${@}"
+}
+
+function output-index-emacs {
+    local path
+    local -a projects
+
+    path="${1}"
+    projects=( "${@:2}" )
+
+    cat <<-EOM
+	;;; -*- lisp-data -*-
+	(
+	$(printf ' ("%s")\n' "${projects[@]}")
+	)
+	EOM
+}
+
+################################################################################
 ## Commands
 
 function cmd-index {
-    local out
+    local -a projects=()
+    local -a paths=()
 
     mkdir -p "${PROJECT_CACHE_DIR}"
 
-    out="$(find-projects)"
+    mapfile -t projects < <(find-projects); wait $!
 
-    echo "${out}" > "${PROJECT_INDEX}"
+    output-index "${projects[@]}" > "${PROJECT_INDEX}"
+
+    mapfile -t paths < <(config-output-emacs-paths); wait $!
+    for path in "${paths[@]}"; do
+        output-index-emacs "${projects[@]}" > "${path}"
+    done
 
     if [ "${VERBOSE}" = 1 ]; then
         echo "Indexed $(wc -l < "${PROJECT_INDEX}") projects."
@@ -261,13 +298,14 @@ function cmd-debug {
     cmd="${1:-}"
 
     case "${cmd}" in
-        config)              config-query "${@:2}"                            ;;
-        config-index-paths)  config-index-paths                               ;;
-        config-index-depth)  config-index-depth "${@:2}"                      ;;
-        config-projects)     config-projects                                  ;;
-        find)                find-projects                                    ;;
-        '')                  error-usage  "Missing command!"                  ;;
-        *)                   error-usage  "Unknown command: ${cmd} !"         ;;
+        config)                    config-query "${@:2}"                      ;;
+        config-index-paths)        config-index-paths                         ;;
+        config-index-depth)        config-index-depth "${@:2}"                ;;
+        config-output-emacs-paths) config-output-emacs-paths "${@:2}"         ;;
+        config-projects)           config-projects                            ;;
+        find)                      find-projects                              ;;
+        '')                        error-usage  "Missing command!"            ;;
+        *)                         error-usage  "Unknown command: ${cmd} !"   ;;
     esac
 }
 
