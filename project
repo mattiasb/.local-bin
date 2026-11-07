@@ -98,6 +98,14 @@ function task {
 ################################################################################
 ## Helpers
 
+function make-parents {
+    local filepath
+
+    filepath="${1}"
+
+    mkdir -p "$(dirname "${filepath}")"
+}
+
 function find-projects-in-path {
     local path
 
@@ -234,10 +242,12 @@ function cmd-index {
 
     mapfile -t projects < <(find-projects); wait $!
 
+    make-parents "${PROJECT_INDEX}"
     output-index "${projects[@]}" > "${PROJECT_INDEX}"
 
     mapfile -t paths < <(config-output-emacs-paths); wait $!
     for path in "${paths[@]}"; do
+        make-parents "${path}"
         output-index-emacs "${projects[@]}" > "${path}"
     done
 
