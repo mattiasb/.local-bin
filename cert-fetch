@@ -57,7 +57,7 @@ function main {
         error-usage "Missing argument DOMAIN"
     fi
 
-    echo "o Downloading cert from https://${domain}"
+    echo "o Downloading cert from https://${domain}" >&2
     openssl s_client                                                           \
             -showcerts                                                         \
             -servername "${domain}"                                            \
