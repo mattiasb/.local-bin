@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -euo pipefail
+
+################################################################################
+
+function error {
+    echo "ERROR: ${*}" >/dev/stderr
+}
+
+function error-usage {
+    error "${*}"
+    echo
+    usage
+    return 2
+}
+
+################################################################################
+
+function usage {
+    cat <<EOM
+Fetch SSL cert for HTTPS from a domain.
+
+Usage: $(basename "${0}") [-h | --help] <DOMAIN> [PORT]
+
+  -h, --help    Show this help message.
+
+EOM
+}
+
+function main {
+    local domain port
+
+    domain="${1:-}"
+    port="${2:-443}"
+
+    if [ -z "${domain}" ]; then
+        usage-error "Missing argument DOMAIN"
+    fi
+
+    echo "o Downloading cert from https://${domain}"
+    openssl s_client                                                           \
+            -showcerts                                                         \
+            -servername "${domain}"                                            \
+            -connect "${domain}" -port "${port}" 2>/dev/null </dev/null        \
+        | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' \
+        | openssl x509
+}
+
+main "${@}"; exit
