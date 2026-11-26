@@ -29,7 +29,26 @@ EOM
 }
 
 function main {
+    local o name opts long
     local domain port
+
+    name="$(basename "${0}")"
+    opts="h"
+    long="help"
+    o="$(getopt -o "${opts}" -l "${long}" -n "${name}" -- "${@}")"
+    eval set -- "${o}"
+
+    while true; do
+        case "${1}" in
+            -h | --help)
+                usage
+                exit
+                ;;
+
+            -- ) shift; break ;;
+            * ) break ;;
+        esac
+    done
 
     domain="${1:-}"
     port="${2:-443}"
