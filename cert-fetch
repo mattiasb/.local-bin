@@ -35,7 +35,7 @@ function main {
     port="${2:-443}"
 
     if [ -z "${domain}" ]; then
-        usage-error "Missing argument DOMAIN"
+        error-usage "Missing argument DOMAIN"
     fi
 
     echo "o Downloading cert from https://${domain}"
